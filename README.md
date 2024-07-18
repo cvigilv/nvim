@@ -1,6 +1,6 @@
 new neovim config, aiming for:
 
-- 15 external plugins, max
+- 15 external plugins max (not counting lsp and completion things, does require lots of plugins to work properly...)
 - make use of nvim builtins as much as possible
 - extend whatever is crucial
 
