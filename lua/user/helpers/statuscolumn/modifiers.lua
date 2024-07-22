@@ -1,0 +1,3 @@
+---@module 'user.helpers.statuscolumn.modifiers'
+---@author Carlos Vigil-Vásquez
+---@license MIT
