@@ -72,7 +72,8 @@ return {
         },
         render = function(props)
           local c = require("user.helpers.statusline.components")
-          local colors = require("patana.palette")
+          local colors = require("patana.palette").generate_palette()
+
           local palette = {
             focus = {
               fg = colors.norm,
@@ -84,9 +85,10 @@ return {
             },
           }
 
-          -- Component
+          -- Buffer information
           local bufname = vim.api.nvim_buf_get_name(props.buf)
           local filename = bufname ~= "" and vim.fn.fnamemodify(bufname, ":t") or bufname
+
           local extension = vim.fn.fnamemodify(bufname, ":e")
           local icon, _ = require("nvim-web-devicons").get_icon(filename, extension)
           icon = icon or ""
@@ -99,7 +101,7 @@ return {
 
             for _, item in ipairs(list.items) do
               if item.value == vim.fn.expand("%:p:.") then
-                harpooned = "󰛢 "
+                harpooned = " 󰛢 "
                 break
               end
             end
@@ -124,19 +126,18 @@ return {
 
           return {
             { " ", guifg = guifg, guibg = guibg, gui = state },
-            { icon .. " " or "", guifg = guifg, guibg = guibg, gui = state },
+            icon and { icon, guifg = guifg, guibg = guibg, gui = state } or nil,
             { filename, guifg = guifg, guibg = guibg, gui = state },
-            { " ", guifg = guifg, guibg = guibg, gui = state },
-            { status, guifg = guifg, guibg = guibg, gui = state },
-            { harpooned, guifg = guifg, guibg = guibg, gui = state },
+            status and { status, guifg = guifg, guibg = guibg, gui = state } or nil,
+            harpooned and { harpooned, guifg = guifg, guibg = guibg, gui = state } or nil,
             { " ", guifg = guifg, guibg = guibg, gui = state },
           }
         end,
-        hide = { cursorline = false, only_win = true },
+        hide = { cursorline = false, only_win = false },
         ignore = {
           unlisted_buffers = false,
           floating_wins = true,
-          filetypes = { "oil" },
+          filetypes = { "oil", "gitcommit" },
           buftypes = {},
           wintypes = {},
         },
