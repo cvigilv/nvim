@@ -2,7 +2,9 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
--- Set custom color groups for tabline
+vim.g.user_qf_open = false
+
+-- Setup custom colors for statusline
 local setup_statusline_hlgroups = function()
   local hc = require("user.helpers.colors")
 
@@ -22,15 +24,12 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   callback = setup_statusline_hlgroups,
 })
 
--- Setup statusline
-local c = require("user.helpers.statusline")["components"]
-local h = require("user.helpers.statusline")["helpers"]
-local m = require("user.helpers.statusline")["modifiers"]
-local ui = require("user.helpers.statusline")["ui"]
-
 setup_statusline_hlgroups()
 
-vim.g.user_qf_open = false
+-- Setup statusline
+local statusline = require("user.helpers.statusline")
+local c, h, m, ui =
+  statusline.components, statusline.helpers, statusline.modifiers, statusline.ui
 
 _G.statusline = function()
   local components = {
