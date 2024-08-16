@@ -8,17 +8,14 @@ vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
 vim.opt.completeopt = "menu,menuone,noselect" -- Set completeopt to have a better completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.colorcolumn = "96" -- Add ruler so I don't write extremely long lines
-vim.opt.cmdheight = 0 -- Hide command line
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.fileencoding = "UTF-8" -- Character encoding for the file in the buffer
 vim.opt.fillchars = { -- Characters used for UI things
-	eob = " ",
-	fold = "·",
-	foldopen = "",
-	foldsep = "|",
-	foldclose = "",
-	stl = "─",
-	stlnc = "─",
+  eob = " ",
+  fold = " ",
+  foldopen = "",
+  foldsep = "|",
+  foldclose = "",
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
 vim.opt.formatoptions:remove("t") -- Remove inserting new line at `textwidth`
@@ -63,5 +60,3 @@ vim.g.loaded_zipPlugin = 1
 
 -- Providers
 vim.g.python3_host_prog = "python3"
-
--- Quickfix
