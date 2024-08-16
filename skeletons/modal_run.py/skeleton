@@ -1,0 +1,8 @@
+import modal
+
+from modal_log import MODEL_INPUT, MODEL_NAME
+
+if __name__ == "__main__":
+    print(MODEL_NAME)
+    func = modal.Function.lookup(MODEL_NAME, "${cursor}")
+    print(func.remote(MODEL_INPUT))

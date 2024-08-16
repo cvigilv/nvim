@@ -1,0 +1,22 @@
+import modal
+
+MODEL_NAME = "${cursor}"
+MODEL_INPUT = ""
+
+# Modal docker image setup
+app = modal.App(MODEL_NAME)
+PIP_DEPENDENCIES = []
+IMAGE = modal.Image.debian_slim(python_version="3.12").pip_install(*PIP_DEPENDENCIES)
+# SECRETS = [modal.Secret.from_name("my-aws-secret")]
+
+
+# Modal app
+@app.function(image=IMAGE, secrets=SECRETS)
+def f(inputs):
+    # import pkg
+    # return output
+	pass
+
+@app.local_entrypoint()
+def main():
+    print(f.remote(MODEL_INPUT))
