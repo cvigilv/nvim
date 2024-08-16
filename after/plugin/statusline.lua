@@ -119,17 +119,12 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "qf" then
       local components = {
         ui.leftcap(),
-        c.recording_macro(),
+        "    ",
+        "󱖫 ",
         m.important("%t%{exists('w:quickfix_title')? ' '.w:quickfix_title : ''}"),
         ui.align(),
         ui.rightcap(),
       }
-
-      vim.api.nvim_set_option_value(
-        "stl",
-        vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),
-        { scope = "local" }
-      )
 
       vim.api.nvim_set_option_value(
         "stl",
