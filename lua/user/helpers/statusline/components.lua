@@ -54,12 +54,12 @@ end
 --- Get current path of oil buffer
 ---@return string
 M.oil = function()
-  return "%#StatusLineNormal#"
+  return "%#StatusLineNC#"
     .. vim.fn.expand("%:h:h"):gsub("oil://", "")
     .. "/"
-    .. "%#StatusLineImportant#"
+    .. "%#StatusLine#"
     .. vim.fn.expand("%:h:t"):gsub("oil://", "")
-    .. "%#StatusLineNormal#"
+    .. "%#StatusLineNC#"
 end
 
 --- Get filepath relative to Git repo / CWD
@@ -86,7 +86,7 @@ M.filename = function()
   local filename = vim.fn.expand("%:t")
 
   local contents = ""
-  contents = contents .. "%#StatusLineImportant#" .. filename .. "%#StatusLineNormal#"
+  contents = contents .. "%#StatusLine#" .. filename .. "%#StatusLineNC#"
 
   return filename
 end
@@ -159,9 +159,9 @@ M.lsp = function()
 
   -- Return complete list of formatters
   if vim.tbl_count(buf_clients) > 0 then
-    return msg .. vim.fn.join(buf_clients, ",") .. "%#StatusLineNormal#"
+    return msg .. vim.fn.join(buf_clients, ",") .. "%#StatusLineNC#"
   else
-    return msg .. "No LSP"
+    return msg .. "No LSP" .. "%#StatusLineNC#"
   end
 end
 
@@ -199,10 +199,7 @@ M.harpoon = function()
   if #list.items < 5 then
     for idx, item in ipairs(list.items) do
       if item.value == current_file then
-        contents = contents
-          .. "%#StatusLineImportant#"
-          .. harpoon_keys[idx]
-          .. "%#StatusLineNormal#"
+        contents = contents .. "%#StatusLine#" .. harpoon_keys[idx] .. "%#StatusLineNC#"
       else
         contents = contents .. harpoon_keys[idx]
       end
@@ -211,10 +208,7 @@ M.harpoon = function()
     for idx = 1, 4, 1 do
       local item = list.items[idx]
       if item.value == current_file then
-        contents = contents
-          .. "%#StatusLineImportant#"
-          .. harpoon_keys[idx]
-          .. "%#StatusLineNormal#"
+        contents = contents .. "%#StatusLine#" .. harpoon_keys[idx] .. "%#StatusLineNC#"
       else
         contents = contents .. harpoon_keys[idx]
       end

@@ -4,8 +4,8 @@
 
 M = {}
 
-M.leftcap = function() return "%#StatusLineCap#%#StatusLineNormal#" end
-M.rightcap = function() return "%#StatusLineCap#%#StatusLine#" end
+M.leftcap = function() return "%#StatusLineCap#%#StatusLineNC#" end
+M.rightcap = function() return "%#StatusLineCap#%#StatusLineNC#" end
 M.align = function() return "%=" end
 
 return M

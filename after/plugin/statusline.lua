@@ -6,17 +6,11 @@
 local setup_statusline_hlgroups = function()
   local hc = require("user.helpers.colors")
 
-  local colors = {
-    Normal = hc.get_hlgroup_table("TabLineFill"),
-    StatusLine = hc.get_hlgroup_table("StatusLine"),
-    StatusLineNC = hc.get_hlgroup_table("StatusLineNC"),
-  }
-
   local hlgroups = {
-    StatusLineEmpty = { fg = colors.Normal.fg, bg = colors.Normal.bg },
-    StatusLineCap = { fg = colors.Normal.bg, bg = colors.StatusLine.bg },
-    StatusLineNormal = colors.StatusLineNC,
-    StatusLineImportant = vim.tbl_extend("force", colors.StatusLine, { bold = true }),
+    StatusLineCap = {
+      fg = hc.get_hlgroup_table("MsgArea").bg,
+      bg = hc.get_hlgroup_table("StatusLine").bg,
+    },
   }
 
   hc.override_hlgroups(hlgroups)
@@ -33,31 +27,28 @@ local c = require("user.helpers.statusline")["components"]
 local h = require("user.helpers.statusline")["helpers"]
 local m = require("user.helpers.statusline")["modifiers"]
 local ui = require("user.helpers.statusline")["ui"]
--- local pad = require("user.helpers.string")
-
-vim.g.screenkey_statusline_component = false
-vim.g.qf_disable_statusline = true
 
 setup_statusline_hlgroups()
+
+vim.g.user_qf_open = false
 
 _G.statusline = function()
   local components = {
     -- Cap
-    "%#StatusLineEmpty#",
-    ui.align(),
-    ui.leftcap(),
-    -- " ",
+    h.ifttt(vim.g.user_qf_open, "", "%#MsgArea#" .. ui.align() .. ui.leftcap() .. " "),
 
     -- Modal block
+    " ",
     m.important(c.mode()),
+    " ",
     "",
     h.center(c.location(), 7),
     "•",
 
     -- Buffer block
-    -- " ",
+    " ",
     c.harpoon(),
-    -- " ",
+    " ",
     c.fileicon(),
     h.ifttt(vim.b.gitsigns_status_dict, c.filepath(), nil),
     m.important(c.filename()),
@@ -66,9 +57,9 @@ _G.statusline = function()
     -- Git/CWD block
     h.ifttt(vim.b.gitsigns_status_dict, "  ", nil),
     m.important(h.ifttt(vim.b.gitsigns_status_dict, c.gitbranch(), " " .. c.filepath())),
-    -- " ",
+    " ",
     h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus()),
-    -- " ",
+    " ",
 
     -- Misc block
     ui.align(),
@@ -76,19 +67,17 @@ _G.statusline = function()
     ui.align(),
 
     -- LSP block
-    -- " ",
+    " ",
     m.important(c.lsp()),
     h.ifttt(c.diagnostics() ~= "", "  ", nil),
     c.diagnostics(),
-    -- " ",
+    " ",
 
     -- Cap
-    ui.rightcap(),
-    "%#StatusLineEmpty#",
-    ui.align(),
+    h.ifttt(vim.g.user_qf_open, "", ui.rightcap() .. "%#MsgArea#" .. ui.align()),
   }
 
-  return vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), " ")
+  return vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), "")
 end
 
 vim.o.statusline = "%{%v:lua.statusline()%}"
@@ -130,11 +119,9 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   callback = function()
     if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "qf" then
       local components = {
-        " ",
         ui.leftcap(),
         c.recording_macro(),
         m.important("%t%{exists('w:quickfix_title')? ' '.w:quickfix_title : ''}"),
-        " ",
         ui.align(),
         ui.rightcap(),
       }

@@ -14,14 +14,8 @@ vim.cmd.packadd("cfilter")
 local augroup = vim.api.nvim_create_augroup("user::qf", {})
 
 -- Whenever a quickfix window is opened...
-vim.api.nvim_create_autocmd("FileType", {
-	group = augroup,
-	desc = "Setup for quickfix window",
-	pattern = "qf",
-	callback = function()
-		vim.opt.laststatus = 2
-	end,
-})
+vim.opt.laststatus = 2
+vim.g.user_qf_open = true
 
 vim.api.nvim_create_autocmd("WinEnter", {
 	group = augroup,
@@ -61,12 +55,13 @@ vim.api.nvim_create_autocmd("WinEnter", {
 
 -- Whenever a quickfix window is closed...
 vim.api.nvim_create_autocmd("QuitPre", {
-	group = augroup,
-	desc = "Restore setup for quickfix window",
-	callback = function()
-		vim.opt.laststatus = 3
-	end,
-	once = true,
+  group = augroup,
+  desc = "Restore setup for quickfix window",
+  callback = function()
+    vim.opt.laststatus = 3
+    vim.g.user_qf_open = false
+  end,
+  once = true,
 })
 
 -- Automatically quit if quickscope window is the last window
