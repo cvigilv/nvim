@@ -89,7 +89,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   callback = function()
     if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "oil" then
       local components = {
-        "%#StatusLineEmpty#",
+        "%#MsgArea#",
         ui.align(),
         ui.leftcap(),
         " ",
@@ -100,7 +100,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         c.filestatus(),
         " ",
         ui.rightcap(),
-        "%#StatusLineEmpty#",
+        "%#MsgArea#",
         ui.align(),
       }
 
