@@ -5,7 +5,7 @@ return {
   ["docstring"] = {
     before = h.to_md_codeblock,
     after = h.extract_from_md_codeblock,
-    mode = a.insert_contents,
+    action = a.insert_contents,
     prompt = [[
 You are tasked with generating an EmmyLua docstring for a given Lua function. The function code will be provided to you, and you must return only the docstring. Here is the Lua code for which you need to generate a docstring:
 
