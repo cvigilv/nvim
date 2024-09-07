@@ -1,4 +1,10 @@
 return {
+  -- centerpad {{{
+  {
+    "smithbm2316/centerpad.nvim",
+    setup = true,
+  },
+  -- }}}
   -- which-key {{{
   {
     "folke/which-key.nvim",

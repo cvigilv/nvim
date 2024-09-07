@@ -1,8 +1,11 @@
 return {
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
-    config = true,
-    opts = {},
+    config = function()
+      require("claudio").setup({})
+
+      vim.keymap.set("n", "<leader>cc", require("claudio.chat").create_ui, {})
+    end,
   }, -- }}}
   { -- patana {{{
     dir = os.getenv("GITDIR") .. "/patana.nvim",
@@ -13,6 +16,8 @@ return {
       vim.g.patana_secondary_color = "greens"
       vim.g.patana_accent_color = "purples"
       vim.g.patana_colored_statusline = false
+      vim.g.patana_oob_filetypes =
+        { "qf", "help", "lazy", "mason", "ClaudioChat", "ClaudioInput" }
 
       vim.cmd.colorscheme("patana")
 
@@ -50,6 +55,11 @@ return {
   { -- diferente {{{
     dir = os.getenv("GITDIR") .. "/diferente.nvim",
     ft = "gitcommit",
-    config = true,
+    config = function()
+      ---@diagnostic disable-next-line: missing-fields
+      require("diferente").setup({
+        ratio = "auto",
+      })
+    end,
   }, -- }}}
 }
