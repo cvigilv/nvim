@@ -13,7 +13,7 @@ return {
       local wk = require("which-key")
       wk.setup({
         preset = "classic",
-        delay = 50,
+        delay = 150,
         filter = function(mapping) return mapping.desc and mapping.desc ~= "" end,
         spec = {},
         notify = true,
@@ -58,97 +58,23 @@ return {
         { "<leader>z", icon = "", group = "+zettelkasten" },
         { "<leader>l", icon = "󰌘", group = "+lsp" },
         { "<leader>d", icon = "", group = "+diagnostics" },
-        { "<space>f", icon = "󰛢", group = "+harpoon" },
+        { "<space>f", icon = "󰛢 ", group = "+harpoon" },
         { "<leader>s", icon = "󱃖 ", group = "+snippets" },
       })
     end,
   }, --}}}
-  -- incline {{{
+  -- Context {{{
   {
-    "b0o/incline.nvim",
-    event = "VeryLazy",
-    dependencies = "rktjmp/lush.nvim",
+    "nvim-treesitter/nvim-treesitter-context",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      -- Setup `incline`
-      local incline = require("incline")
-      incline.setup({
-        window = {
-          padding = 0,
-          placement = { horizontal = "right", vertical = "top" },
-        },
-        render = function(props)
-          local c = require("user.helpers.statusline.components")
-          local colors = require("patana.palette").generate_palette()
-
-          local palette = {
-            focus = {
-              fg = colors.norm,
-              bg = colors.oob,
-            },
-            unfocus = {
-              fg = colors.comment,
-              bg = colors.oob,
-            },
-          }
-
-          -- Buffer information
-          local bufname = vim.api.nvim_buf_get_name(props.buf)
-          local filename = bufname ~= "" and vim.fn.fnamemodify(bufname, ":t") or bufname
-
-          local extension = vim.fn.fnamemodify(bufname, ":e")
-          local icon, _ = require("nvim-web-devicons").get_icon(filename, extension)
-          icon = icon or ""
-
-          -- FIXME: Harpoon indicator showing in every window of tab, not just the "hooked" one
-          local harpooned = ""
-          local ok, harpoon = pcall(require, "harpoon")
-          if ok then
-            local list = harpoon:list()
-
-            for _, item in ipairs(list.items) do
-              if item.value == vim.fn.expand("%:p:.") then
-                harpooned = " 󰛢 "
-                break
-              end
-            end
-          end
-
-          -- Incline theme
-          local state = nil
-          local guifg = palette.unfocus ~= nil and palette.unfocus.fg
-          local guibg = palette.unfocus ~= nil and palette.unfocus.bg
-
-          if props.focused then
-            state = "bold"
-            guifg = palette.focus ~= nil and palette.focus.fg
-            guibg = palette.focus ~= nil and palette.focus.bg
-          end
-
-          -- File status
-          local status = require("incline.helpers").eval_statusline(
-            c.filestatus() or nil,
-            { winid = props.win, highlights = false }
-          )
-
-          return {
-            { " ", guifg = guifg, guibg = guibg, gui = state },
-            icon and { icon, guifg = guifg, guibg = guibg, gui = state } or nil,
-            { filename, guifg = guifg, guibg = guibg, gui = state },
-            status and { status, guifg = guifg, guibg = guibg, gui = state } or nil,
-            harpooned and { harpooned, guifg = guifg, guibg = guibg, gui = state } or nil,
-            { " ", guifg = guifg, guibg = guibg, gui = state },
-          }
-        end,
-        hide = { cursorline = false, only_win = false },
-        ignore = {
-          unlisted_buffers = false,
-          floating_wins = true,
-          filetypes = { "oil", "gitcommit" },
-          buftypes = {},
-          wintypes = {},
-        },
+      require("treesitter-context").setup({
+        -- separator = "─",
+        line_numbers = true,
+        multiline_threshold = 16,
+        trim_scope = "inner",
+        mode = "topline",
       })
     end,
-  },
-  --}}}
+  }, -- }}}
 }

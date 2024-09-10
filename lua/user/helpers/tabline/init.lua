@@ -2,10 +2,7 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
-local components = require("user.helpers.tabline.components")
-
-M = {
-  components = components,
+return {
+  components = require("user.helpers.tabline.components"),
+  ui = require("user.helpers.tabline.ui"),
 }
-
-return M

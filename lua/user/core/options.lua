@@ -11,11 +11,22 @@ vim.opt.colorcolumn = "96" -- Add ruler so I don't write extremely long lines
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.fileencoding = "UTF-8" -- Character encoding for the file in the buffer
 vim.opt.fillchars = { -- Characters used for UI things
-  eob = " ",
+  -- Window splitting
+  vert = "┃",
+  vertleft = "┫",
+  vertright = "┣",
+  verthoriz = "╋",
+  horiz = "━",
+  horizup = "┻",
+  horizdown = "┳",
+  -- Fold
   fold = " ",
-  foldopen = "",
-  foldsep = "|",
-  foldclose = "",
+  foldopen = "▾",
+  foldsep = "│",
+  foldclose = "▸",
+  -- Other
+  diff = "~",
+  eob = " ",
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
 vim.opt.formatoptions:remove("t") -- Remove inserting new line at `textwidth`

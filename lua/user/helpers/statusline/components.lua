@@ -183,7 +183,7 @@ end
 
 --- Generates a small Harpoon cheat for easier navigation
 ---@return string|nil
-M.harpoon = function()
+M.harpoon_cheat = function()
   if vim.bo.buftype ~= "" then return end -- not a normal buffer, no harpoon status
 
   local ok, harpoon = pcall(require, "harpoon")
@@ -238,7 +238,13 @@ M.filestatus = function() return "%m%r%w%h%q" end
 
 --- Get position of cursor in current buffer
 ---@return string Cursor location
-M.location = function() return vim.fn.join(vim.api.nvim_win_get_cursor(0), ",") end
+M.location = function()
+  local position = vim.api.nvim_win_get_cursor(0)
+  local row = position[1]
+  local col = position[2]
+
+  return "L" .. row .. ":C" .. col
+end
 
 --- Retrieves the current recording macro register.
 -- If no macro is being recorded, returns an empty string.

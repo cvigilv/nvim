@@ -2,9 +2,12 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
-vim.g.user_qf_open = false
+-- PHILOSOPHY: The `statusline` is meant to display status information pertinent to the
+-- currently focused file/buffer. This information comes from current mode, diagnostics, LSP,
+-- Git, etc.
 
--- Setup custom colors for statusline
+---Setup custom colors for statusline
+---@return nil
 local setup_statusline_hlgroups = function()
   local hc = require("user.helpers.colors")
 
@@ -27,9 +30,12 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 setup_statusline_hlgroups()
 
 -- Setup statusline
-local statusline = require("user.helpers.statusline")
-local c, h, m, ui =
-  statusline.components, statusline.helpers, statusline.modifiers, statusline.ui
+local c = require("user.helpers.statusline.components")
+local h = require("user.helpers.statusline.helpers")
+local m = require("user.helpers.statusline.modifiers")
+local ui = require("user.helpers.statusline.ui")
+
+vim.g.user_qf_open = false
 
 _G.statusline = function()
   local components = {
@@ -39,14 +45,10 @@ _G.statusline = function()
     -- Modal block
     " ",
     m.important(c.mode()),
-    " ",
-    "",
-    h.center(c.location(), 7),
-    "•",
 
     -- Buffer block
     " ",
-    c.harpoon(),
+    c.harpoon_cheat(),
     " ",
     c.fileicon(),
     h.ifttt(vim.b.gitsigns_status_dict, c.filepath(), nil),

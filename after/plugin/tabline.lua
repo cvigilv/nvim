@@ -2,6 +2,11 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
+-- PHILOSOPHY: The `tabline` is meant to display information pertinent to the different
+-- "workspaces" one has open in the current instance of Neovim. Here we just showcase the
+-- currently focused file/buffer, the number of additional windows open in this tab and
+-- if the current tab has any kind of status change.
+
 -- Set custom color groups for tabline
 local setup_tabline_hlgroups = function()
   local hc = require("user.helpers.colors")
@@ -66,6 +71,7 @@ _G.tabline = function()
 
     local tab_has_status = false
     for _, bnr in ipairs(buflist) do
+      --TODO: Add LSP status also (just ERROR or WARNING level though)
       if vim.fn.getbufvar(bnr, "&mod") == 1 then
         tab_has_status = true
         break

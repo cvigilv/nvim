@@ -4,6 +4,8 @@
 
 M = {}
 
+---Table of icons for tab indexing with nested boolean states.
+---@type table<number|string, table<boolean, string>>
 M.index_icons = {
   [1] = { [false] = "󰲡 ", [true] = "󰲠 " },
   [2] = { [false] = "󰲣 ", [true] = "󰲢 " },
