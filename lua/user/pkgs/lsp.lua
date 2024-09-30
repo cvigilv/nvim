@@ -1,272 +1,8 @@
 return {
-  { -- LSP Configuration & Plugins{{{
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      { "williamboman/mason.nvim", config = true }, -- NOTE: Must be loaded before dependants
-      "williamboman/mason-lspconfig.nvim",
-      "WhoIsSethDaniel/mason-tool-installer.nvim",
-      { "j-hui/fidget.nvim", opts = {} },
-      "nvim-telescope/telescope.nvim",
-      { "folke/lazydev.nvim", ft = "lua", config = true },
-    },
-    config = function()
-      -- LspAttach
-      local augroup = vim.api.nvim_create_augroup("user::lsp", { clear = true })
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = augroup,
-        callback = function(event)
-          -- Keymaps
-          local map = function(keys, func, desc)
-            vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
-          end
-
-          map("K", vim.lsp.buf.hover, "Hover Documentation")
-          map("gd", vim.lsp.buf.definition, "Go to definition")
-          map("gr", vim.lsp.buf.references, "Go to references")
-          map("gD", vim.lsp.buf.declaration, "Go to Declaration")
-          map("<leader>li", vim.lsp.buf.implementation, "Go to implementation")
-          map("<leader>lt", vim.lsp.buf.type_definition, "Go to type definition")
-          map("<leader>ls", vim.lsp.buf.document_symbol, "Document symbols")
-          map("<leader>lS", vim.lsp.buf.workspace_symbol, "Workspace symbols")
-          map("<leader>la", vim.lsp.buf.code_action, "Code action")
-          map("<leader>lr", vim.lsp.buf.rename, "Rename")
-
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-            map(
-              "<leader>lh",
-              ---@diagnostic disable-next-line: missing-parameter
-              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
-              "Toggle Inlay Hints"
-            )
-          end
-        end,
-      })
-
-      -- Capabilities
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend(
-        "force",
-        capabilities,
-        require("cmp_nvim_lsp").default_capabilities()
-      )
-      local servers = {
-        ["lua_ls"] = {
-          settings = {
-            Lua = {
-              completion = { callSnippet = "Replace" },
-              format = { enable = false }, -- Using stylua for formatting.
-              hint = {
-                enable = true,
-                arrayIndex = "Disable",
-              },
-              telemetry = { enable = false },
-              workspace = { checkThirdParty = false },
-            },
-          },
-        },
-
-        ["julia-lsp"] = {
-          on_new_config = function(new_config, _)
-            local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
-            if require("lspconfig").util.path.is_file(julia) then new_config.cmd[1] = julia end
-          end,
-          root_dir = function(fname)
-            local util = require("lspconfig.util")
-            return util.root_pattern("Project.toml")(fname)
-              or util.find_git_ancestor(fname)
-              or util.path.dirname(fname)
-          end,
-        },
-
-        ["pyright"] = {
-          settings = {
-            pyright = {
-              disableOrganizeImports = true, -- Using Ruff
-            },
-            python = {
-              analysis = {
-                ignore = { "*" }, -- Using Ruff
-                typeCheckingMode = "off", -- Using mypy
-              },
-            },
-          },
-        },
-
-        ["bashls"] = {},
-        ["typst-lsp"] = {},
-        ["marksman"] = {},
-      }
-
-      -- Mason
-      require("mason").setup()
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        "stylua",
-      })
-      require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-      require("mason-lspconfig").setup({
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities =
-              vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-            require("lspconfig")[server_name].setup(server)
-          end,
-        },
-      })
-    end,
-  }, -- }}}
-  { -- Autoformat{{{
-    "stevearc/conform.nvim",
-    event = "VeryLazy",
-    config = function()
-      local conform = require("conform")
-
-      --- Global options
-      vim.o.formatexpr = [[v:lua.require('conform').formatexpr()]]
-
-      --- Setup
-      conform.setup({
-        formatters_by_ft = {
-          ["*"] = { "trim_whitespace", "trim_newlines" },
-          json = { "jq" },
-          lua = { "stylua" },
-          markdown = { "injected" },
-          python = { "ruff_fix", "ruff_format" },
-          sh = { "shfmt" },
-          bib = { "bibtex-tidy" },
-          typst = { "typstfmt" },
-        },
-        format_on_save = function(bufnr)
-          local format_options = { timeout_ms = 100, quiet = true, lsp_fallback = false }
-          if vim.bo[bufnr].filetype == "markdown" then
-            format_options = vim.tbl_extend(
-              "keep",
-              format_options,
-              { formatters = { "injected", "trim_whitespace" } }
-            )
-          end
-          return format_options
-        end,
-        notify_on_error = false,
-      })
-
-      vim.keymap.set(
-        "n",
-        "<leader>lf",
-        function() require("conform").format({ async = true, lsp_fallback = true }) end,
-        { desc = "Format buffer" }
-      )
-    end,
-  }, -- }}}
-  { -- Autocompletion{{{
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
-    dependencies = {
-      {
-        "L3MON4D3/LuaSnip",
-        build = (function()
-          if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then return end
-          return "make install_jsregexp"
-        end)(),
-        dependencies = {},
-      },
-      "saadparwaiz1/cmp_luasnip",
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-path",
-      "hrsh7th/cmp-omni",
-      "hrsh7th/cmp-cmdline",
-      "hrsh7th/cmp-buffer",
-    },
-    config = function()
-      local cmp = require("cmp")
-      local luasnip = require("luasnip")
-      luasnip.config.setup({})
-
-      cmp.setup({
-        snippet = {
-          expand = function(args) luasnip.lsp_expand(args.body) end,
-        },
-        completion = { completeopt = "menu,menuone,noinsert" },
-        mapping = cmp.mapping.preset.insert({
-          ["<C-n>"] = cmp.mapping.select_next_item(),
-          ["<C-p>"] = cmp.mapping.select_prev_item(),
-          ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-u>"] = cmp.mapping.scroll_docs(4),
-          ["<C-y>"] = cmp.mapping(
-            cmp.mapping.confirm({
-              behavior = cmp.ConfirmBehavior.Insert,
-              select = true,
-            }),
-            { "i", "c" }
-          ),
-          ["<C-Space>"] = cmp.mapping.complete({}),
-          ["<C-l>"] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then luasnip.expand_or_jump() end
-          end, { "i", "s" }),
-          ["<C-h>"] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then luasnip.jump(-1) end
-          end, { "i", "s" }),
-        }),
-        sources = {
-          { name = "lazydev" },
-          { name = "luasnip" },
-          { name = "nvim_lsp" },
-          { name = "omni" },
-          { name = "path" },
-          { name = "buffer" },
-        },
-      })
-    end,
-  }, -- }}}
-  { -- Snippet {{{
-    "chrisgrieser/nvim-scissors",
-    dependencies = { "nvim-telescope/telescope.nvim", "L3MON4D3/LuaSnip" },
-    keys = { "<leader>sa", "<leader>se" },
-    config = function()
-      -- Setup
-      require("scissors").setup({
-        snippetDir = vim.fn.stdpath("config") .. "/snippets",
-        editSnippetPopup = {
-          height = 0.3,
-          width = 0.6,
-          border = { "🭽", "▔", "🭾", "▕", "🭿", "▁", "🭼", "▏" },
-          keymaps = {
-            cancel = "<Esc>",
-            saveChanges = "<CR>",
-            goBackToSearch = "<BS>",
-            deleteSnippet = "<C-BS>",
-            duplicateSnippet = "<C-d>",
-            openInFile = "<C-o>",
-            insertNextPlaceholder = "<C-p>",
-          },
-        },
-        backdrop = { enabled = true, blend = 50 },
-        telescope = { alsoSearchSnippetBody = true },
-        jsonFormatter = "jq",
-      })
-
-      -- Keymaps
-      vim.keymap.set(
-        "n",
-        "<leader>se",
-        function() require("scissors").editSnippet() end,
-        { desc = "Edit snippet" }
-      )
-      vim.keymap.set(
-        { "n", "x" },
-        "<leader>sa",
-        function() require("scissors").addNewSnippet() end,
-        { desc = "Add snippet" }
-      )
-    end,
-  }, --}}}
   { -- Documentation generation {{{
     "danymat/neogen",
     dependencies = { "nvim-treesitter/nvim-treesitter", "L3MON4D3/LuaSnip" },
-    keymaps = { "<Leader>ld", "<Leader>lD" },
+    keys = { "<Leader>ld", "<Leader>lD" },
     config = function()
       local neogen = require("neogen")
 
@@ -304,4 +40,255 @@ return {
       )
     end,
   }, -- }}}
+  { -- LSP & Co. {{{
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      -- LSP
+      { "williamboman/mason.nvim", config = true }, -- LSP installer
+      { "folke/lazydev.nvim", ft = "lua", config = true }, -- Neovim development
+      { "j-hui/fidget.nvim", config = true }, -- UI extras
+
+      -- Installers
+      "williamboman/mason-lspconfig.nvim", -- LSP-installer compatibility layer
+      "WhoIsSethDaniel/mason-tool-installer.nvim", -- Tool installer
+
+      -- Tool managers
+      "stevearc/conform.nvim", -- Formatting
+      "mfussenegger/nvim-lint", -- Linting
+    },
+
+    config = function()
+      ---Extracts tool names from a table of language configurations.
+      ---@param langs table Table of language configurations
+      ---@param entry string Key to access the tool name in each language configuration
+      ---@return table tools List of extracted tool names
+      local function get_tool_names(langs, entry)
+        local tools = {}
+
+        for _, v in pairs(langs) do
+          table.insert(tools, (type(v[entry]) == "table") and v[entry][1] or v[entry])
+        end
+
+        return tools
+      end
+
+      ---@class User.LanguageTooling
+      ---@field filetype string Filetype
+      ---@field filetype.lsp string|table|nil LSP name (and configuration)
+      ---@field filetype.formatter string|nil Filetype formatter
+      ---@field filetype.linter string|nil Filetype linter
+      local languages = { -- {{{
+        bib = { lsp = nil, formatter = "bibtex-tidy", linter = nil },
+        json = { lsp = "jsonls", formatter = "jq", linter = nil },
+        julia = {
+          lsp = {
+            "julials",
+            {
+              on_new_config = function(new_config, _)
+                local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
+                if require("lspconfig").util.path.is_file(julia) then
+                  new_config.cmd[1] = julia
+                end
+              end,
+              root_dir = function(fname)
+                local util = require("lspconfig.util")
+                return util.root_pattern("Project.toml")(fname)
+                  or util.find_git_ancestor(fname)
+                  or util.path.dirname(fname)
+              end,
+              capabilities = (function()
+                local cap = vim.lsp.protocol.make_client_capabilities()
+                cap.textDocument.completion.completionItem.snippetSupport = true
+                cap.textDocument.completion.completionItem.preselectSupport = true
+                cap.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
+                cap.textDocument.completion.completionItem.deprecatedSupport = true
+                cap.textDocument.completion.completionItem.insertReplaceSupport = true
+                cap.textDocument.completion.completionItem.labelDetailsSupport = true
+                cap.textDocument.completion.completionItem.commitCharactersSupport = true
+                cap.textDocument.completion.completionItem.resolveSupport = {
+                  properties = { "documentation", "detail", "additionalTextEdits" },
+                }
+                cap.textDocument.completion.completionItem.documentationFormat = { "markdown" }
+                cap.textDocument.codeAction = {
+                  dynamicRegistration = true,
+                  codeActionLiteralSupport = {
+                    codeActionKind = {
+                      valueSet = (function()
+                        local res = vim.tbl_values(vim.lsp.protocol.CodeActionKind)
+                        table.sort(res)
+                        return res
+                      end)(),
+                    },
+                  },
+                }
+
+                return cap
+              end)(),
+              settings = {
+                julia = {
+                  symbolCacheDownload = true,
+                  lint = {
+                    missingrefs = "all",
+                    iter = true,
+                    lazy = true,
+                    modname = true,
+                  },
+                },
+              },
+            },
+          },
+          formatter = nil,
+          linter = nil,
+        },
+        lua = {
+          lsp = {
+            "lua_ls",
+            {
+              settings = {
+                Lua = {
+                  runtime = { version = "LuaJIT" },
+                  completion = { callSnippet = "Replace" },
+                  format = { enable = false },
+                  hint = {
+                    enable = true,
+                    arrayIndex = "Disable",
+                  },
+                  telemetry = { enable = false },
+                  workspace = {
+                    checkThirdParty = false,
+                    library = { vim.env.VIMRUNTIME },
+                    -- library = vim.api.nvim_get_runtime_file("", true),
+                  },
+                },
+              },
+            },
+          },
+          formatter = "stylua",
+          linter = "luacheck",
+        },
+        markdown = {
+          lsp = "marksman",
+          formatter = nil,
+          linter = nil,
+        },
+        python = {
+          lsp = {
+            "pyright",
+            {
+              settings = {
+                pyright = {
+                  disableOrganizeImports = true,
+                },
+                python = {
+                  analysis = {
+                    ignore = { "*" }, -- Using Ruff
+                    typeCheckingMode = "off", -- Using mypy
+                  },
+                },
+              },
+            },
+          },
+          formatter = "ruff",
+          linter = nil,
+        },
+        sh = { lsp = "bashls", formatter = "shfmt", linter = "shellcheck" },
+        typst = { lsp = "typst_lsp", formatter = "typstfmt", linter = nil },
+      } -- }}}
+
+      -- Setup tools
+      local conform = require("conform")
+      local lint = require("lint")
+
+      -- Initialize
+      require("mason-lspconfig").setup({ ensure_installed = get_tool_names(languages, "lsp") })
+      require("mason-tool-installer").setup({
+        ensure_installed = vim.tbl_extend(
+          "force",
+          get_tool_names(languages, "linter"),
+          get_tool_names(languages, "formatter")
+        ),
+      })
+      lint.linters_by_ft = {}
+
+      for ft, setup in pairs(languages) do
+        -- LSP
+        if setup.lsp ~= nil then
+          -- Get capabilities
+          local name = (type(setup.lsp) == "table") and setup.lsp[1] or setup.lsp
+          local user_setup = (type(setup.lsp) == "table") and setup.lsp[2] or {}
+
+          local capabilities = vim.tbl_deep_extend(
+            "force",
+            {},
+            vim.lsp.protocol.make_client_capabilities(),
+            require("cmp_nvim_lsp").default_capabilities(),
+            user_setup
+          )
+
+          require("lspconfig")[name].setup(capabilities)
+        end
+
+        -- Formatting
+        local formatters = { "trim_whitespace", "trim_newlines", "injected" }
+        table.insert(formatters, setup.formatter)
+
+        conform.setup({
+          formatters_by_ft = { [ft] = formatters },
+          format_on_save = function()
+            return { timeout_ms = 100, quiet = true, lsp_fallback = setup.formatter ~= nil }
+          end,
+          notify_on_error = true,
+        })
+
+        -- Linting
+        if setup.linter then table.insert(lint.linters_by_ft, { [ft] = setup.linter }) end
+      end
+
+      -- Autocommands
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("user::lsp", { clear = true }),
+        callback = function(event)
+          -- Keymaps
+          local map = function(keys, func, desc)
+            vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
+          end
+
+          map("K", vim.lsp.buf.hover, "Hover Documentation")
+          map("gd", vim.lsp.buf.definition, "Go to definition")
+          map("gr", vim.lsp.buf.references, "Go to references")
+          map("gD", vim.lsp.buf.declaration, "Go to Declaration")
+          map("<leader>li", vim.lsp.buf.implementation, "Go to implementation")
+          map("<leader>lt", vim.lsp.buf.type_definition, "Go to type definition")
+          map("<leader>ls", vim.lsp.buf.document_symbol, "Document symbols")
+          map("<leader>lS", vim.lsp.buf.workspace_symbol, "Workspace symbols")
+          map("<leader>la", vim.lsp.buf.code_action, "Code action")
+          map("<leader>lr", vim.lsp.buf.rename, "Rename")
+
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+            vim.lsp.inlay_hint.enable()
+            map(
+              "<leader>lh",
+              ---@diagnostic disable-next-line: missing-parameter
+              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+              "Toggle Inlay Hints"
+            )
+          end
+        end,
+      })
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+        pattern = "*",
+        callback = function() require("lint").try_lint() end,
+      })
+
+      -- Keymaps
+      vim.keymap.set(
+        "n",
+        "<leader>lf",
+        function() require("conform").format({ async = true }) end,
+        { desc = "Format buffer" }
+      )
+    end,
+  }, -- }}}a
 }
