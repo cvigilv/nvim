@@ -1,0 +1,1 @@
+/Users/carlosvigil/.config/nvim/skeletons/protera/modal_log.py/skeleton
