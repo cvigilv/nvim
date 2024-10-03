@@ -1,1 +1,0 @@
-/Users/carlosvigil/.config/nvim/skeletons/protera/modal_run.py/skeleton

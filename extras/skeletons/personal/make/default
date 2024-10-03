@@ -1,0 +1,31 @@
+ENV=
+FORMATTER=
+LINTER=
+TESTER=
+
+.PHONY: setup venv lint format precommit test upload run clean help
+
+help: ## Print this message
+	@echo "usage: make [target] ..."
+	@echo ""
+	@echo "Available targets:"
+	@grep --no-filename "##" $(MAKEFILE_LIST) | \
+		grep --invert-match $$'\t' | \
+		sed -e "s/\(.*\):.*## \(.*\)/ - \1:  \t\2/"
+
+env: ## Setup env
+	...
+
+lint: ## Lint project codebase
+	$(ENV); $(LINTER) .
+
+format: ## Format project codebase
+	$(ENV); $(FORMATTER) .
+
+precommit: lint format ## Prepare codebase for commiting changes to GitHub
+
+test: ## Test project codebase covered in `tests/`
+	$(ENV); $(TESTER) .
+
+clean: ## Remove virtualenv
+	rm -rf $(ENV)
