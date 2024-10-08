@@ -230,7 +230,13 @@ return {
 
         -- Formatting
         local formatters = { "trim_whitespace", "trim_newlines", "injected" }
-        table.insert(formatters, setup.formatter)
+
+        --HACK: Freaking ruff_format
+        if setup.formatter == "ruff" then
+          table.insert(formatters, "ruff_format")
+        else
+          table.insert(formatters, setup.formatter)
+        end
 
         conform.setup({
           formatters_by_ft = { [ft] = formatters },
