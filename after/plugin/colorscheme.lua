@@ -42,6 +42,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       Label = { link = "Statement" },
       Keyword = { link = "Statement" },
       Exception = { link = "Statement" },
+      Folded = { bg = c.Normal.bg },
 
       Added = { fg = c.Normal.fg, bg = "#BCCE95" },
       GitSignsAdd = vim.tbl_extend("force", c.Added, { bg = "#BCCE95" }),
