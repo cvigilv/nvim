@@ -26,6 +26,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     }
 
     c_helper.override_hlgroups({
+      Constant = vim.tbl_extend("force", c.Constant, { reverse = true, bold = true }),
       MsgArea = { bg = "#FFFDF9" },
       TabLine = { bg = c.StatusLine.fg },
       TabLineSel = { bg = c.StatusLineNC.fg },
