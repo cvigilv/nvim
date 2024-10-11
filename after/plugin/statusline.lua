@@ -70,6 +70,7 @@ _G.statusline = function()
     -- LSP block
     " ",
     m.important(c.lsp()),
+    c.env(),
     h.ifttt(c.diagnostics() ~= "", "  ", nil),
     c.diagnostics(),
     " ",

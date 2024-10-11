@@ -11,11 +11,11 @@ M.setup_winbar_hlgroups = function()
 
     local hlgroups = {
       WinBarOOB = {
-        fg = hc.get_hlgroup_table("Normal").fg,
+        fg = hc.get_hlgroup_table("Comment").fg,
         bg = hc.get_hlgroup_table("TabLineFill").bg,
       },
       WinBarOOBBold = {
-        fg = hc.get_hlgroup_table("Normal").fg,
+        fg = hc.get_hlgroup_table("Comment").fg,
         bg = hc.get_hlgroup_table("TabLineFill").bg,
         bold = true,
       },

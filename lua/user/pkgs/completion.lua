@@ -164,7 +164,7 @@ return {
     config = function()
       -- Setup
       require("scissors").setup({
-        snippetDir = vim.fn.stdpath("config") .. "/snippets",
+        snippetDir = vim.fn.stdpath("config") .. "/extras/snippets",
         editSnippetPopup = {
           height = 0.3,
           width = 0.6,

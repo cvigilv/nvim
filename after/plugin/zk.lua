@@ -7,11 +7,6 @@
 local zk = vim.fn.expand(os.getenv("ZETTELDIR"))
 local media = vim.fn.expand(zk .. "/meta/media")
 
--- Telescope searchers
-local finders = require("telescope.finders")
-local pickers = require("telescope.pickers")
-local conf = require("telescope.config").values
-
 local zk_theme = function(opts)
   opts = opts or {}
 
@@ -68,6 +63,10 @@ local search_headings = function()
   end
 
   -- Setup Telescope picker
+  local finders = require("telescope.finders")
+  local pickers = require("telescope.pickers")
+  local conf = require("telescope.config").values
+
   local opts = zk_theme({
     finder = finders.new_table({
       results = titles,

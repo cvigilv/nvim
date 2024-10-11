@@ -2,44 +2,32 @@ return {
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
     config = function()
-      require("claudio").setup({})
+      ---@diagnostic disable-next-line: missing-fields
+      require("claudio").setup({
+        ---@diagnostic disable-next-line: missing-fields
+        tools = {
+          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools",
+        },
+      })
 
-      vim.keymap.set("n", "<leader>cc", require("claudio.chat").create_ui, {})
+      vim.keymap.set("n", "<leader>cc", ":ClaudioChat<CR>", {})
     end,
   }, -- }}}
   { -- patana {{{
     dir = os.getenv("GITDIR") .. "/patana.nvim",
-    priority = 1000,
-    config = function()
-      -- Setup colorscheme
-      vim.g.patana_primary_color = "oranges"
-      vim.g.patana_secondary_color = "greens"
-      vim.g.patana_accent_color = "purples"
-      vim.g.patana_colored_statusline = false
-      vim.g.patana_oob_filetypes =
-        { "qf", "help", "lazy", "mason", "ClaudioChat", "ClaudioInput" }
-
-      vim.cmd.colorscheme("patana")
-
-      -- Set background based on current time
-      local current_hr = tonumber(os.date("%H", os.time()))
-      if current_hr > 6 and current_hr < 18 then
-        vim.cmd("set bg=light")
-      else
-        vim.cmd("set bg=dark")
-      end
-    end,
   }, -- }}}
   { -- esqueleto {{{
     dir = os.getenv("GITDIR") .. "/esqueleto.nvim",
     enabled = true,
-    dependencies = { "nvim-telescope/telescope.nvim" },
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require("esqueleto").setup({
+        -- selector = require("esqueleto.selectors.telescope"),
         autouse = false,
-        directories = { vim.fn.stdpath("config") .. "/skeletons" },
-        patterns = vim.fn.readdir(vim.fn.stdpath("config") .. "/skeletons"),
+        directories = {
+          vim.fn.stdpath("config") .. "/extras/skeletons/protera",
+          vim.fn.stdpath("config") .. "/extras/skeletons/personal",
+        },
         wildcards = {
           expand = true,
           lookup = {
@@ -48,6 +36,10 @@ return {
             ["zk-month"] = function() return string.sub(vim.fn.expand("%:t:r"), 5, 6) end,
             ["zk-day"] = function() return string.sub(vim.fn.expand("%:t:r"), 7, 8) end,
           },
+        },
+        ---@diagnostic disable-next-line: missing-fields
+        advanced = {
+          ignored = { "^/private/*" },
         },
       })
     end,

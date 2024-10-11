@@ -78,12 +78,12 @@ return {
   {
     "echasnovski/mini.ai",
     config = true,
-    lazy = "VeryLazy",
+    -- lazy = "VeryLazy",
   },
   {
     "echasnovski/mini.align",
     config = true,
-    keys = { "ga", "gA" },
+    -- keys = { "ga", "gA" },
   },
 
   {
@@ -136,31 +136,39 @@ return {
   },
   {
     "echasnovski/mini.indentscope",
-    enabled = false,
+    enabled = true,
     config = function()
       require("mini.indentscope").setup({
         draw = {
-          delay = 0,
-          animation = require("mini.indentscope").gen_animation.none(),
+          delay = 100,
           priority = 2,
+          animation = function(s, n) return s / n * 20 end,
         },
-        mappings = {
-          -- Textobjects
-          object_scope = "",
-          object_scope_with_border = "",
-          goto_top = "",
-          goto_bottom = "",
-        },
-        options = {
-          border = "both",
-          indent_at_cursor = true,
-          try_as_border = false,
-        },
-
-        -- Which character to use for drawing scope indicator
-        symbol = "╎",
       })
     end,
+    --   require("mini.indentscope").setup({
+    --     draw = {
+    --       delay = 0,
+    --       animation = require("mini.indentscope").gen_animation.none(),
+    --       priority = 2,
+    --     },
+    --     mappings = {
+    --       -- Textobjects
+    --       object_scope = "",
+    --       object_scope_with_border = "",
+    --       goto_top = "",
+    --       goto_bottom = "",
+    --     },
+    --     options = {
+    --       border = "both",
+    --       indent_at_cursor = true,
+    --       try_as_border = false,
+    --     },
+    --
+    --     -- Which character to use for drawing scope indicator
+    --     symbol = "╎",
+    --   })
+    -- end,
     event = "VeryLazy",
   },
   {
@@ -202,6 +210,7 @@ return {
           perf = { pattern = "%f[%w]()PERF()%f[%W]", group = "MiniHipatternsHack" },
           todo = { pattern = "%f[%w]()TODO()%f[%W]", group = "MiniHipatternsTodo" },
           note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
+          philosophy = { pattern = "%f[%w]()PHILOSOPHY()%f[%W]", group = "MiniHipatternsNote" },
 
           -- Highlight hex color strings (`#rrggbb`) using that color
           hex_color = require("mini.hipatterns").gen_highlighter.hex_color(),

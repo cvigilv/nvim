@@ -2,6 +2,7 @@ vim.g.mapleader = ","
 
 -- General configuration
 vim.opt.autochdir = false -- Don't change current working directory to wherever is the file
+vim.opt.autoread = true -- Update files that change by external processes
 vim.opt.backup = false -- Don't create backup files
 vim.opt.background = "light" -- Use light background by default
 vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
@@ -19,6 +20,7 @@ vim.opt.fillchars = { -- Characters used for UI things
   horiz = "━",
   horizup = "┻",
   horizdown = "┳",
+
   -- Fold
   fold = " ",
   foldopen = "▾",
@@ -52,7 +54,7 @@ vim.opt.tabstop = 4 -- Tab of size equal to 4 spaces
 vim.opt.termguicolors = true -- Use GUI colors
 vim.opt.textwidth = 0 -- Infinite text width by default
 vim.opt.timeoutlen = 250 -- Amount of time to wait for mapped sequence to complete
-vim.opt.undodir = os.getenv("HOME") .. "/.config/nvim/undodir" -- Store undo files here
+vim.opt.undodir = os.getenv("HOME") .. "/.config/nvim/extras/undodir" -- Store undo files here
 vim.opt.undofile = true -- Create undo files for undo-tree
 vim.opt.wildmode = "longest,list,full" -- Completion mode used to showcase options
 vim.opt.wrap = false -- Don't wrap text

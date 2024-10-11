@@ -1,6 +1,13 @@
 return {
   { -- Navigator {{{
     "numToStr/Navigator.nvim",
+    keys = {
+      "<C-h>",
+      "<C-k>",
+      "<C-l>",
+      "<C-j>",
+      "<C-p>",
+    },
     config = function()
       require("Navigator").setup({
         auto_save = nil,
@@ -153,18 +160,19 @@ return {
   { -- telescope {{{
     "nvim-telescope/telescope.nvim",
     dependencies = "nvim-lua/plenary.nvim",
-    cmd = "Telescope",
-    keys = {
-      "<leader>ff",
-      "<leader>fs",
-      "<leader>fw",
-      "<leader>fW",
-      "<leader>fb",
-      "<leader>fd",
-      "<leader>f?",
-      "<leader>fz",
-      "<leader>fZ",
-    },
+    -- cmd = "Telescope",
+    -- keys = {
+    --   "<leader>ff",
+    --   "<leader>fs",
+    --   "<leader>fw",
+    --   "<leader>fW",
+    --   "<leader>fb",
+    --   "<leader>fd",
+    --   "<leader>fh",
+    --   "<leader>f?",
+    --   "<leader>fz",
+    --   "<leader>fZ",
+    -- },
     config = function()
       local previewers = require("telescope.previewers")
       local Job = require("plenary.job")

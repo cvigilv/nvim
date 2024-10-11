@@ -145,7 +145,7 @@ M.lsp = function()
   ---@diagnostic disable-next-line: deprecated
   local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
   ---@diagnostic disable-next-line: deprecated
-  local clients = vim.lsp.get_active_clients()
+  local clients = vim.lsp.get_clients()
 
   -- Return non-"null-ls" servers
   local buf_clients = {}
@@ -162,6 +162,85 @@ M.lsp = function()
     return msg .. vim.fn.join(buf_clients, ",") .. "%#StatusLineNC#"
   else
     return msg .. "No LSP" .. "%#StatusLineNC#"
+  end
+end
+
+M.env = function()
+  local function getMutualPath(path1, path2)
+    -- Split paths into components
+    local function splitPath(path)
+      local components = {}
+      for component in path:gmatch("[^/\\]+") do
+        table.insert(components, component)
+      end
+      return components
+    end
+
+    local components1 = splitPath(path1)
+    local components2 = splitPath(path2)
+
+    -- Find common components
+    local commonComponents = {}
+    local minLength = math.min(#components1, #components2)
+
+    for i = 1, minLength do
+      if components1[i] == components2[i] then
+        table.insert(commonComponents, components1[i])
+      else
+        break
+      end
+    end
+
+    -- Reconstruct mutual path
+    return table.concat(commonComponents, "/")
+  end
+
+  local function get_relative_path(from_path, to_path)
+    -- Normalize paths (replace backslashes with forward slashes)
+    from_path = from_path:gsub("\\", "/")
+    to_path = to_path:gsub("\\", "/")
+
+    -- Split paths into segments
+    local from_segments = {}
+    for segment in from_path:gmatch("[^/]+") do
+      table.insert(from_segments, segment)
+    end
+
+    local to_segments = {}
+    for segment in to_path:gmatch("[^/]+") do
+      table.insert(to_segments, segment)
+    end
+
+    -- Find common prefix
+    local common_length = 0
+    for i = 1, math.min(#from_segments, #to_segments) do
+      if from_segments[i] ~= to_segments[i] then break end
+      common_length = i
+    end
+
+    -- Build relative path
+    local relative_path = {}
+    for i = common_length + 1, #from_segments do
+      table.insert(relative_path, "..")
+    end
+    for i = common_length + 1, #to_segments do
+      table.insert(relative_path, to_segments[i])
+    end
+
+    -- Join segments
+    return table.concat(relative_path, "/")
+  end
+
+  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
+  if buf_ft == "python" then
+    local parent_dir = vim.fn.getcwd()
+    local exe_path = vim.fn.exepath("python3")
+
+    print(parent_dir)
+    print(exe_path)
+
+    -- return getMutualPath(parent_dir, exe_path)
+    return "(" .. get_relative_path(parent_dir, exe_path) .. ")"
   end
 end
 

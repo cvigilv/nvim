@@ -17,6 +17,7 @@ _G.statuscolumn = function()
     c.linenumber(),
     " ",
     vim.v.relnum == 0 and "%#CursorLine#" or "%#Normal#",
+    "%#Comment#▏%#Normal#",
     " ",
   }
 

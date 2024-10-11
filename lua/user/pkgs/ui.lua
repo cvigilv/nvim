@@ -67,12 +67,10 @@ return {
   {
     "nvim-treesitter/nvim-treesitter-context",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
+    event = "VeryLazy",
     config = function()
       require("treesitter-context").setup({
-        -- separator = "─",
         line_numbers = true,
-        multiline_threshold = 16,
-        trim_scope = "inner",
         mode = "topline",
       })
     end,
