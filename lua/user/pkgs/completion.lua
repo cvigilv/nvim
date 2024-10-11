@@ -56,27 +56,24 @@ return {
       local cmp = require("cmp")
       cmp.setup({
         ---@diagnostic disable-next-line: missing-fields
-        performance = {
+        performance = { -- {{{
           max_view_entries = 24,
-        },
-
-        window = {
+        }, -- }}}
+        window = { -- {{{
           completion = {
             col_offset = -3,
             side_padding = 0,
           },
-        },
-
-        view = {
+        }, -- }}}
+        view = { -- {{{
           entries = {
             name = "custom",
             selection_order = "near_cursor",
           },
-        },
-
-        experimental = {
-          ghost_text = true,
-        },
+        }, -- }}}
+        experimental = { -- {{{
+          ghost_text = false, -- Too noisy
+        }, -- }}}
 
         ---@diagnostic disable-next-line: missing-fields
         formatting = {
