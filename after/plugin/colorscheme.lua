@@ -58,7 +58,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       GitSignsChangeNr = vim.tbl_extend(
         "force",
         c.Changed,
-        { fg = c.Normal.bg, bg = "#C9E8D5", bold = true }
+        { fg = c.Normal.fg, bg = "#C9E8D5", bold = true }
       ),
       GitSignsChangeLn = { link = "GitSignsChange" },
 
