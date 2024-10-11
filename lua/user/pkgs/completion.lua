@@ -98,6 +98,7 @@ return {
                 luasnip = "[Snip]",
                 lazydev = "[Nvim]",
                 omni = "[Omni]",
+                path = "[Path]",
                 git = "[Git]",
               })[entry.source.name]
             item.kind = string.format(" %s ", kind_icons[item.kind])
