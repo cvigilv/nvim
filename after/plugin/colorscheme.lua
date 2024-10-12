@@ -1,3 +1,7 @@
+local function sync_theme()
+  vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
+end
+
 vim.api.nvim_create_autocmd("OptionSet", {
   pattern = "background",
   callback = function()
@@ -13,6 +17,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
     local c = {
       Normal = c_helper.get_hlgroup_table("Normal"),
+      Pmenu = c_helper.get_hlgroup_table("Pmenu"),
       Comment = c_helper.get_hlgroup_table("Comment"),
       Function = c_helper.get_hlgroup_table("Function"),
       Statement = c_helper.get_hlgroup_table("Statement"),
@@ -27,13 +32,16 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
     c_helper.override_hlgroups({
       Constant = vim.tbl_extend("force", c.Constant, { reverse = true, bold = true }),
-      MsgArea = { bg = "#FFFDF9" },
+      MsgArea = { bg = vim.o.background == "light" and "#FFFDF9" or "#000000" },
       TabLine = { bg = c.StatusLine.fg },
       TabLineSel = { bg = c.StatusLineNC.fg },
-      TabLineFill = { bg = "#FFFDF9" },
+      TabLineFill = { bg = vim.o.background == "light" and "#FFFDF9" or "#000000" },
       CursorLine = { bg = c.StatusLineNC.fg },
       StatusLine = { bg = c.StatusLineNC.fg, bold = true },
-      StatusLineCap = { bg = c.StatusLineNC.fg, fg = "#FFFDF9" },
+      StatusLineCap = {
+        bg = c.StatusLineNC.fg,
+        fg = vim.o.background == "light" and "#FFFDF9" or "#000000",
+      },
       WinBar = { fg = c.Comment.fg, bg = c.Normal.bg, bold = true },
       WinBarNC = { fg = c.Comment.fg, bg = c.Normal.bg, bold = false, italic = true },
       Function = { fg = c.Function.fg, bold = true },
@@ -44,33 +52,25 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       Keyword = { link = "Statement" },
       Exception = { link = "Statement" },
       Folded = { bg = c.Normal.bg },
+      FloatBorder = { fg = c.Comment.fg, bg = c.Pmenu.bg },
+      FloatTitle = { fg = c.Comment.fg, bg = c.Pmenu.bg },
 
-      Added = { fg = c.Normal.fg, bg = "#BCCE95" },
-      GitSignsAdd = vim.tbl_extend("force", c.Added, { bg = "#BCCE95" }),
-      GitSignsAddNr = vim.tbl_extend(
-        "force",
-        c.Added,
-        { fg = c.Normal.bg, bg = "#BCCE95", bold = true }
-      ),
-      GitSignsAddLn = { link = "GitSignsAdd" },
+      -- Diff {{{
+      Added = { fg = c.Normal.bg, bg = "#BCCE95" },
+      GitSignsAdd = { link = "Added" },
+      GitSignsAddNr = vim.tbl_extend("force", c.Added, { bold = true }),
+      GitSignsAddLn = { link = "Added" },
 
-      Changed = { fg = c.Normal.fg, bg = "#C9E8D5" },
-      GitSignsChange = vim.tbl_extend("force", c.Changed, { bg = "#C9E8D5" }),
-      GitSignsChangeNr = vim.tbl_extend(
-        "force",
-        c.Changed,
-        { fg = c.Normal.fg, bg = "#C9E8D5", bold = true }
-      ),
-      GitSignsChangeLn = { link = "GitSignsChange" },
+      Changed = { fg = c.Normal.bg, bg = "#C9E8D5" },
+      GitSignsChange = { link = "Changed" },
+      GitSignsChangeNr = vim.tbl_extend("force", c.Changed, { bold = true }),
+      GitSignsChangeLn = { link = "Changed" },
 
-      Removed = { fg = c.Normal.fg, bg = "#FCB595" },
-      GitSignsDelete = vim.tbl_extend(
-        "force",
-        c.Removed,
-        { fg = c.Normal.bg, bg = "#FCB595", bold = true }
-      ),
-      GitSignsDeleteNr = { link = "GitSignsDelete" },
-      GitSignsDeleteLn = { link = "GitSignsDelete" },
+      Removed = { fg = c.Normal.bg, bg = "#FCB595" },
+      GitSignsDelete = { link = "Removed" },
+      GitSignsDeleteNr = vim.tbl_extend("force", c.Removed, { bold = true }),
+      GitSignsDeleteLn = { link = "Removed" },
+      -- }}}
     })
   end,
 })
@@ -84,7 +84,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 --   vim.cmd.colorscheme("patana")
 --   vim.cmd("set bg=dark")
 -- end
--- vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
 
 vim.cmd("set bg=light")
 vim.cmd("colorscheme retrobox")
+sync_theme()
