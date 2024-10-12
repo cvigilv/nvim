@@ -79,21 +79,24 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       local harpoon = require("harpoon")
-      harpoon:setup({
-        setting = {
-          get_root_dir = function()
-            local cwd = ""
-            if vim.b.gitsigns_status_dict ~= nil then
-              cwd = vim.b.gitsigns_status_dict["root"]
-            else
-              ---FIXME: Why are vim.loop methods not found?
-              ---@diagnostic disable-next-line: undefined-field
-              cwd = vim.loop.cwd() or ""
-            end
-            return cwd
-          end,
-        },
-      })
+      harpoon:setup(
+        -- @as HarpoonPartialConfig
+        {
+          setting = {
+            get_root_dir = function()
+              local cwd = ""
+              if vim.b.gitsigns_status_dict ~= nil then
+                cwd = vim.b.gitsigns_status_dict["root"]
+              else
+                ---FIXME: Why are vim.loop methods not found?
+                ---@diagnostic disable-next-line: undefined-field
+                cwd = vim.loop.cwd() or ""
+              end
+              return cwd
+            end,
+          },
+        }
+      )
 
       -- Keymaps
       vim.keymap.set(
@@ -105,7 +108,14 @@ return {
       vim.keymap.set(
         "n",
         "<Space>ff",
-        function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+        function()
+          harpoon.ui:toggle_quick_menu(harpoon:list(), {
+            border = { "🭽", "▔", "🭾", "▕", "🭿", "▁", "🭼", "▏" },
+            title = " Harpoon ",
+            title_pos = "left",
+            ui_width_ratio = 0.33,
+          })
+        end,
         { desc = "Toggle quick menu" }
       )
 
