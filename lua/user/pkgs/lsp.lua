@@ -172,24 +172,9 @@ return {
           linter = nil,
         },
         python = {
-          lsp = {
-            "pyright",
-            {
-              settings = {
-                pyright = {
-                  disableOrganizeImports = true,
-                },
-                python = {
-                  analysis = {
-                    ignore = { "*" }, -- Using Ruff
-                    typeCheckingMode = "off", -- Using mypy
-                  },
-                },
-              },
-            },
-          },
+          lsp = "pyright",
           formatter = "ruff",
-          linter = nil,
+          linter = "mypy",
         },
         sh = { lsp = "bashls", formatter = "shfmt", linter = "shellcheck" },
         typst = { lsp = "typst_lsp", formatter = "typstfmt", linter = nil },
