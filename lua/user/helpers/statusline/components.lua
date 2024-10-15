@@ -236,9 +236,6 @@ M.env = function()
     local parent_dir = vim.fn.getcwd()
     local exe_path = vim.fn.exepath("python3")
 
-    print(parent_dir)
-    print(exe_path)
-
     -- return getMutualPath(parent_dir, exe_path)
     return "(" .. get_relative_path(parent_dir, exe_path) .. ")"
   end
