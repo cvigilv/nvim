@@ -54,6 +54,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       Folded = { bg = c.Normal.bg },
       FloatBorder = { fg = c.Comment.fg, bg = c.Pmenu.bg },
       FloatTitle = { fg = c.Comment.fg, bg = c.Pmenu.bg },
+      NonText = { fg = c.Comment.fg, italic = true },
 
       -- Diff {{{
       Added = { fg = c.Normal.bg, bg = "#BCCE95" },
@@ -71,6 +72,40 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       GitSignsDeleteNr = vim.tbl_extend("force", c.Removed, { bold = true }),
       GitSignsDeleteLn = { link = "Removed" },
       -- }}}
+      -- Diagnostics {{{
+      DiagnosticDeprecated = { strikethrough = true },
+      DiagnosticOk = { fg = c.Normal.fg, bold = true },
+
+      DiagnosticError = { fg = c.Normal.bg, bg = "Red", bold = true },
+      DiagnosticDefaultError = { link = "DiagnosticError" },
+      DiagnosticFloatingError = { link = "DiagnosticError" },
+      DiagnosticSignError = { link = "DiagnosticError" },
+      DiagnosticVirtualTextError = { link = "DiagnosticError" },
+
+      DiagnosticWarn = { bg = "Orange", bold = true },
+      DiagnosticDefaultWarn = { link = "DiagnosticWarn" },
+      DiagnosticFloatingWarn = { link = "DiagnosticWarn" },
+      DiagnosticSignWarn = { link = "DiagnosticWarn" },
+      DiagnosticVirtualTextWarn = { link = "DiagnosticWarn" },
+
+      DiagnosticHint = { bg = "LightBlue", bold = true },
+      DiagnosticDefaultHint = { link = "DiagnosticHint" },
+      DiagnosticFloatingHint = { link = "DiagnosticHint" },
+      DiagnosticSignHint = { link = "DiagnosticHint" },
+      DiagnosticVirtualTextHint = { link = "DiagnosticHint" },
+
+      DiagnosticInfo = { fg = c.Comment.fg, bold = true },
+      DiagnosticDefaultInfo = { link = "DiagnosticInfo" },
+      DiagnosticFloatingInfo = { link = "DiagnosticInfo" },
+      DiagnosticSignInfo = { link = "DiagnosticInfo" },
+      DiagnosticVirtualTextInfo = { link = "DiagnosticInfo" },
+
+      DiagnosticUnderlineError = { sp = "Red", undercurl = true, bold = true },
+      DiagnosticUnderlineWarn = { sp = "Orange", undercurl = true, bold = true },
+      DiagnosticUnderlineHint = { sp = "LightBlue", undercurl = true, bold = true },
+      DiagnosticUnderlineInfo = { sp = c.Normal.fg, undercurl = true, bold = true },
+      DiagnosticUnderlineOk = { sp = c.Normal.fg, undercurl = true, bold = true },
+      --}}}
     })
   end,
 })
