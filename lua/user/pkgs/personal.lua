@@ -6,7 +6,7 @@ return {
       require("claudio").setup({
         ---@diagnostic disable-next-line: missing-fields
         tools = {
-          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools",
+          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools/",
         },
       })
 
