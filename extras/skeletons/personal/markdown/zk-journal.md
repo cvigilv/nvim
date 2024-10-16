@@ -1,8 +1,14 @@
-# ${year}/${month}/${day} - ${lua:vim.fn.input("Journal scope: ")}
+# ${zk-year}/${zk-month}/${zk-day} - ${lua:vim.fn.input("Journal scope: ")}
 
 #journal #${cursor}
 
+## Tasks
+
+
+## Meetings/Events #meeting
+
 ---
+
 ## Useful links
 
 - [Previous entry]()
