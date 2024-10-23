@@ -1,6 +1,6 @@
 # ${cursor}
 
-#literature
+#reference
 
 ---
 

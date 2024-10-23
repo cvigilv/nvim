@@ -79,7 +79,7 @@ end
 
 ---Determines the type of a note based on its content.
 ---@param note string Path to the note file
----@return string|nil type The type of the note ("Journal", "Idea", "Literature", "Map-of-Contents") or nil if no type is found
+---@return string|nil type The type of the note ("Journal", "Idea", "Reference", "Map-of-Contents") or nil if no type is found
 M.get_type = function(note)
   -- Read file content
   local content = vim.fn.readfile(note)
@@ -90,8 +90,8 @@ M.get_type = function(note)
       return "Journal"
     elseif line:find("#idea") then
       return "Idea"
-    elseif line:find("#literature") then
-      return "Literature"
+    elseif line:find("#reference") then
+      return "Reference"
     elseif line:find("#moc") then
       return "Map-of-Contents"
     end
