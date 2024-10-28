@@ -10,15 +10,9 @@ local M = {}
 M.create_excmds = function(opts)
   -- Notes creation
   vim.api.nvim_create_user_command(
-    "ZkNewTodayNote",
-    function() factory.create_today_note(opts) end,
+    "ZkNewNote",
+    function() factory.create_new_note(opts) end,
     { desc = "Create a new daily note" }
-  )
-
-  vim.api.nvim_create_user_command(
-    "ZkNewDatedNote",
-    function() factory.create_dated_note(opts) end,
-    { desc = "Create a new dated note" }
   )
 
   -- Note searching

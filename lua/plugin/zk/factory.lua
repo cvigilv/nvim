@@ -70,16 +70,14 @@ end
 
 local M = {}
 
-M.create_today_note = function(opts)
-  local currentdate = os.date("%Y%m%d", os.time())
-  local note_media = opts.media .. "/" .. next_note_name(currentdate, get_date_lut(opts.path))
-
-  pcall(os.execute, "rm -r " .. note_media .. "; mkdir " .. note_media)
-  vim.cmd("e " .. next_note_path(opts.path, currentdate, get_date_lut(opts.path)))
-end
-
+--- Creates a new note with associated media directory.
+---@param opts Zk.Config User configuration table
 M.create_dated_note = function(opts)
-  local date = vim.fn.input("Date in YYYYMMDD format:")
+  -- Get current date to assign as default
+  local currentdate = os.date("%Y%m%d", os.time())
+  local date = vim.fn.input("Date in YYYYMMDD format: ", currentdate)
+
+  -- Only create a new note if the date pattern is valid
   if string.find(date, "[0-9][0-9][0-9][0-9][0,1][0-9][0-3][0-9]") ~= nil then
     local note_media = opts.media .. "/" .. next_note_name(date, get_date_lut(opts.path))
     pcall(os.execute, "rm -r " .. note_media .. "; mkdir " .. note_media)
