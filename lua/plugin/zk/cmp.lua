@@ -32,40 +32,34 @@ end
 
 local tags = get_tags()
 
-local M = {}
+local source = {}
 
-M.create_sources = function(opts)
-  local source = {}
+function source:is_available()
+  -- Get the full path of the current buffer
+  local current_buf = vim.api.nvim_get_current_buf()
+  local buf_name = vim.api.nvim_buf_get_name(current_buf)
 
-  function source:is_available()
-    -- Get the full path of the current buffer
-    local current_buf = vim.api.nvim_get_current_buf()
-    local buf_name = vim.api.nvim_buf_get_name(current_buf)
+  -- Extract the directory path
+  local dir_path = vim.fn.fnamemodify(buf_name, ":h")
 
-    -- Extract the directory path
-    local dir_path = vim.fn.fnamemodify(buf_name, ":h")
+  -- Normalize paths (convert to absolute paths)
+  local normalized_dir_path = vim.fn.fnamemodify(dir_path, ":p")
+  local normalized_folder = vim.fn.fnamemodify(vim.uv.fs_realpath(os.getenv("ZETTELDIR")), ":p")
 
-    -- Normalize paths (convert to absolute paths)
-    local normalized_dir_path = vim.fn.fnamemodify(dir_path, ":p")
-    local normalized_folder = vim.fn.fnamemodify(vim.uv.fs_realpath(opts.path), ":p")
-
-    -- Compare the paths
-    return normalized_dir_path == normalized_folder
-  end
-
-  function source:get_debug_name() return "zk" end
-  function source:get_trigger_characters() return { "#" } end
-  function source:resolve(completion_item, callback) callback(completion_item) end
-  function source:complete(params, callback)
-    local items = {}
-    local cursor_before_line = params.context.cursor_before_line
-
-    if cursor_before_line:sub(1, 1) == "#" then items = tags end
-    callback(items)
-  end
-  function source:execute(completion_item, callback) callback(completion_item) end
-
-  require("cmp").register_source("zk", source)
+  -- Compare the paths
+  return normalized_dir_path == normalized_folder
 end
 
-return M
+function source:get_debug_name() return "zk" end
+function source:get_trigger_characters() return { "#" } end
+function source:resolve(completion_item, callback) callback(completion_item) end
+function source:complete(params, callback)
+  local items = {}
+  local cursor_before_line = params.context.cursor_before_line
+
+  if cursor_before_line:sub(1, 1) == "#" then items = tags end
+  callback(items)
+end
+function source:execute(completion_item, callback) callback(completion_item) end
+
+require("cmp").register_source("zk", source)

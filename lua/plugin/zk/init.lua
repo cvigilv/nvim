@@ -9,14 +9,12 @@ local M = {}
 M.setup = function(opts)
   local config = require("plugin.zk.config")
   local excmd = require("plugin.zk.excmd")
-  local cmp = require("plugin.zk.cmp")
 
   -- update defaults
   opts = config.update_config(opts)
 
   -- Module functionality
   excmd.create_excmds(opts)
-  cmp.create_sources(opts)
 end
 
 return M
