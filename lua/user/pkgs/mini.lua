@@ -3,6 +3,7 @@ return {
   { "echasnovski/mini.colors" },
   {
     "echasnovski/mini.starter",
+    enabled = false,
     config = function()
       local generate_footer = function()
         local ls = require("lazy").stats()
