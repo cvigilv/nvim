@@ -6,7 +6,6 @@ vim.opt.laststatus = 2
 vim.g.user_qf_open = true
 
 vim.api.nvim_create_autocmd("WinEnter", {
-  group = augroup,
   desc = "Setup for quickfix window",
   pattern = "*",
   callback = function()
@@ -30,7 +29,6 @@ vim.api.nvim_create_autocmd("WinEnter", {
 
 -- Whenever a quickfix window is closed...
 vim.api.nvim_create_autocmd("QuitPre", {
-  group = augroup,
   desc = "Restore setup for quickfix window",
   callback = function()
     vim.opt.laststatus = 3
@@ -41,7 +39,6 @@ vim.api.nvim_create_autocmd("QuitPre", {
 
 -- Automatically quit if quickscope window is the last window
 vim.api.nvim_create_autocmd("WinEnter", {
-  group = augroup,
   pattern = "*",
   desc = "Automatically quit if quickfix window is the last window",
   command = [[if winnr('$') == 1 && &buftype == "quickfix"|q|endif]],
