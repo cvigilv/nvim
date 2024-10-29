@@ -72,7 +72,7 @@ local M = {}
 
 --- Creates a new note with associated media directory.
 ---@param opts Zk.Config User configuration table
-M.create_dated_note = function(opts)
+M.create_new_note = function(opts)
   -- Get current date to assign as default
   local currentdate = os.date("%Y%m%d", os.time())
   local date = vim.fn.input("Date in YYYYMMDD format: ", currentdate)

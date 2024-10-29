@@ -7,6 +7,8 @@ local finders = require("plugin.zk.finders")
 
 local M = {}
 
+---Creates user commands for managing Zettelkasten notes in Neovim.
+---@param opts Zk.Config User configuration
 M.create_excmds = function(opts)
   -- Notes creation
   vim.api.nvim_create_user_command(

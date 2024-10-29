@@ -29,48 +29,15 @@ local telescope_theme = {
       results_length = 1,
     },
     width = 96,
-    height = 64,
+    height = 0.9,
   },
   path_display = { "truncate" },
-  winblend = 10,
   border = {},
 }
 
 -- Helpers
-
-local M = {}
-
----Search notes by headings
----@param opts table Options table containing the path to search
----@return nil
-M.search_headings = function(opts)
-  -- Get metadata of all notes
-  local all_metadata = utils.get_all_metadatas(opts)
-  -- vim.print(all_metadata)
-
-  -- Define how to build entry for Telescope
-  local make_display = function(entry)
-    -- Tags may be a string or a table, convert it for display purposes.
-    local tags = vim.fn.join(entry.value.tags, ";")
-    local type = entry.value.type
-
-    local displayer = entry_display.create({
-      separator = " ",
-      items = {
-        { width = string.len("Map-of-Contents") }, -- Pad to longest type
-        { width = string.len(entry.value.title) },
-        { remaining = true },
-      },
-    })
-
-    return displayer({
-      -- We can skip highlight groups if we want.
-      { entry.value.type, "TelescopeResultsNumber" },
-      entry.value.title,
-      { tags, "TelescopeResultsComment" },
-    })
-  end
-
+--
+local function create_backdrop_win()
   -- "Blur" background whenever Telescope launches
   local backdrop_buf = vim.api.nvim_create_buf(false, true)
   local backdrop_win = vim.api.nvim_open_win(backdrop_buf, false, {
@@ -89,7 +56,7 @@ M.search_headings = function(opts)
     "Normal:LazyBackdrop",
     { scope = "local", win = backdrop_win }
   )
-  vim.api.nvim_set_option_value("winblend", 80, { scope = "local", win = backdrop_win })
+  vim.api.nvim_set_option_value("winblend", 50, { scope = "local", win = backdrop_win })
   vim.api.nvim_set_option_value("buftype", "nofile", { scope = "local", buf = backdrop_buf })
   vim.api.nvim_set_option_value(
     "filetype",
@@ -97,18 +64,68 @@ M.search_headings = function(opts)
     { scope = "local", buf = backdrop_buf }
   )
 
+  return backdrop_win, backdrop_buf
+end
+
+local function fuzzy_sorter(opts)
+  opts = opts or {}
+  -- We can use `fzy_sorter` for the actual fuzzy matching.
+  local fzy_sorter = sorters.get_fzy_sorter(opts)
+
+  return sorters.Sorter:new({
+    -- Allow us to filter entries as well as sorting them.
+    discard = false,
+
+    scoring_function = function(_, prompt, entry)
+      -- This mimics a standard fuzzy sorting on the entry title.
+      return fzy_sorter:scoring_function(prompt, entry.title)
+    end,
+
+    -- We could also specify a highlighter. The highlighter works fine in this case,
+    -- but if we modify `scoring_function` we have to modify this too.
+    -- I admit, I currently don't use a highlighter for my posts finder.
+    highlighter = fzy_sorter.highlighter,
+  })
+end
+
+local M = {}
+
+---Search notes by headings
+---@param opts table Options table containing the path to search
+---@return nil
+M.search_headings = function(opts)
+  -- Get metadata of all notes
+  local all_metadata = utils.get_all_metadatas(opts)
+
+  -- Define how to build entry for Telescope
+  local make_display = function(entry)
+    -- Tags may be a string or a table, convert it for display purposes.
+    local tags = vim.fn.join(entry.value.tags, ";")
+
+    local displayer = entry_display.create({
+      separator = " ",
+      items = {
+        { width = string.len("Map-of-Contents") }, -- Pad to longest type
+        { width = string.len(entry.value.title) },
+        { remaining = true },
+      },
+    })
+
+    return displayer({
+      { entry.value.type, "TelescopeResultsNumber" },
+      entry.value.title,
+      { tags, "TelescopeResultsComment" },
+    })
+  end
+  local backdrop_win, _ = create_backdrop_win()
+
   pickers
     .new(telescope_theme, {
-      -- UI
-      prompt_title = "Search notes",
-      results_title = "Notes",
-
       -- Behaviour
       finder = finders.new_table({
         results = vim.tbl_values(all_metadata),
         entry_maker = function(entry)
           return {
-
             ordinal = entry.title .. entry.type .. table.concat(entry.tags, ";"),
             value = entry,
             path = entry.path,
@@ -116,6 +133,7 @@ M.search_headings = function(opts)
           }
         end,
       }),
+      -- sorter = fuzzy_sorter({}),
       sorter = conf.generic_sorter({}),
       previewer = conf.file_previewer({}),
       attach_mappings = function(prompt_bufnr, _)
@@ -125,7 +143,7 @@ M.search_headings = function(opts)
 
           -- Close Telescope and backdrop
           actions.close(prompt_bufnr)
-          vim.api.nvim_win_close(backdrop_win, true)
+          pcall(vim.api.nvim_win_close, backdrop_win, true)
 
           -- Open file
           vim.print(selected)
@@ -140,8 +158,8 @@ M.search_headings = function(opts)
             pcall(vim.api.nvim_win_get_cursor, original_win_id)
 
           actions.close_pum(prompt_bufnr)
+          pcall(vim.api.nvim_win_close, backdrop_win, true)
 
-          vim.api.nvim_win_close(backdrop_win, true)
           require("telescope.pickers").on_close_prompt(prompt_bufnr)
           pcall(vim.api.nvim_set_current_win, original_win_id)
           if
@@ -166,17 +184,17 @@ end
 --- Search by tags
 ---@param opts table Plugin options
 M.search_tags = function(opts)
-  -- Step 1: Find all tags
-  local notes = vim.fn.glob(opts.path .. "*.md", false, true)
-  local allnotetags = utils.get_all_tags(opts)
+  -- Get metadata of all notes
+  local all_metadata = utils.get_all_metadatas(opts)
 
-  -- Convert tags table to a list for telescope
-  local alltagnotes = {}
-  for notepath, notetags in pairs(allnotetags) do
-    for _, tag in ipairs(notetags) do
-      if not alltagnotes[tag] then alltagnotes[tag] = {} end
+  -- Group files per tag
+  local all_tags = {}
+  for notepath, metadata in pairs(all_metadata) do
+    local note_tags = metadata.tags
+    for _, tag in ipairs(note_tags) do
+      if not all_tags[tag] then all_tags[tag] = {} end
 
-      table.insert(alltagnotes[tag], notepath)
+      table.insert(all_tags[tag], notepath)
     end
   end
 
