@@ -2,10 +2,10 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
+---@diagnostic disable-next-line: missing-parameter
 require("plugin.zk").setup()
 
-vim.keymap.set("n", "<leader>zc", ":ZkNewTodayNote<CR>", { noremap = true, silent = false })
-vim.keymap.set("n", "<leader>zC", ":ZkNewDatedNote<CR>", { noremap = true, silent = false })
+vim.keymap.set("n", "<leader>zc", ":ZkNewNote<CR>", { noremap = true, silent = false })
 vim.keymap.set("n", "<leader>zf", ":ZkSearchNotes<CR>", { noremap = true, silent = false })
 vim.keymap.set("n", "<leader>zt", ":ZkSearchTags<CR>", { noremap = true, silent = false })
 
