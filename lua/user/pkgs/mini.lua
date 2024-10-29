@@ -1,4 +1,6 @@
 return {
+  { "echasnovski/mini.base16" },
+  { "echasnovski/mini.colors" },
   {
     "echasnovski/mini.starter",
     config = function()

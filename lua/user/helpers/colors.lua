@@ -32,4 +32,16 @@ M.override_hlgroups = function(hlgroups)
   end
 end
 
+---Modifies a highlight group with specified overrides.
+---@param hlgroup string The name of the highlight group to modify
+---@param overrides table A table of highlight attributes to override
+M.modify_hlgroup = function(hlgroup, overrides)
+  local ok, hldef =
+    pcall(vim.api.nvim_get_hl, 0, { name = hlgroup, link = true, create = false })
+  if ok then
+    hldef = vim.tbl_deep_extend("force", hldef, overrides)
+    vim.api.nvim_set_hl(0, hlgroup, hldef --[[@as table]])
+  end
+end
+
 return M

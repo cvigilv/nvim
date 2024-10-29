@@ -106,6 +106,9 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       DiagnosticUnderlineInfo = { sp = c.Normal.fg, undercurl = true, bold = true },
       DiagnosticUnderlineOk = { sp = c.Normal.fg, undercurl = true, bold = true },
       --}}}
+      -- Telescope {{{
+      TelescopeSelection = { link = "CursorLine" },
+      -- }}}
     })
   end,
 })
@@ -120,6 +123,6 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 --   vim.cmd("set bg=dark")
 -- end
 
-vim.cmd("set bg=light")
-vim.cmd("colorscheme retrobox")
-sync_theme()
+-- vim.cmd("set bg=light")
+-- sync_theme()
+vim.cmd("colorscheme personal")
