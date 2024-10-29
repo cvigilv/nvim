@@ -97,6 +97,7 @@ return {
                 omni = "[Omni]",
                 path = "[Path]",
                 git = "[Git]",
+                zk = "[ZK]",
               })[entry.source.name]
             item.kind = string.format(" %s ", kind_icons[item.kind])
 
