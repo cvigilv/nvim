@@ -42,7 +42,7 @@ _G.foldtext = function() --{{{
   -- TODO: Add diagnostics symbols if fold contains line with status
   local fold_info = string.format(" 󰁂 %d lines ", fold_end - fold_start + 1)
 
-  table.insert(result, { " ", "Normal" })
+  table.insert(result, { " ", "Comment" })
   table.insert(result, { fold_info, "TabLine" })
 
   return result

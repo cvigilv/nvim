@@ -17,7 +17,7 @@ h.setup_winbar_hlgroups()
 _G.winbar = function()
   local components = {
     -- Right align contents
-    "%=",
+    "%#Comment#%=",
 
     -- Current buffer block
     "%#WinBarCaps#%#WinBarOOB# ",
@@ -32,4 +32,4 @@ _G.winbar = function()
   return table.concat(vim.tbl_filter(function(value) return value ~= nil end, components), "")
 end
 
-vim.o.winbar = "%!v:lua.winbar()"
+vim.o.winbar = "%{%v:lua.winbar()%}"
