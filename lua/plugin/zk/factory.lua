@@ -81,7 +81,7 @@ M.create_new_note = function(opts)
   if string.find(date, "[0-9][0-9][0-9][0-9][0,1][0-9][0-3][0-9]") ~= nil then
     local note_media = opts.media .. "/" .. next_note_name(date, get_date_lut(opts.path))
     pcall(os.execute, "rm -r " .. note_media .. "; mkdir " .. note_media)
-    vim.cmd("e " .. next_note_path(opts.media, date, get_date_lut(opts.path)))
+    vim.cmd("e " .. next_note_path(opts.path, date, get_date_lut(opts.path)))
   else
     error("Date is in incorrect format!", 1)
   end

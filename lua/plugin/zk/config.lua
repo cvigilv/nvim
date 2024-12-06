@@ -3,12 +3,13 @@
 ---@license MIT 2024
 
 ---@class Zk.Config
----@field path string Directory of notes to use
+---@field path string Notes directory
+---@field media string Media related to notes directory
 
 ---@type Zk.Config
 local defaults = {
   path = os.getenv("ZETTELDIR") --[[@as string]],
-  media = os.getenv("ZETTELDIR") .. "/meta/media" --[[@as string]],
+  media = vim.fs.joinpath(os.getenv("ZETTELDIR"), "meta/media") --[[@as string]],
 }
 
 local M = {}

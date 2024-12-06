@@ -9,12 +9,14 @@ local M = {}
 M.setup = function(opts)
   local config = require("plugin.zk.config")
   local excmd = require("plugin.zk.excmd")
+  local autocmd = require("plugin.zk.autocmd")
 
   -- update defaults
   opts = config.update_config(opts)
 
   -- Module functionality
   excmd.create_excmds(opts)
+  autocmd.setup(opts)
 end
 
 return M

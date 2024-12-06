@@ -4,12 +4,137 @@
 
 local M = {}
 
+M.parse_yaml_line = function(line)
+  local key, value = line:match("^%s*([%w_]+)%s*:%s*(.-)%s*$")
+  if key and value then
+    if value:match("^%d+$") then
+      return key, tonumber(value)
+    elseif value:match("^true$") or value:match("^false$") then
+      return key, value == "true"
+    elseif value:match("^'.*'$") or value:match('^".*"$') then
+      return key, value:sub(2, -2)
+    else
+      return key, value
+    end
+  end
+  return nil, nil
+end
+
+M.get_yaml_header = function(bufnr)
+  bufnr = bufnr or 0 -- Use current buffer if no buffer number is provided
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local header = {}
+  local in_header = false
+  local result = {}
+
+  for i, line in ipairs(lines) do
+    if i == 1 and line:match("^%-%-%-%s*$") then
+      in_header = true
+    elseif in_header and line:match("^%-%-%-%s*$") then
+      break -- End of YAML header
+    elseif in_header then
+      table.insert(header, line)
+    elseif not in_header and #header == 0 and line:match("^%s*$") then
+      -- Skip initial empty lines
+    else
+      break -- No YAML header found or header has ended
+    end
+  end
+
+  for _, line in ipairs(header) do
+    local key, value = M.parse_yaml_line(line)
+    if key then result[key] = value end
+  end
+
+  return result
+end
+
+M.table_to_yaml_header = function(tbl)
+  local yaml_lines = { "---" }
+
+  local function serialize(value)
+    if type(value) == "string" then
+      -- Check if the string needs quotes
+      if value:match("^[%w%s]+$") then
+        return value
+      else
+        return string.format("'%s'", value:gsub("'", "''"))
+      end
+    elseif type(value) == "number" or type(value) == "boolean" then
+      return tostring(value)
+    else
+      return string.format("'%s'", tostring(value))
+    end
+  end
+
+  for key, value in pairs(tbl) do
+    local yaml_value = serialize(value)
+    table.insert(yaml_lines, string.format("%s: %s", key, yaml_value))
+  end
+
+  table.insert(yaml_lines, "---")
+  return table.concat(yaml_lines, "\n")
+end
+
+M.write_yaml_header_to_buffer = function(tbl, bufnr)
+  bufnr = bufnr or 0 -- Use current buffer if no buffer number is provided
+
+  local yaml_header = M.table_to_yaml_header(tbl)
+  local header_lines = vim.split(yaml_header, "\n")
+  table.insert(header_lines, "") -- Add an empty line after the YAML header
+
+  -- Get the current buffer content
+  local current_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  -- Find the end of the existing YAML header (if any)
+  local header_end = 0
+  local in_header = false
+  for i, line in ipairs(current_lines) do
+    if i == 1 and line:match("^%-%-%-%s*$") then
+      in_header = true
+    elseif in_header and line:match("^%-%-%-%s*$") then
+      header_end = i
+      break
+    elseif not in_header and not line:match("^%s*$") then
+      break
+    end
+  end
+
+  if header_end > 0 then
+    -- Replace existing header
+    vim.api.nvim_buf_set_lines(bufnr, 0, header_end, false, header_lines)
+
+    -- Ensure there's only one empty line after the header
+    local next_line = current_lines[header_end + 1] or ""
+    if next_line:match("^%s*$") then
+      vim.api.nvim_buf_set_lines(bufnr, header_end, header_end + 1, false, {})
+    end
+  else
+    -- No existing header, insert at the top of the file
+    vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, header_lines)
+
+    -- Remove any leading empty lines
+    local i = #header_lines
+    while i < #current_lines and current_lines[i + 1]:match("^%s*$") do
+      vim.api.nvim_buf_set_lines(bufnr, i, i + 1, false, {})
+      i = i + 1
+    end
+  end
+end
+
 ---Extracts tags from a given note file.
----@param note string Path to the note file
+---@param note string|nil Path to the note file
 ---@return string|nil title Title of note file
 M.get_title = function(note)
   -- Read file content
-  local contents = io.open(note, "r"):read("*a")
+  local contents
+  if note ~= nil then
+    contents = io.open(note, "r"):read("*a")
+  else
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    contents = table.concat(lines, "\n")
+  end
 
   if contents ~= nil then
     -- Search title in each line
@@ -136,6 +261,73 @@ M.get_all_metadatas = function(opts)
   end
 
   return all_notes_metadata
+end
+
+---Get "from" links for a given note in a Zettelkasten system.
+---@param note string The path of the note to find "from" links for
+---@return table from_links Array of note paths that link to the given note
+---@see M.get_from_links
+M.get_from_links = function(note, opts)
+  -- Read file content
+  local content = vim.fn.readfile(note)
+
+  -- Get "from"/foward links in note
+  local from_links = {}
+  for _, line in ipairs(content) do
+    for match in line:gmatch("%[.-%]%((.-%.md)%)") do
+      table.insert(from_links, vim.fn.resolve(opts.path .. match))
+    end
+  end
+
+  return from_links
+end
+
+---Get "to" links for a given note in a Zettelkasten system.
+---@param note string The path of the note to find "to" links for
+---@param opts Zk.Config User config
+---@return table to_links Array of note paths that link to the given note
+---@see M.get_from_links
+M.get_to_links = function(note, opts)
+  -- Get all notes in zettelkasten
+  local all_notes = vim.split(vim.fn.glob(opts.path .. "*.md"), "\n", { trimempty = true })
+
+  -- Get "to" links from "from" links for each note in Zettelaksten
+  local to_links = {}
+  for _, n in ipairs(all_notes) do
+    local links = M.get_from_links(n, opts)
+    for _, l in ipairs(links) do
+      vim.print(l .. " == " .. note .. "? " .. tostring(l == note))
+      if l == note then table.insert(to_links, n) end
+    end
+  end
+
+  return to_links
+end
+
+---Retrieves all links associated with a note.
+---@param note string The path of the note to find links for
+---@param opts Zk.Config User config
+---@return table links A table containing 'from' and 'to' links
+---@see M.get_from_links
+---@see M.get_to_links
+M.get_links = function(note, opts)
+  return {
+    from = M.get_from_links(note, opts),
+    to = M.get_to_links(note, opts),
+  }
+end
+
+M.get_all_links = function(opts)
+  -- Get all notes in zettelkasten
+  local all_notes = vim.split(vim.fn.glob(opts.path .. "*.md"), "\n", { trimempty = true })
+
+  -- Get "from" and "to" links for each note in zettelaksten
+  local all_notes_links = {}
+  for _, note in ipairs(all_notes) do
+    all_notes_links[note] = M.get_links(note, opts)
+  end
+
+  return all_notes_links
 end
 
 return M

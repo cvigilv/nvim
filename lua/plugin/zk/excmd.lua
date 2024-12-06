@@ -4,6 +4,7 @@
 
 local factory = require("plugin.zk.factory")
 local finders = require("plugin.zk.finders")
+local ui = require("plugin.zk.ui")
 
 local M = {}
 
@@ -30,7 +31,12 @@ M.create_excmds = function(opts)
     { desc = "Search notes by heading" }
   )
 
-  -- Misc
+  -- UI
+  vim.api.nvim_create_user_command(
+    "ZkLinks",
+    function() ui.show_links(nil, opts) end,
+    { desc = "Show links to file." }
+  )
 end
 
 return M
