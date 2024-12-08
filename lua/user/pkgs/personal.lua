@@ -47,11 +47,6 @@ return {
   { -- diferente {{{
     dir = os.getenv("GITDIR") .. "/diferente.nvim",
     ft = "gitcommit",
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require("diferente").setup({
-        ratio = "auto",
-      })
-    end,
+    config = true,
   }, -- }}}
 }
