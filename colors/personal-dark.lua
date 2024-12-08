@@ -1,15 +1,14 @@
 vim.cmd.highlight("clear")
 if vim.fn.exists("syntax_on") then vim.cmd.syntax("reset") end
 
-vim.o.background = "light"
+vim.o.background = "dark"
 vim.o.termguicolors = true
-vim.g.colors_name = "random"
+vim.g.colors_name = "personal-dark"
 
 local base16 = require("mini.base16")
 
 local base = {
   ["50"] = "#f1ecd0",
-  ["100"] = "#ECE7CB",
   ["200"] = "#dad5b9",
   ["300"] = "#c3bea2",
   ["400"] = "#aca78b",
@@ -39,7 +38,7 @@ local base = {
 --   base0E = "#c400a2", -- Keywords, Storage, Selector, Markup Italic, Diff Changed
 --   base0F = "#1f77bb", -- Deprecated, Opening/Closing Embedded Language Tags
 -- }
-local palette = base16.mini_palette("#f1ecd0", "#231a1f", 50)
+local palette = base16.mini_palette("#231a1f", "#f1ecd0", 50)
 local cterm = base16.rgb_palette_to_cterm_palette(palette)
 
 require("mini.base16").setup({
@@ -49,42 +48,43 @@ require("mini.base16").setup({
 })
 
 local hc = require("user.helpers.colors")
-local alloverrides = {
-  -- Syntax {{{
-  Delimiter = { fg = palette.base04 },
-  -- }}}
-  -- Diff {{{
-  Added = { fg = "#005000", bg = "#ccefcf" },
-  DiffAdd = { link = "Added" },
-  Changed = { bg = "#ffe5b9", fg = "#553d00" },
-  DiffChange = { link = "Changed" },
-  DiffText = { bg = "#ffd09f", fg = "#553d00", italic = true },
-  Removed = { fg = "#8f1313", bg = "#ffd4d8" },
-  DiffDelete = { link = "Removed" },
-  -- }}}
-  -- UI {{{
-  CursorLine = { bg = base["200"] },
-  WinBar = { bg = "#ffffff", fg = hc.get_hlgroup_table("StatusLine").bg },
-  WinBarNC = { bg = "#ffffff", fg = hc.get_hlgroup_table("StatusLine").bg },
-  StatusLine = hc.get_hlgroup_table("StatusLineNC"),
-  TabLineFill = { bg = "#ffffff" },
-  MsgArea = { bg = "#ffffff" },
-  Type = hc.get_hlgroup_table("TabLine"),
-  -- }}}
-}
-hc.override_hlgroups(alloverrides)
+-- local alloverrides = {
+--   -- Syntax {{{
+--   Delimiter = { fg = palette.base04 },
+--   -- }}}
+--   -- Diff {{{
+--   Added = { fg = "#005000", bg = "#ccefcf" },
+--   DiffAdd = { link = "Added" },
+--   Changed = { bg = "#ffe5b9", fg = "#553d00" },
+--   DiffChange = { link = "Changed" },
+--   DiffText = { bg = "#ffd09f", fg = "#553d00", italic = true },
+--   Removed = { fg = "#8f1313", bg = "#ffd4d8" },
+--   DiffDelete = { link = "Removed" },
+--   -- }}}
+--   -- UI {{{
+--   CursorLine = { bg = base["200"] },
+--   WinBar = { bg = "#ffffff", fg = hc.get_hlgroup_table("StatusLine").bg },
+--   WinBarNC = { bg = "#ffffff", fg = hc.get_hlgroup_table("StatusLine").bg },
+--   StatusLine = hc.get_hlgroup_table("StatusLineNC"),
+--   TabLineFill = { bg = "#ffffff" },
+--   MsgArea = { bg = "#ffffff" },
+--   Type = hc.get_hlgroup_table("TabLine"),
+--   -- }}}
+-- }
+-- hc.override_hlgroups(alloverrides)
 
 local allchanges = {
+  markdownCodeBlock = { link = "CursorLine" },
   ColorColumn = { link = "CursorLine" },
   TabLineSel = { bold = true },
   Comment = { italic = true },
   Keyword = { italic = true },
   Folded = { link = "Comment" },
-  String = { link = "Number" },
+  -- String = { link = "Number" },
   Constant = { bold = true },
   WinBar = { link = "Normal" },
   WinBarNC = { link = "Normal" },
-  EndOfBuffer = { link = "CursorLine" },
+  EndOfBuffer = { link = "ColorColumn" },
   StatusLine = { bold = true },
   LineNr = { bold = true },
   Function = { bold = true },
@@ -92,9 +92,6 @@ local allchanges = {
   WinSeparator = { link = "Comment" },
   Boolean = { bold = true },
   NonText = { italic = true },
-
-  -- Plugins
-  CodeBlock = { bg = "#FAF5D7" },
 }
 for hlgroup, overrides in pairs(allchanges) do
   hc.modify_hlgroup(hlgroup, overrides)
