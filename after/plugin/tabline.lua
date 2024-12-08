@@ -58,7 +58,7 @@ local hlgroup_lut = {
   },
 }
 
-_G.tabline = function()
+_G.carlos.tabline = function()
   local content = ""
 
   -- Add Tabline content for each tab page
@@ -118,4 +118,4 @@ _G.tabline = function()
   return content
 end
 
-vim.o.tabline = "%!v:lua.tabline()"
+vim.o.tabline = "%!v:lua.carlos.tabline()"

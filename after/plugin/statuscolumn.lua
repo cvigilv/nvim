@@ -7,7 +7,7 @@ local c = require("user.helpers.statuscolumn.components")
 local h = require("user.helpers.statuscolumn.helpers")
 local ui = require("user.helpers.statuscolumn.ui")
 
-_G.statuscolumn = function()
+_G.carlos.statuscolumn = function()
   local signs = h.get_signs()
   local components = {
     " ",
@@ -27,7 +27,7 @@ _G.statuscolumn = function()
   return table.concat(components, "")
 end
 
-vim.o.statuscolumn = "%{%v:lua.statuscolumn()%}"
+vim.o.statuscolumn = "%{%v:lua.carlos.statuscolumn()%}"
 -- }}}
 -- Don't setup statuscolumn in some filetypes and buffers {{{
 -- NOTE: This is based on https://github.com/luukvbaal/statuscol.nvim/blob/d6f7f5437c5404d958b88bb73e0721b1c0e09223/lua/statuscol.lua#L445-L463

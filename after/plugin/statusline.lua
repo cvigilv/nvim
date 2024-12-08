@@ -37,7 +37,7 @@ local ui = require("user.helpers.statusline.ui")
 
 vim.g.user_qf_open = false
 
-_G.statusline = function()
+_G.carlos.statusline = function()
   local components = {
     -- Cap
     h.ifttt(vim.g.user_qf_open, "", "%#MsgArea#" .. ui.align() .. ui.leftcap() .. " "),
@@ -82,7 +82,7 @@ _G.statusline = function()
   return vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), "")
 end
 
-vim.o.statusline = "%{%v:lua.statusline()%}"
+vim.o.statusline = "%{%v:lua.carlos.statusline()%}"
 
 -- Special statuslines for some filetypes
 local augroup = vim.api.nvim_create_augroup("user::statusline", { clear = true })
