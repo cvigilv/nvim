@@ -5,9 +5,24 @@
 ---@diagnostic disable-next-line: missing-parameter
 require("plugin.zk").setup()
 
-vim.keymap.set("n", "<leader>zc", ":ZkNewNote<CR>", { noremap = true, silent = false })
-vim.keymap.set("n", "<leader>zf", ":ZkSearchNotes<CR>", { noremap = true, silent = false })
-vim.keymap.set("n", "<leader>zt", ":ZkSearchTags<CR>", { noremap = true, silent = false })
+vim.keymap.set(
+  "n",
+  "<leader>zc",
+  ":ZkNewNote<CR>",
+  { noremap = true, silent = false, desc = "Create note" }
+)
+vim.keymap.set(
+  "n",
+  "<leader>zf",
+  ":ZkSearchNotes<CR>",
+  { noremap = true, silent = false, desc = "Search by notes metadata" }
+)
+vim.keymap.set(
+  "n",
+  "<leader>zt",
+  ":ZkSearchTags<CR>",
+  { noremap = true, silent = false, desc = "Seach by tags" }
+)
 
 --- Bind ,zl to create a link from current visual selection
 --- TODO: Add second step where a Telescope prompt appears and I can easily select a note from
