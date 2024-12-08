@@ -8,6 +8,9 @@ return {
         tools = {
           prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools/",
         },
+        chat = {
+          system = "Please answer the inquire, and then if you need to think or calculate, write them down inside a Markdown blockquote. Please be concise whenever you want to explain something and ensure to use a clear and simple language whenever possible.",
+        },
       })
 
       vim.keymap.set("n", "<leader>cc", ":ClaudioChat<CR>", {})
