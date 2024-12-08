@@ -287,6 +287,12 @@ return {
       )
       vim.keymap.set(
         "n",
+        ",fr",
+        function() builtin.resume() end,
+        { silent = true, noremap = true, desc = "Open last search result" }
+      )
+      vim.keymap.set(
+        "n",
         ",fb",
         "<CMD>Telescope buffers<CR>",
         { silent = true, noremap = true, desc = "Buffers" }
