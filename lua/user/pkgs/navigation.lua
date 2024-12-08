@@ -281,6 +281,12 @@ return {
       )
       vim.keymap.set(
         "n",
+        ",ft",
+        function() builtin.grep_string({ search = " TODO: " }) end,
+        { silent = true, noremap = true, desc = "Find TODO comments" }
+      )
+      vim.keymap.set(
+        "n",
         ",fb",
         "<CMD>Telescope buffers<CR>",
         { silent = true, noremap = true, desc = "Buffers" }
