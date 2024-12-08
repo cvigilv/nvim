@@ -1,12 +1,12 @@
 -- NOTE: Adapted from https://www.reddit.com/r/neovim/comments/16sqyjz/finally_we_can_have_highlighted_folds/
-_G.foldtext = function() --{{{
+_G.carlos.foldtext = function()
   local fold_start = vim.v.foldstart
   local fold_end = vim.v.foldend
   local line = vim.api.nvim_buf_get_lines(0, fold_start - 1, fold_start, false)[1]
 
   -- Prepare Treesitter parsing
   local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
-  local parser = vim.treesitter.get_parser(0, lang)
+  local parser = assert(vim.treesitter.get_parser(0, lang))
   local query = vim.treesitter.query.get(parser:lang(), "highlights")
 
   -- Early return if no treesitter parser available
@@ -27,7 +27,7 @@ _G.foldtext = function() --{{{
       if start_col > line_pos then
         table.insert(result, { line:sub(line_pos + 1, start_col), "Folded" })
       end
-      line_pos = end_col
+      line_pos = end_col --[[@as integer]]
       local text = vim.treesitter.get_node_text(node, 0)
       if prev_range ~= nil and range[1] == prev_range[1] and range[2] == prev_range[2] then
         result[#result] = { text, "@" .. name }
@@ -46,6 +46,6 @@ _G.foldtext = function() --{{{
   table.insert(result, { fold_info, "TabLine" })
 
   return result
-end -- }}}
+end
 
-vim.opt.foldtext = "v:lua.foldtext()"
+vim.opt.foldtext = "v:lua.carlos.foldtext()"
