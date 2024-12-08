@@ -29,11 +29,8 @@ vim.diagnostic.config({
 
       -- Align diagnostic message with colorcolumn
       local contents = symbols[diagnostic.severity] .. diagnostic.message
-      -- if vim.o.colorcolumn - line:len() - 3 > 0 then
-      -- 	contents = string.rep("─", vim.o.colorcolumn - line:len() - 3) .. " " .. contents
-      -- end
 
-      return contents
+      return "\t\t" .. contents
     end,
     prefix = "",
     spacing = 0,
@@ -45,13 +42,13 @@ vim.diagnostic.config({
 vim.keymap.set(
   "n",
   "[d",
-  vim.diagnostic.goto_prev,
+  function() vim.diagnostic.jump({ count = -1, float = true }) end,
   { desc = "Previous diagnostics", noremap = true }
 )
 vim.keymap.set(
   "n",
   "]d",
-  vim.diagnostic.goto_next,
+  function() vim.diagnostic.jump({ count = 1, float = true }) end,
   { desc = "Next diagnostics", noremap = true }
 )
 vim.keymap.set(
@@ -60,9 +57,3 @@ vim.keymap.set(
   vim.diagnostic.open_float,
   { desc = "Open diagnostics", noremap = true }
 )
-
--- Autocommands
-vim.api.nvim_create_autocmd("CursorHold", {
-  pattern = "*",
-  callback = function() vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" }) end,
-})
