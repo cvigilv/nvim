@@ -74,7 +74,7 @@ local M = {}
 ---@param opts Zk.Config User configuration table
 M.create_new_note = function(opts)
   -- Get current date to assign as default
-  local currentdate = os.date("%Y%m%d", os.time())
+  local currentdate = tostring(os.date("%Y%m%d", os.time()))
   local date = vim.fn.input("Date in YYYYMMDD format: ", currentdate)
 
   -- Only create a new note if the date pattern is valid
