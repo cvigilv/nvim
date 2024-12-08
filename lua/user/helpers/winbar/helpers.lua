@@ -28,8 +28,8 @@ M.setup_winbar_hlgroups = function()
         bg = hc.get_hlgroup_table("TabLineFill").bg,
       },
       WinBarCaps = {
-        fg = hc.get_hlgroup_table("WinBar").bg,
-        bg = hc.get_hlgroup_table("TabLineFill").bg,
+        fg = hc.get_hlgroup_table("Normal").bg,
+        bg = hc.get_hlgroup_table("WinBar").bg,
       },
     }
 
