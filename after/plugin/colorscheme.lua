@@ -113,16 +113,5 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   end,
 })
 
--- -- Set background based on current time
--- local current_hr = tonumber(os.date("%H", os.time()))
--- if current_hr > 6 and current_hr < 18 then
---   vim.cmd.colorscheme("retrobox")
---   vim.cmd("set bg=light")
--- else
---   vim.cmd.colorscheme("patana")
---   vim.cmd("set bg=dark")
--- end
-
--- vim.cmd("set bg=light")
--- sync_theme()
 vim.cmd("colorscheme personal")
+sync_theme()
