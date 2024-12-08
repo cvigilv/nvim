@@ -17,7 +17,7 @@ h.setup_winbar_hlgroups()
 _G.winbar = function()
   local components = {
     -- Right align contents
-    "%#Comment#%=",
+    "%#Normal#%=",
 
     -- Current buffer block
     "%#WinBarCaps#%#WinBarOOB# ",
