@@ -8,3 +8,5 @@ cmp.setup.filetype("markdown", {
     { name = "buffer", group_index = 3 },
   }),
 })
+
+vim.o.textwidth = 96
