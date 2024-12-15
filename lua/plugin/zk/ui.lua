@@ -2,12 +2,12 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024
 
-local W = require("user.helpers.ui.windows")
-local U = require("plugin.zk.utils")
-
 local M = {}
 
 M.show_links = function(note, opts)
+  local W = require("user.helpers.windows.factory")
+  local U = require("plugin.zk.utils")
+
   note = note or vim.fn.expand("%:p")
   local note_win = vim.api.nvim_get_current_win()
   local note_buf = vim.api.nvim_get_current_buf()
