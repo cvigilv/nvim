@@ -81,64 +81,66 @@ return {
         bib = { lsp = nil, formatter = "bibtex-tidy", linter = nil },
         json = { lsp = "jsonls", formatter = "jq", linter = nil },
         julia = {
-          lsp = {
-            "julials",
-            {
-              on_new_config = function(new_config, _)
-                local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
-                if require("lspconfig").util.path.is_file(julia) then
-                  new_config.cmd[1] = julia
-                end
-              end,
-              root_dir = function(fname)
-                local util = require("lspconfig.util")
-                return util.root_pattern("Project.toml")(fname)
-                  or util.find_git_ancestor(fname)
-                  or util.path.dirname(fname)
-              end,
-              capabilities = (function()
-                local cap = vim.lsp.protocol.make_client_capabilities()
-                cap.textDocument.completion.completionItem.snippetSupport = true
-                cap.textDocument.completion.completionItem.preselectSupport = true
-                cap.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
-                cap.textDocument.completion.completionItem.deprecatedSupport = true
-                cap.textDocument.completion.completionItem.insertReplaceSupport = true
-                cap.textDocument.completion.completionItem.labelDetailsSupport = true
-                cap.textDocument.completion.completionItem.commitCharactersSupport = true
-                cap.textDocument.completion.completionItem.resolveSupport = {
-                  properties = { "documentation", "detail", "additionalTextEdits" },
-                }
-                cap.textDocument.completion.completionItem.documentationFormat = { "markdown" }
-                cap.textDocument.codeAction = {
-                  dynamicRegistration = true,
-                  codeActionLiteralSupport = {
-                    codeActionKind = {
-                      valueSet = (function()
-                        local res = vim.tbl_values(vim.lsp.protocol.CodeActionKind)
-                        table.sort(res)
-                        return res
-                      end)(),
-                    },
-                  },
-                }
-
-                return cap
-              end)(),
-              settings = {
-                julia = {
-                  symbolCacheDownload = true,
-                  lint = {
-                    missingrefs = "all",
-                    iter = true,
-                    lazy = true,
-                    modname = true,
-                  },
-                },
-              },
-            },
-          },
-          formatter = nil,
+          lsp = "julials",
+          formatter = "runic",
           linter = nil,
+          --     {
+          --       on_new_config = function(new_config, _)
+          --         local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
+          --         if require("lspconfig").util.path.is_file(julia) then
+          --           new_config.cmd[1] = julia
+          --         end
+          --       end,
+          --       root_dir = function(fname)
+          --         local util = require("lspconfig.util")
+          --         return util.root_pattern("Project.toml")(fname)
+          --           or util.find_git_ancestor(fname)
+          --           or util.path.dirname(fname)
+          --       end,
+          --       capabilities = (function()
+          --         local cap = vim.lsp.protocol.make_client_capabilities()
+          --         cap.textDocument.completion.completionItem.snippetSupport = true
+          --         cap.textDocument.completion.completionItem.preselectSupport = true
+          --         cap.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
+          --         cap.textDocument.completion.completionItem.deprecatedSupport = true
+          --         cap.textDocument.completion.completionItem.insertReplaceSupport = true
+          --         cap.textDocument.completion.completionItem.labelDetailsSupport = true
+          --         cap.textDocument.completion.completionItem.commitCharactersSupport = true
+          --         cap.textDocument.completion.completionItem.resolveSupport = {
+          --           properties = { "documentation", "detail", "additionalTextEdits" },
+          --         }
+          --         cap.textDocument.completion.completionItem.documentationFormat = { "markdown" }
+          --         cap.textDocument.codeAction = {
+          --           dynamicRegistration = true,
+          --           codeActionLiteralSupport = {
+          --             codeActionKind = {
+          --               valueSet = (function()
+          --                 local res = vim.tbl_values(vim.lsp.protocol.CodeActionKind)
+          --                 table.sort(res)
+          --                 return res
+          --               end)(),
+          --             },
+          --           },
+          --         }
+          --
+          --         return cap
+          --       end)(),
+          --       settings = {
+          --         julia = {
+          --           symbolCacheDownload = true,
+          --           lint = {
+          --             missingrefs = "all",
+          --             iter = true,
+          --             lazy = true,
+          --             modname = true,
+          --           },
+          --         },
+          --       },
+          --     },
+          --   },
+          --   formatter = nil,
+          --   linter = nil,
+          -- },
         },
         lua = {
           lsp = {
@@ -177,7 +179,7 @@ return {
           linter = "mypy",
         },
         sh = { lsp = "bashls", formatter = "shfmt", linter = "shellcheck" },
-        typst = { lsp = "typst_lsp", formatter = "typstfmt", linter = nil },
+        typst = { lsp = "tinymist", formatter = "typstfmt", linter = nil },
       } -- }}}
 
       -- Setup tools
@@ -190,7 +192,10 @@ return {
         ensure_installed = vim.tbl_extend(
           "force",
           get_tool_names(languages, "linter"),
-          get_tool_names(languages, "formatter")
+          vim
+            .iter(get_tool_names(languages, "formatter"))
+            :filter(function(v) return v ~= "runic" end)
+            :totable()
         ),
       })
       lint.linters_by_ft = {}
@@ -225,10 +230,21 @@ return {
 
         conform.setup({
           formatters_by_ft = { [ft] = formatters },
+          formatters = {
+            runic = {
+              command = "julia",
+              args = { "--project=@runic", "-e", "using Runic; exit(Runic.main(ARGS))" },
+            },
+          },
           format_on_save = function()
             return { timeout_ms = 100, quiet = true, lsp_fallback = setup.formatter ~= nil }
           end,
           notify_on_error = true,
+          default_format_opts = {
+            -- Increase the timeout in case Runic needs to precompile
+            -- (e.g. after upgrading Julia and/or Runic).
+            timeout_ms = 10000,
+          },
         })
 
         -- Linting
