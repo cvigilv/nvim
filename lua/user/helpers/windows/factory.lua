@@ -1,4 +1,4 @@
----@module "user.helpers.ui.windows"
+---@module "user.helpers.windows.factory"
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024
 
@@ -68,7 +68,7 @@ function M.new_floating_win(contents, opts)
     style = "minimal",
     border = opts.border,
     anchor = "NE",
-    title = opts.title,
+    title = " " .. opts.title .. " ",
     footer = opts.footer,
     footer_pos = "right",
   }
@@ -104,5 +104,3 @@ function M.new_floating_win(contents, opts)
 end
 
 return M
-
--- M.new_floating_win("foo", {})
