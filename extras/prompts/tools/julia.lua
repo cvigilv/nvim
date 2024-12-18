@@ -13,14 +13,23 @@ You are tasked with generating a docstring in the Numpy specification for a give
 {{USER_QUERY}}
 </julia_code>
 
-Follow these guidelines to create the docstring:
+Follow these example to create the docstring:
+~~~jl
+"""
+    bar(x[, y])
 
-1. Use the Numpy docstring format, which includes sections for a short summary, parameters, returns, and optionally notes and examples.
-2. Keep the language concise and clear. Avoid unnecessary words or explanations.
-3. Include variable typing for all parameters and return values. Use Julia type hints syntax (e.g., int, float, str, List[int], Dict[str, float]).
-4. Add a "Notes" section if the function has any important caveats, edge cases, or complex behaviors that need explanation.
-5. Do not include an "Examples" section.
-6. Ensure that the docstring accurately reflects the function's behavior, parameters, and return values as shown in the provided code.
+Compute the Bar index between `x` and `y`.
+
+If `y` is unspecified, compute the Bar index between all pairs of columns of `x`.
+
+# Examples
+```julia-repl
+julia> bar([1, 2], [1, 2])
+1
+```
+"""
+function bar(x, y) ...
+~~~
 
 Generate the docstring based on the provided Julia code and output it without any additional text or explanations. Always return the docstrings in a markdown code block (delimited by three backticks plus the filetype).]],
   },
