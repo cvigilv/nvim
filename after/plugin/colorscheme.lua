@@ -51,6 +51,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
       Whitespace = { italic = true },
       WinSeparator = { link = "Comment" },
       NonText = { fg = hc.get_hlgroup_table("Comment").fg, italic = true },
+      NormalFloat = { bg = "#ffffff" },
     }
     for hlgroup, overrides in pairs(allchanges) do
       hc.modify_hlgroup(hlgroup, overrides)

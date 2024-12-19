@@ -16,9 +16,6 @@ return {
       vim.keymap.set("n", "<leader>cc", ":ClaudioChat<CR>", {})
     end,
   }, -- }}}
-  { -- patana {{{
-    dir = os.getenv("GITDIR") .. "/patana.nvim",
-  }, -- }}}
   { -- esqueleto {{{
     dir = os.getenv("GITDIR") .. "/esqueleto.nvim",
     enabled = true,
