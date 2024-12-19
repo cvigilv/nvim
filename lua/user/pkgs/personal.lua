@@ -13,7 +13,7 @@ return {
         },
       })
 
-      vim.keymap.set("n", "<leader>cc", ":ClaudioChat<CR>", {})
+      vim.keymap.set("n", "<leader>C", ":ClaudioChat<CR>", {})
     end,
   }, -- }}}
   { -- esqueleto {{{
