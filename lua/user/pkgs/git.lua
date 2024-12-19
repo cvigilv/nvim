@@ -59,26 +59,21 @@ return {
         function() require("gitsigns").undo_stage_hunk({ vim.fn.line("v"), vim.fn.line(".") }) end,
         { noremap = true, silent = true, desc = "Undo stage hunk" }
       )
-      vim.keymap.set(
-        "n",
-        "<leader>gd",
-        function()
-          require("gitsigns").toggle_deleted()
-          require("gitsigns").toggle_linehl()
-        end,
-        { noremap = true, silent = true, desc = "Toggle diff" } --
-      )
+      vim.keymap.set("n", "<leader>gd", function()
+        require("gitsigns").toggle_deleted()
+        require("gitsigns").toggle_linehl()
+      end, { noremap = true, silent = true, desc = "Toggle diff" })
 
       vim.keymap.set(
         "n",
         "]g",
-        function() require("gitsigns").next_hunk() end,
+        function() require("gitsigns").nav_hunk("next") end,
         { noremap = true, silent = true, desc = "Go to next Git hunk" }
       )
       vim.keymap.set(
         "n",
         "[g",
-        function() require("gitsigns").prev_hunk() end,
+        function() require("gitsigns").nav_hunk("prev") end,
         { noremap = true, silent = true, desc = "Go to previous Git hunk" }
       )
     end,
