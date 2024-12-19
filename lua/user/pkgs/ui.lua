@@ -75,7 +75,7 @@ return {
       })
     end,
   }, -- }}}
-  -- ZenMode
+  -- ZenMode {{{
   {
     "folke/zen-mode.nvim",
     opts = {
@@ -116,7 +116,8 @@ return {
         todo = { enabled = false }, -- if set to "true", todo-comments.nvim highlights will be disabled
       },
     },
-  },
+  }, --}}}
+  -- quicker.nvim {{{
   {
     "stevearc/quicker.nvim",
     event = "FileType qf",
@@ -146,5 +147,5 @@ return {
         },
       },
     },
-  },
+  }, --}}}
 }

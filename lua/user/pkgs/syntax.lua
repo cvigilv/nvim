@@ -1,5 +1,5 @@
 return {
-  { --
+  { -- headlines {{{
     "lukas-reineke/headlines.nvim",
     dependencies = "nvim-treesitter/nvim-treesitter",
     ft = "markdown",
@@ -12,7 +12,7 @@ return {
         },
       })
     end,
-  },
+  }, --}}}
   { -- treesitter {{{
     "nvim-treesitter/nvim-treesitter",
     config = function()
