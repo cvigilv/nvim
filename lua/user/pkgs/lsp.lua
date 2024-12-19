@@ -45,7 +45,12 @@ return {
     dependencies = {
       -- LSP
       { "williamboman/mason.nvim", config = true }, -- LSP installer
-      { "folke/lazydev.nvim", ft = "lua", config = true }, -- Neovim development
+      {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        config = true,
+        opts = { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      }, -- Neovim development
       { "j-hui/fidget.nvim", config = true }, -- UI extras
 
       -- Installers
@@ -211,7 +216,7 @@ return {
             "force",
             {},
             vim.lsp.protocol.make_client_capabilities(),
-            require("cmp_nvim_lsp").default_capabilities(),
+            require("blink.cmp").get_lsp_capabilities(),
             user_setup
           )
 
