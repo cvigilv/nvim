@@ -20,8 +20,8 @@ M.updateconfig = function(opts)
   -- Validate setup
   vim.validate({
     -- NOTE: This is an example of how to validate the configuration table
-    -- ["field"] = { opt.field, "type"},
-    -- ["complex_field"] = { opt.complex_field, {"string", "type"}}
+    -- ["field"] = { opts.field, "type"},
+    -- ["complex_field"] = { opts.complex_field, {"string", "type"}}
   })
 
   return opts
