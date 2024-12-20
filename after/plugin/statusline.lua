@@ -101,6 +101,8 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         " ",
         m.important(c.oil()),
         c.filestatus(),
+        ui.align(),
+        ui.align(),
         " ",
         ui.rightcap(),
         "%#MsgArea#",
