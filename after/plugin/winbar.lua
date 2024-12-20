@@ -19,6 +19,11 @@ _G.carlos.winbar = function()
     -- Right align contents
     "%#Normal#%=",
 
+    -- Buffer number and window
+    "%#Comment#",
+    " (B" .. vim.api.nvim_get_current_buf(),
+    ", W" .. vim.api.nvim_get_current_win() .. ") ",
+
     -- Current buffer block
     "%#WinBarCaps#%#WinBarOOB# ",
     stl.components.fileicon(),
