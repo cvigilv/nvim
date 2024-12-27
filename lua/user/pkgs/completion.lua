@@ -1,5 +1,5 @@
 return {
-  { -- Autocompletion v1 {{{
+  { -- Autocompletion {{{
     "saghen/blink.cmp",
     lazy = false, -- lazy loading handled internally
     dependencies = { "folke/lazydev.nvim", ft = "lua", config = true }, -- Neovim development
@@ -44,11 +44,17 @@ return {
 
       -- Sources
       sources = {
-        completion = { enabled_providers = { "lsp", "path", "snippets", "buffer", "lazydev" } },
-        providers = {
-          lsp = { fallback_for = { "lazydev" } },
-          lazydev = { name = "LazyDev", module = "lazydev.integrations.blink" },
-        },
+        default = { "lsp", "path", "snippets", "buffer", "lazydev" },
+        providers = { -- {{{
+          buffer = {
+            min_keyword_length = 5,
+          },
+          lazydev = {
+            name = "LazyDev",
+            module = "lazydev.integrations.blink",
+            fallbacks = { "lsp" },
+          },
+        }, -- }}}
       },
     },
   }, --}}}
