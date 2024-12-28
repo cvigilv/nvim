@@ -15,7 +15,8 @@ M.is_harpooned = function()
   local list = harpoon:list()
 
   for _, item in ipairs(list.items) do
-    if item.value == current_file then return "󰛢 " end
+    -- if item.value == current_file then return "󰛢 " end
+    if item.value == current_file then return " " end
   end
 
   return nil
