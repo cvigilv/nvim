@@ -10,6 +10,7 @@ M.setup = function(opts)
   opts = require("plugin.afuera.config").updateconfig(opts)
 
   -- Setup plugin functionality
+  opts.state = {}
   require("plugin.afuera.autocmds").setup(opts)
   require("plugin.afuera.excmds").setup(opts)
 end

@@ -5,7 +5,7 @@
 ---@class Afuera.Configuration
 ---@field defaults Afuera.Defaults.Configuration Default states for out-of-bounds mode
 ---@field fix_colorscheme boolean Whether to fix some highlight groups to make them work with plugin
----@field oob_char_hl string Highlight group for characters out-of-bounds
+---@field oob_highlight string Highlight group for characters out-of-bounds
 ---@field ignored_buftypes string[]
 ---@field ignored_filetypes string[]
 ---@field state? table Current state of plugin
@@ -26,7 +26,7 @@
 ---@type Afuera.Configuration
 local defaults = {
   fix_colorscheme = true,
-  oob_char_hl = "Error",
+  oob_highlight = "Error",
   defaults = {
     state = true,
     colorcolumn = vim.api.nvim_get_option_value("colorcolumn", { scope = "local" }),

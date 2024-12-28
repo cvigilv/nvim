@@ -61,6 +61,9 @@ local float_precision = 0.01
 -- Used for the logging file, if not nil and use_file == true.
 local outfile = nil
 
+-- Should highlighting be used in console (using echohl).
+local highlights = true
+
 -- Adjust content as needed, but must keep function parameters to be filled
 -- by library code.
 ---@param is_console boolean If output is for console or log file.
@@ -84,9 +87,6 @@ local default_config = {
   -- values: 'sync','async',false
   use_console = false,
 
-  -- Should highlighting be used in console (using echohl).
-  highlights = true,
-
   -- Should write to a file.
   -- Default output for logging file is `stdpath("cache")/plugin`.
   use_file = true,
@@ -106,8 +106,10 @@ local unpack = unpack or table.unpack
 log.new = function(config, standalone)
   config = vim.tbl_deep_extend("force", default_config, config)
 
-  local outfile =
-    vim.F.if_nil(outfile, vim.fs.joinpath(vim.fn.stdpath("cache"), plugin .. ".log"))
+  outfile = vim.F.if_nil(
+    outfile,
+    vim.fs.joinpath(vim.fn.stdpath("cache") --[[@as string]], plugin .. ".log")
+  ) --[[@as string]]
 
   local obj
   if standalone then
@@ -159,7 +161,7 @@ log.new = function(config, standalone)
       local log_to_console = function()
         local console_string = fmt_msg(true, level_config.name, src_path, src_line, msg)
 
-        if config.highlights and level_config.hl then
+        if highlights and level_config.hl then
           vim.cmd(string.format("echohl %s", level_config.hl))
         end
 
@@ -167,11 +169,12 @@ log.new = function(config, standalone)
         for _, v in ipairs(split_console) do
           local formatted_msg = string.format("[%s] %s", plugin, vim.fn.escape(v, [["\]]))
 
-          local ok = pcall(vim.cmd, string.format([[echom "%s"]], formatted_msg))
+          local ok =
+            pcall(vim.cmd --[[@as function]], string.format([[echom "%s"]], formatted_msg))
           if not ok then vim.api.nvim_out_write(msg .. "\n") end
         end
 
-        if config.highlights and level_config.hl then vim.cmd("echohl NONE") end
+        if highlights and level_config.hl then vim.cmd("echohl NONE") end
       end
       if config.use_console == "sync" and not vim.in_fast_event() then
         log_to_console()
