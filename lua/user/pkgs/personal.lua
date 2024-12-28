@@ -1,4 +1,7 @@
 return {
+  { -- afuera {{{
+    dir = os.getenv("GITDIR") .. "/afuera.nvim",
+  }, --}}}
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
     config = function()

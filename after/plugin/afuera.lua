@@ -1,4 +1,4 @@
-require("plugin.afuera").setup({
+require("afuera").setup({
   defaults = {
     state = true,
     colorcolumn = "96",
