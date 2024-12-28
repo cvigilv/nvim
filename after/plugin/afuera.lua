@@ -1,8 +1,9 @@
 require("plugin.afuera").setup({
   defaults = {
     state = true,
-    colorcolumn = "",
+    colorcolumn = "96",
   },
+  oob_char_hl = "Removed",
   ignored_filetypes = { "log" },
 })
 
