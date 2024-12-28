@@ -3,6 +3,7 @@ require("plugin.afuera").setup({
     state = true,
     colorcolumn = "",
   },
+  ignored_filetypes = { "log" },
 })
 
 vim.keymap.set("n", ",,o", ":AfueraToggle<CR>")
