@@ -10,6 +10,7 @@
 -- - Revert use of `plenary.lua` for file creation in favor of built-in `uv_fs`
 -- - Change `default_config` values
 -- - Styling
+-- - Extracted some user definable variables into constants
 
 -- log.lua
 --
@@ -40,14 +41,48 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+-- Name of the plugin. Prepended to log messages.
+local plugin = ${cursor}
+
+-- Level configuration.
+local modes = {
+  { name = "trace", hl = "Comment" },
+  { name = "debug", hl = "Comment" },
+  { name = "info", hl = "None" },
+  { name = "warn", hl = "WarningMsg" },
+  { name = "error", hl = "ErrorMsg" },
+  { name = "fatal", hl = "ErrorMsg" },
+}
+
+-- Can limit the number of decimals displayed for floats.
+local float_precision = 0.01
+
+-- Output file has precedence over plugin, if not nil.
+-- Used for the logging file, if not nil and use_file == true.
+local outfile = nil
+
+-- Adjust content as needed, but must keep function parameters to be filled
+-- by library code.
+---@param is_console boolean If output is for console or log file.
+---@param mode_name string Level configuration 'modes' field 'name'
+---@param src_path string Path to source file given by debug.info.source
+---@param src_line integer Line into source file given by debug.info.currentline
+---@param msg string Message, which is later on escaped, if needed.
+local fmt_msg = function(is_console, mode_name, src_path, src_line, msg)
+  local nameupper = mode_name:upper()
+  local lineinfo = src_path .. ":" .. src_line
+  if is_console then
+    return string.format("[%-6s%s] %s: %s", nameupper, os.date("%H:%M:%S"), lineinfo, msg)
+  else
+    return string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
+  end
+end
+
 -- User configuration section
 local default_config = {
-  -- Name of the plugin. Prepended to log messages.
-  plugin = "${gh-root}",
-
   -- Should print the output to neovim while running.
   -- values: 'sync','async',false
-  use_console = "async",
+  use_console = false,
 
   -- Should highlighting be used in console (using echohl).
   highlights = true,
@@ -56,45 +91,11 @@ local default_config = {
   -- Default output for logging file is `stdpath("cache")/plugin`.
   use_file = true,
 
-  -- Output file has precedence over plugin, if not nil.
-  -- Used for the logging file, if not nil and use_file == true.
-  outfile = nil,
-
   -- Should write to the quickfix list.
   use_quickfix = false,
 
   -- Any messages above this level will be logged.
   level = "trace",
-
-  -- Level configuration.
-  modes = {
-    { name = "trace", hl = "Comment" },
-    { name = "debug", hl = "Comment" },
-    { name = "info", hl = "None" },
-    { name = "warn", hl = "WarningMsg" },
-    { name = "error", hl = "ErrorMsg" },
-    { name = "fatal", hl = "ErrorMsg" },
-  },
-
-  -- Can limit the number of decimals displayed for floats.
-  float_precision = 0.01,
-
-  -- Adjust content as needed, but must keep function parameters to be filled
-  -- by library code.
-  ---@param is_console boolean If output is for console or log file.
-  ---@param mode_name string Level configuration 'modes' field 'name'
-  ---@param src_path string Path to source file given by debug.info.source
-  ---@param src_line integer Line into source file given by debug.info.currentline
-  ---@param msg string Message, which is later on escaped, if needed.
-  fmt_msg = function(is_console, mode_name, src_path, src_line, msg)
-    local nameupper = mode_name:upper()
-    local lineinfo = src_path .. ":" .. src_line
-    if is_console then
-      return string.format("[%-6s%s] %s: %s", nameupper, os.date("%H:%M:%S"), lineinfo, msg)
-    else
-      return string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
-    end
-  end,
 }
 
 -- {{{ NO NEED TO CHANGE
@@ -105,10 +106,8 @@ local unpack = unpack or table.unpack
 log.new = function(config, standalone)
   config = vim.tbl_deep_extend("force", default_config, config)
 
-  local outfile = vim.F.if_nil(
-    config.outfile,
-    vim.fs.joinpath(vim.fn.stdpath("cache"), config.plugin .. ".log")
-  )
+  local outfile =
+    vim.F.if_nil(outfile, vim.fs.joinpath(vim.fn.stdpath("cache"), plugin .. ".log"))
 
   local obj
   if standalone then
@@ -118,7 +117,7 @@ log.new = function(config, standalone)
   end
 
   local levels = {}
-  for i, v in ipairs(config.modes) do
+  for i, v in ipairs(modes) do
     levels[v.name] = i
   end
 
@@ -134,8 +133,8 @@ log.new = function(config, standalone)
     for i = 1, select("#", ...) do
       local x = select(i, ...)
 
-      if type(x) == "number" and config.float_precision then
-        x = tostring(round(x, config.float_precision))
+      if type(x) == "number" and float_precision then
+        x = tostring(round(x, float_precision))
       elseif type(x) == "table" then
         x = vim.inspect(x)
       else
@@ -158,7 +157,7 @@ log.new = function(config, standalone)
     -- Output to console
     if config.use_console then
       local log_to_console = function()
-        local console_string = config.fmt_msg(true, level_config.name, src_path, src_line, msg)
+        local console_string = fmt_msg(true, level_config.name, src_path, src_line, msg)
 
         if config.highlights and level_config.hl then
           vim.cmd(string.format("echohl %s", level_config.hl))
@@ -166,8 +165,7 @@ log.new = function(config, standalone)
 
         local split_console = vim.split(console_string, "\n")
         for _, v in ipairs(split_console) do
-          local formatted_msg =
-            string.format("[%s] %s", config.plugin, vim.fn.escape(v, [["\]]))
+          local formatted_msg = string.format("[%s] %s", plugin, vim.fn.escape(v, [["\]]))
 
           local ok = pcall(vim.cmd, string.format([[echom "%s"]], formatted_msg))
           if not ok then vim.api.nvim_out_write(msg .. "\n") end
@@ -185,7 +183,7 @@ log.new = function(config, standalone)
     -- Output to log file
     if config.use_file then
       local fp = assert(io.open(outfile, "a"))
-      local str = config.fmt_msg(false, level_config.name, src_path, src_line, msg)
+      local str = fmt_msg(false, level_config.name, src_path, src_line, msg)
       fp:write(str)
       fp:close()
     end
@@ -205,7 +203,7 @@ log.new = function(config, standalone)
     end
   end
 
-  for i, x in ipairs(config.modes) do
+  for i, x in ipairs(modes) do
     -- log.info("these", "are", "separated")
     obj[x.name] = function(...) return log_at_level(i, x, make_string, ...) end
 
