@@ -14,8 +14,8 @@ return {
           auto_close = false,
           auto_jump = false,
           jump_highlight_duration = 500,
-          hide_cursor = true,
-          winhl = "Normal:ColorColumn,CursorLine:Normal",
+          hide_cursor = false,
+          winhl = "Normal:ColorColumn,CursorLine:Normal,EndOfBuffer:ColorColumn,OutlineCurrent:Search",
         },
 
         outline_items = {
