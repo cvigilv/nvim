@@ -1,6 +1,22 @@
 return {
   { -- afuera {{{
     dir = os.getenv("GITDIR") .. "/afuera.nvim",
+    config = function()
+      ---@diagnostic disable-next-line: missing-fields
+      require("afuera").setup({
+        defaults = {
+          state = true,
+          colorcolumn = "96",
+        },
+        oob_char_hl = "Removed",
+        ignored_filetypes = { "log" },
+        ---@diagnostic disable-next-line: missing-fields
+        logging = { enabled = true },
+      })
+
+      vim.keymap.set("n", ",,o", ":AfueraToggle<CR>")
+      vim.keymap.set("n", ",,O", ":AfueraStatus<CR>")
+    end,
   }, --}}}
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
