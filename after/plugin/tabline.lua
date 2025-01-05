@@ -9,7 +9,7 @@
 
 -- Set custom color groups for tabline
 local setup_tabline_hlgroups = function()
-  local hc = require("user.helpers.colors")
+  local hc = require("carlos.helpers.colors")
 
   local colors = {
     Normal = hc.get_hlgroup_table("Normal"),
@@ -33,14 +33,14 @@ local setup_tabline_hlgroups = function()
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("user::ui", { clear = false }),
+  group = vim.api.nvim_create_augroup("carlos::ui", { clear = false }),
   pattern = "*",
   callback = setup_tabline_hlgroups,
 })
 
 -- Setup tabline
-local c = require("user.helpers.tabline.components")
-local u = require("user.helpers.tabline.ui")
+local c = require("carlos.helpers.tabline.components")
+local u = require("carlos.helpers.tabline.ui")
 setup_tabline_hlgroups()
 
 local hlgroup_lut = {

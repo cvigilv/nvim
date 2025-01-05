@@ -9,7 +9,7 @@
 ---Setup custom colors for statusline
 ---@return nil
 local setup_statusline_hlgroups = function()
-  local hc = require("user.helpers.colors")
+  local hc = require("carlos.helpers.colors")
 
   local hlgroups = {
     StatusLineCap = {
@@ -22,7 +22,7 @@ local setup_statusline_hlgroups = function()
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("user::ui", { clear = false }),
+  group = vim.api.nvim_create_augroup("carlos::ui", { clear = false }),
   pattern = "*",
   callback = setup_statusline_hlgroups,
 })
@@ -30,10 +30,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 setup_statusline_hlgroups()
 
 -- Setup statusline
-local c = require("user.helpers.statusline.components")
-local h = require("user.helpers.statusline.helpers")
-local m = require("user.helpers.statusline.modifiers")
-local ui = require("user.helpers.statusline.ui")
+local c = require("carlos.helpers.statusline.components")
+local h = require("carlos.helpers.statusline.helpers")
+local m = require("carlos.helpers.statusline.modifiers")
+local ui = require("carlos.helpers.statusline.ui")
 
 vim.g.user_qf_open = false
 
@@ -85,7 +85,7 @@ end
 vim.o.statusline = "%{%v:lua.carlos.statusline()%}"
 
 -- Special statuslines for some filetypes
-local augroup = vim.api.nvim_create_augroup("user::statusline", { clear = true })
+local augroup = vim.api.nvim_create_augroup("carlos::statusline", { clear = true })
 -- oil.nvim {{{
 vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,

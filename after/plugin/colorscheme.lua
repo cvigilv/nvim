@@ -2,7 +2,7 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024-2025
 
-local files = require("user.helpers.files")
+local files = require("carlos.helpers.files")
 
 -- Colorscheme overrides {{{
 -- TODO: Replace this autocommand for custom version of colorscheme (`tempano` foreshadowing...)
@@ -13,7 +13,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
   group = augroup_overrides,
   callback = function()
     if vim.api.nvim_get_option_value("bg", { scope = "global" }) == "light" then
-      local hc = require("user.helpers.colors")
+      local hc = require("carlos.helpers.colors")
 
       -- Overrides
       local alloverrides = {

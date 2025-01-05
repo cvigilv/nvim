@@ -8,9 +8,9 @@
 -- when its necessary, i.e. when the window is focused.
 
 -- Setup winbar
-local c = require("user.helpers.winbar.components")
-local h = require("user.helpers.winbar.helpers")
-local stl = require("user.helpers.statusline")
+local c = require("carlos.helpers.winbar.components")
+local h = require("carlos.helpers.winbar.helpers")
+local stl = require("carlos.helpers.statusline")
 
 h.setup_winbar_hlgroups()
 

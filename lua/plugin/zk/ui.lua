@@ -5,7 +5,7 @@
 local M = {}
 
 M.show_links = function(note, opts)
-  local W = require("user.helpers.windows.factory")
+  local W = require("carlos.helpers.windows.factory")
   local U = require("plugin.zk.utils")
 
   note = note or vim.fn.expand("%:p")
