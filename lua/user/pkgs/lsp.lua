@@ -182,7 +182,7 @@ return {
           linter = "mypy",
         },
         sh = { lsp = "bashls", formatter = "shfmt", linter = "shellcheck" },
-        typst = { lsp = "tinymist", formatter = "typstfmt", linter = nil },
+        typst = { lsp = "tinymist", formatter = "typstyle", linter = nil },
       } -- }}}
 
       -- Setup tools
@@ -198,6 +198,7 @@ return {
           vim
             .iter(get_tool_names(languages, "formatter"))
             :filter(function(v) return v ~= "runic" end)
+            :filter(function(v) return v ~= "typstyle" end)
             :totable()
         ),
       })
@@ -237,6 +238,10 @@ return {
             runic = {
               command = "julia",
               args = { "--project=@runic", "-e", "using Runic; exit(Runic.main(ARGS))" },
+            },
+            typstyle = {
+              command = "typstyle",
+              args = { "-i" },
             },
           },
           format_on_save = function()
