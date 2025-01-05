@@ -5,6 +5,7 @@ require("afuera").setup({
   },
   oob_char_hl = "Removed",
   ignored_filetypes = { "log" },
+  logging = { enabled = true },
 })
 
 vim.keymap.set("n", ",,o", ":AfueraToggle<CR>")
