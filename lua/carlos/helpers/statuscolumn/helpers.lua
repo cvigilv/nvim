@@ -4,8 +4,8 @@
 
 M = {}
 
---- Get all signs seen in current buffer
----@return table Signs
+---Get all signs seen in current buffer
+---@return table signs
 M.get_signs = function()
   return vim.api.nvim_buf_get_extmarks(
     0,

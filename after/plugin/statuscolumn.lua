@@ -16,13 +16,13 @@ _G.carlos.statuscolumn = function()
     ui.aligner(),
     c.linenumber(),
     " ",
-    vim.v.relnum == 0 and "%#CursorLine#" or "%#Normal#",
-    "%#Comment#▏%#Normal#",
+    -- "%#CursorLine#▏",
+    (vim.v.relnum == 0 and vim.api.nvim_get_option_value("cursorline", { scope = "local" }))
+        and "%#CursorLine#"
+      or "%#Normal#",
+    "▏",
     " ",
   }
-
-  -- HACK: This works but not the implementation down below, no idea why
-  if vim.bo.filetype == "ministarter" then components = { " " } end
 
   return table.concat(components, "")
 end
