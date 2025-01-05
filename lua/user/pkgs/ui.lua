@@ -1,8 +1,17 @@
 return {
   -- centerpad {{{
   {
-    "smithbm2316/centerpad.nvim",
-    setup = true,
+    "shortcuts/no-neck-pain.nvim",
+    version = "*",
+    config = function()
+      require("no-neck-pain").setup({
+        buffers = {
+          right = {
+            enabled = false,
+          },
+        },
+      })
+    end,
   },
   -- }}}
   -- which-key {{{
