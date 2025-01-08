@@ -26,8 +26,9 @@ vim.opt.fillchars = { -- Characters used for UI things
   foldopen = "▾",
   foldsep = "│",
   foldclose = "▸",
+
   -- Other
-  diff = "~",
+  diff = "╱",
   eob = " ",
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
