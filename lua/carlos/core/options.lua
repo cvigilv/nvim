@@ -10,6 +10,7 @@ vim.opt.completeopt = "menu,menuone,noselect" -- Set completeopt to have a bette
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.colorcolumn = "" -- Managed by "afuera.nvim"
 vim.opt.cursorline = true -- Highlight current line
+vim.opt.diffopt = "internal,filler,closeoff,linematch:60"
 vim.opt.fileencoding = "UTF-8" -- Character encoding for the file in the buffer
 vim.opt.fillchars = { -- Characters used for UI things
   -- Window splitting
@@ -33,7 +34,7 @@ vim.opt.fillchars = { -- Characters used for UI things
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
 vim.opt.formatoptions:remove("t") -- Remove inserting new line at `textwidth`
-vim.opt.laststatus = 3 -- Global statusline
+vim.opt.laststatus = 2 -- Per-window statusline
 vim.opt.list = true -- See whitespaces in current buffer
 vim.opt.listchars = "trail:∘,nbsp:‼,tab:╎ ,multispace: ,extends:…"
 vim.opt.mouse = "a" -- Activate mouse
@@ -63,7 +64,7 @@ vim.opt.wrap = false -- Don't wrap text
 -- Disable some in built plugins completely
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-vim.g.loaded_2html_plugin = 1
+-- vim.g.loaded_2html_plugin = 1
 vim.g.loaded_getscriptPlugin = 1
 vim.g.loaded_gzip = 1
 vim.g.loaded_logipat = 1
