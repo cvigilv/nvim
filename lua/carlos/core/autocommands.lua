@@ -10,6 +10,17 @@ vim.api.nvim_create_autocmd({ "TermOpen" }, {
   callback = function()
     vim.o.relativenumber = false
     vim.o.number = false
+    vim.o.signcolumn = "no"
+    vim.o.stc = ""
+
+    -- Keymaps
+    vim.api.nvim_buf_set_keymap(
+      0,
+      "t",
+      "<Leader><Esc>",
+      "<C-\\><C-n>",
+      { noremap = true, silent = true }
+    )
   end,
 })
 
