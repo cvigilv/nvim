@@ -2,13 +2,13 @@
 ---@author Carlos Vigil Vasquez
 ---@license MIT 2024
 
-local pickers = require("telescope.pickers")
-local sorters = require("telescope.sorters")
 local entry_display = require("telescope.pickers.entry_display")
 local finders = require("telescope.finders")
+local pickers = require("telescope.pickers")
+local sorters = require("telescope.sorters")
 local conf = require("telescope.config").values
-local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
+local actions = require("telescope.actions")
 
 local utils = require("plugin.zk.utils")
 
@@ -146,7 +146,6 @@ M.search_headings = function(opts)
           pcall(vim.api.nvim_win_close, backdrop_win, true)
 
           -- Open file
-          vim.print(selected)
           vim.cmd("e " .. selected.path)
         end)
 
@@ -229,7 +228,6 @@ M.search_tags = function(opts)
           actions.close(prompt_bufnr)
 
           local headings = {}
-          vim.print(utils.get_notes_headings(selected_tag_files.value))
           for path, heading in pairs(utils.get_notes_headings(selected_tag_files.value)) do
             table.insert(headings, {
               value = heading[1],
@@ -238,7 +236,6 @@ M.search_tags = function(opts)
               path = path,
             })
           end
-          vim.print(headings)
 
           pickers
             .new(telescope_theme, {
