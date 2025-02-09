@@ -21,6 +21,7 @@ _G.carlos.winbar = function()
 
     -- Buffer number and window
     "%#Comment#",
+    " %l:%c",
     " (B" .. vim.api.nvim_get_current_buf(),
     ", W" .. vim.api.nvim_get_current_win() .. ") ",
 
