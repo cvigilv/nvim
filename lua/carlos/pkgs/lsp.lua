@@ -168,7 +168,7 @@ return {
         },
         markdown = {
           lsp = "marksman",
-          formatter = nil,
+          formatter = "mdformat",
           linter = nil,
         },
         python = {
