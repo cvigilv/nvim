@@ -8,19 +8,7 @@ vim.api.nvim_create_autocmd({ "TextYankPost" }, {
 vim.api.nvim_create_autocmd({ "TermOpen" }, {
   pattern = { "*" },
   callback = function()
-    vim.o.relativenumber = false
-    vim.o.number = false
-    vim.o.signcolumn = "no"
-    vim.o.stc = ""
-
-    -- Keymaps
-    vim.api.nvim_buf_set_keymap(
-      0,
-      "t",
-      "<Leader><Esc>",
-      "<C-\\><C-n>",
-      { noremap = true, silent = true }
-    )
+    vim.api.nvim_set_option_value("filetype", "terminal", { scope = "local" })
   end,
 })
 
