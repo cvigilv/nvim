@@ -1,18 +1,4 @@
 return {
-  { -- headlines {{{
-    "lukas-reineke/headlines.nvim",
-    dependencies = "nvim-treesitter/nvim-treesitter",
-    ft = "markdown",
-    config = function()
-      require("headlines").setup({
-        markdown = {
-          dash_string = "━",
-          quote_string = "┃",
-          fat_headlines = false,
-        },
-      })
-    end,
-  }, --}}}
   { -- treesitter {{{
     "nvim-treesitter/nvim-treesitter",
     config = function()
