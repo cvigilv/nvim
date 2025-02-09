@@ -6,7 +6,11 @@ return {
   ["conventional_commit"] = {
     before = before.to_md_codeblock,
     after = after.extract_from_md_codeblock,
-    action = a.populate_clipboard,
+    action = function(contents)
+      a.populate_clipboard(contents)
+      vim.cmd("wincmd h")
+      vim.cmd("normal 0p")
+    end,
     prompt = [[
 You will be creating a GitHub commit message in the conventional commit specification based on a
 provided diff file. Here are your instructions:

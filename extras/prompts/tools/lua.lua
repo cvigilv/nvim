@@ -4,11 +4,17 @@ local before = require("claudio.tools.processing.before")
 
 return {
   ["docstring"] = {
-    before = before.to_md_codeblock,
+    before = nil,
     after = after.extract_from_md_codeblock,
     action = a.insert_contents,
-    prompt = [[
-You are tasked with generating an EmmyLua docstring for a given Lua function. The function code will be provided to you, and you must return only the docstring. Here is the Lua code for which you need to generate a docstring:
+    prompt = {
+      {
+        role = "user",
+        content = [[
+
+You are tasked with generating an EmmyLua docstring for a given Lua function. The function code
+will be provided to you, and you must return only the docstring. Here is the Lua code for which
+you need to generate a docstring:
 
 <lua_code>
 {{USER_QUERY}}
@@ -16,13 +22,17 @@ You are tasked with generating an EmmyLua docstring for a given Lua function. Th
 
 Follow these guidelines to create the EmmyLua docstring:
 
-1. Use the EmmyLua docstring format, which includes sections for a short summary, parameters, returns, and optionally notes.
+1. Use the EmmyLua docstring format, which includes sections for a short summary, parameters,
+   returns, and optionally notes.
 2. Keep the language concise and clear. Avoid unnecessary words or explanations.
-3. Include variable typing for all parameters and return values. Use Lua type annotations (e.g., number, string, table, boolean).
+3. Include variable typing for all parameters and return values. Use Lua type annotations (e.g.,
+   number, string, table, boolean).
 4. Add a "@see" section if there are related functions or modules that should be referenced.
 5. Do not include an "@example" section.
-6. Ensure that the docstring accurately reflects the function's behavior, parameters, and return values as shown in the provided code.
-7. Assume the developer is using the following: (i) Neovim Lua API, (ii) Lua 5.0, and (iii) LuaJit 2.1.
+6. Ensure that the docstring accurately reflects the function's behavior, parameters, and return
+   values as shown in the provided code.
+7. Assume the developer is using the following: (i) Neovim Lua API, (ii) Lua 5.0, and (iii)
+   LuaJit 2.1.
 
 Format your docstring as follows:
 ```
@@ -32,7 +42,13 @@ Format your docstring as follows:
 ---@return type Description of return value
 ---@see Related function or module (if necessary)
 ```
-
-Generate the EmmyLua docstring based on the provided Lua function and output it without any additional text or explanations. Place your docstring inside <docstring> tags formatted as a markdown code block (three backticks and filetype).]],
+]],
+        -- Generate the EmmyLua docstring based on the provided Lua function and output it without any
+        -- additional text or explanations. Place your docstring inside <docstring> tags formatted as a
+        -- markdown code block (three backticks and filetype).
+        -- ]],
+      },
+      { role = "assistant", content = "```lua" },
+    },
   },
 }
