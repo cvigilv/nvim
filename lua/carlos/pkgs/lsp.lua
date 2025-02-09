@@ -276,13 +276,45 @@ return {
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-            vim.lsp.inlay_hint.enable()
+            -- Set toggle block
+            local inlay_hint_toggle_blocked = true
+            if not inlay_hint_toggle_blocked then vim.lsp.inlay_hint.enable() end
+
             map(
               "<leader>lh",
               ---@diagnostic disable-next-line: missing-parameter
-              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+              function()
+                inlay_hint_toggle_blocked = not inlay_hint_toggle_blocked
+                vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+              end,
               "Toggle Inlay Hints"
             )
+
+            -- Create the autocommand group
+            local augroup = vim.api.nvim_create_augroup("lsp::inlay_hint", { clear = true })
+
+            -- Autocommand for entering insert mode
+            vim.api.nvim_create_autocmd("InsertEnter", {
+              group = augroup,
+              callback = function()
+                if not inlay_hint_toggle_blocked then
+                  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+                end
+              end,
+            })
+
+            -- Autocommand for leaving insert mode
+            vim.api.nvim_create_autocmd("InsertLeave", {
+              group = augroup,
+              callback = function()
+                if not inlay_hint_toggle_blocked then
+                  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+                end
+              end,
+            })
+
+            -- Enable inlay hint for current buffer
+            vim.lsp.inlay_hint.enable()
           end
         end,
       })
