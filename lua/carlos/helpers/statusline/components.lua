@@ -54,12 +54,11 @@ end
 --- Get current path of oil buffer
 ---@return string
 M.oil = function()
-  return "%#StatusLineNC#"
-    .. vim.fn.expand("%:h:h"):gsub("oil://", "")
+  return vim.fn.expand("%:h:h"):gsub("oil://", "")
     .. "/"
-    .. "%#StatusLine#"
+    .. "%#Bold#"
     .. vim.fn.expand("%:h:t"):gsub("oil://", "")
-    .. "%#StatusLineNC#"
+    .. "%#*#"
 end
 
 --- Get filepath relative to Git repo / CWD
@@ -86,7 +85,7 @@ M.filename = function()
   local filename = vim.fn.expand("%:t")
 
   local contents = ""
-  contents = contents .. "%#StatusLine#" .. filename .. "%#StatusLineNC#"
+  contents = contents .. "%#Bold#" .. filename .. "%#*#"
 
   return filename
 end
@@ -117,9 +116,9 @@ M.gitstatus = function()
     local status = {}
     if vim.b.gitsigns_status_dict["added"] ~= nil then
       for _, name in ipairs({ "added", "changed", "removed" }) do
-        if vim.b.gitsigns_status_dict[name] > 0 then
-          table.insert(status, stylesheet[name]["symbol"] .. vim.b.gitsigns_status_dict[name])
-        end
+        -- if vim.b.gitsigns_status_dict[name] > 0 then
+        table.insert(status, stylesheet[name]["symbol"] .. vim.b.gitsigns_status_dict[name])
+        -- end
       end
     else
       local name = "untracked"
@@ -128,7 +127,7 @@ M.gitstatus = function()
 
     local contents = table.concat(status, " ")
     if contents ~= "" then
-      return "(" .. table.concat(status, " ") .. ")"
+      return table.concat(status, " ")
     else
       return nil
     end
@@ -159,9 +158,9 @@ M.lsp = function()
 
   -- Return complete list of formatters
   if vim.tbl_count(buf_clients) > 0 then
-    return msg .. vim.fn.join(buf_clients, ",") .. "%#StatusLineNC#"
+    return msg .. vim.fn.join(buf_clients, ",")
   else
-    return msg .. "No LSP" .. "%#StatusLineNC#"
+    return msg .. "No LSP"
   end
 end
 
@@ -247,11 +246,11 @@ M.diagnostics = function()
   local contents = ""
 
   local severity = { ERROR = 0, WARN = 0, INFO = 0, HINT = 0 }
-  local icons = { ERROR = "󰅙 ", WARN = " ", INFO = " ", HINT = " " }
+  local icons = { ERROR = "E", WARN = "W", INFO = "I", HINT = "H" }
   for level, _ in pairs(severity) do
     severity[level] =
       vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[level] }))
-    if severity[level] > 0 then contents = contents .. icons[level] .. severity[level] end
+    contents = contents .. icons[level] .. severity[level] .. " "
   end
 
   return contents
@@ -275,7 +274,7 @@ M.harpoon_cheat = function()
   if #list.items < 5 then
     for idx, item in ipairs(list.items) do
       if item.value == current_file then
-        contents = contents .. "%#StatusLine#" .. harpoon_keys[idx] .. "%#StatusLineNC#"
+        contents = contents .. "%#Bold#" .. harpoon_keys[idx] .. "%#*#"
       else
         contents = contents .. harpoon_keys[idx]
       end
@@ -284,7 +283,7 @@ M.harpoon_cheat = function()
     for idx = 1, 4, 1 do
       local item = list.items[idx]
       if item.value == current_file then
-        contents = contents .. "%#StatusLine#" .. harpoon_keys[idx] .. "%#StatusLineNC#"
+        contents = contents .. "%#Bold#" .. harpoon_keys[idx] .. "%#*#"
       else
         contents = contents .. harpoon_keys[idx]
       end

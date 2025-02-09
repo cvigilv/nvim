@@ -12,10 +12,12 @@ local setup_statusline_hlgroups = function()
   local hc = require("carlos.helpers.colors")
 
   local hlgroups = {
-    StatusLineCap = {
-      fg = hc.get_hlgroup_table("MsgArea").bg,
+    StatusLine = {
+      fg = hc.get_hlgroup_table("StatusLine").fg,
       bg = hc.get_hlgroup_table("StatusLine").bg,
+      bold = false,
     },
+    Bold = { bold = true },
   }
 
   hc.override_hlgroups(hlgroups)
@@ -35,16 +37,15 @@ local h = require("carlos.helpers.statusline.helpers")
 local m = require("carlos.helpers.statusline.modifiers")
 local ui = require("carlos.helpers.statusline.ui")
 
-vim.g.user_qf_open = false
-
 _G.carlos.statusline = function()
   local components = {
-    -- Cap
-    h.ifttt(vim.g.user_qf_open, "", "%#MsgArea#" .. ui.align() .. ui.leftcap() .. " "),
-
-    -- Modal block
+    -- Git/CWD block
     " ",
-    m.important(c.mode()),
+    h.ifttt(vim.b.gitsigns_status_dict, m.important(c.gitbranch()), " " .. c.filepath()),
+    h.ifttt(vim.b.gitsigns_status_dict, "  ", nil),
+    h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus()),
+    " ",
+    ui.align(),
 
     -- Buffer block
     " ",
@@ -52,31 +53,17 @@ _G.carlos.statusline = function()
     " ",
     c.fileicon(),
     h.ifttt(vim.b.gitsigns_status_dict, c.filepath(), nil),
-    m.important(c.filename()),
-    c.filestatus(),
-
-    -- Git/CWD block
-    h.ifttt(vim.b.gitsigns_status_dict, "  ", nil),
-    m.important(h.ifttt(vim.b.gitsigns_status_dict, c.gitbranch(), " " .. c.filepath())),
+    m.important(c.filename() .. c.filestatus() .. "%*"),
     " ",
-    h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus()),
-    " ",
-
-    -- Misc block
-    ui.align(),
-    c.recording_macro(),
-    ui.align(),
 
     -- LSP block
+    ui.align(),
     " ",
     m.important(c.lsp()),
     c.env(),
     h.ifttt(c.diagnostics() ~= "", "  ", nil),
-    c.diagnostics(),
+    h.ifttt(c.diagnostics() ~= "", c.diagnostics(), nil),
     " ",
-
-    -- Cap
-    h.ifttt(vim.g.user_qf_open, "", ui.rightcap() .. "%#MsgArea#" .. ui.align()),
   }
 
   return vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), "")
@@ -92,20 +79,13 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   callback = function()
     if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "oil" then
       local components = {
-        "%#MsgArea#",
         ui.align(),
-        ui.leftcap(),
         " ",
         c.recording_macro(),
-        m.important(" Oildir"),
+        m.important(""),
         " ",
         m.important(c.oil()),
         c.filestatus(),
-        ui.align(),
-        ui.align(),
-        " ",
-        ui.rightcap(),
-        "%#MsgArea#",
         ui.align(),
       }
 
@@ -123,12 +103,10 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   callback = function()
     if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "qf" then
       local components = {
-        ui.leftcap(),
         "    ",
         "󱖫 ",
         m.important("%t%{exists('w:quickfix_title')? ' '.w:quickfix_title : ''}"),
         ui.align(),
-        ui.rightcap(),
       }
 
       vim.api.nvim_set_option_value(
