@@ -25,10 +25,8 @@ return {
       require("claudio").setup({
         ---@diagnostic disable-next-line: missing-fields
         tools = {
-          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools/",
-        },
-        chat = {
-          system = "Please answer the inquire, and then if you need to think or calculate, write them down inside a Markdown blockquote. Please be concise whenever you want to explain something and ensure to use a clear and simple language whenever possible.",
+          include_builtin = true,
+          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools",
         },
       })
 
@@ -140,16 +138,18 @@ return {
             end,
           },
         },
-        ---@diagnostic disable-next-line: missing-fields
         advanced = {
-          ignore_rules = {
-            templates = {
-              include_os_files = true,
-              extras = { "*%.bak$" },
-            },
-            filenames = { "*_Luapad%.lua%" },
-            filetypes = {},
-          },
+          ignored = {},
+          ignore_os_files = true,
+          ignore_patterns = { "^/tmp", "Luapad.lua$", "Claudio" },
+          -- ignore_rules = {
+          --   templates = {
+          --     include_os_files = true,
+          --     extras = { "*%.bak$" },
+          --   },
+          --   filenames = { "*_Luapad%.lua%" },
+          --   filetypes = {},
+          -- },
         },
       })
     end,
