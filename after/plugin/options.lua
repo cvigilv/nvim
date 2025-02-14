@@ -1,12 +1,10 @@
-vim.g.mapleader = ","
-
 -- General configuration
 vim.opt.autochdir = false -- Don't change current working directory to wherever is the file
 vim.opt.autoread = true -- Update files that change by external processes
 vim.opt.backup = false -- Don't create backup files
 vim.opt.background = "light" -- Use light background by default
 vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
-vim.opt.completeopt = "menu,menuone,noselect" -- Set completeopt to have a better completion UX
+vim.opt.completeopt = "menu,menuone,noselect,fuzzy" -- Set completeopt to have a better completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.colorcolumn = "" -- Managed by "afuera.nvim"
 vim.opt.cursorline = true -- Highlight current line

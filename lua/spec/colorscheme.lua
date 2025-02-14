@@ -4,5 +4,4 @@
 
 return {
   { "cocopon/iceberg.vim" },
-  { "oonamo/ef-themes.nvim" },
 }

@@ -12,34 +12,23 @@ vim.api.nvim_create_autocmd({ "TermOpen" }, {
   end,
 })
 
--- Refresh MiniStarter after calculating `lazy.nvim` stats
-vim.api.nvim_create_autocmd({ "User" }, {
-  pattern = { "LazyVimStarted" },
-  callback = function()
-    if vim.bo.filetype == "starter" then
-      require("mini.starter").refresh()
-      vim.notify_once("Refreshed MiniStarter dashboard", 3)
-    end
-  end,
-})
+-- Update listchars
+local function update_lead()
+  local lcs = vim.opt_local.listchars:get()
+  local tab = vim.fn.str2list(lcs.tab)
+  local space = vim.fn.str2list(lcs.multispace or lcs.space)
+  local lead = { tab[1] }
+  for i = 1, vim.bo.tabstop - 1 do
+    lead[#lead + 1] = space[i % #space + 1]
+  end
+  vim.opt_local.listchars:append({ leadmultispace = vim.fn.list2str(lead) })
+end
 
--- -- Update listchars
--- local function update_lead()
---   local lcs = vim.opt_local.listchars:get()
---   local tab = vim.fn.str2list(lcs.tab)
---   local space = vim.fn.str2list(lcs.multispace or lcs.space)
---   local lead = { tab[1] }
---   for i = 1, vim.bo.tabstop - 1 do
---     lead[#lead + 1] = space[i % #space + 1]
---   end
---   vim.opt_local.listchars:append({ leadmultispace = vim.fn.list2str(lead) })
--- end
---
--- vim.api.nvim_create_autocmd("OptionSet", {
---   pattern = { "listchars", "tabstop", "filetype" },
---   callback = update_lead,
--- })
--- vim.api.nvim_create_autocmd("VimEnter", { callback = update_lead, once = true })
+vim.api.nvim_create_autocmd("OptionSet", {
+  pattern = { "listchars", "tabstop", "filetype" },
+  callback = update_lead,
+})
+vim.api.nvim_create_autocmd("VimEnter", { callback = update_lead, once = true })
 
 -- Always enter terminal pane in Insert mode
 vim.api.nvim_create_autocmd({ "TermOpen", "BufEnter" }, {
