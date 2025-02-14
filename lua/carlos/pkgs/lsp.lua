@@ -84,46 +84,46 @@ return {
           lsp = {
             "julials",
             {
-              on_new_config = function(new_config, _)
-                local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
-                if (vim.loop.fs_stat(julia) or {}).type == "file" then
-                  new_config.cmd[1] = julia
-                end
-              end,
-              root_dir = function(fname)
-                local util = require("lspconfig.util")
-                return util.root_pattern("Project.toml")(fname)
-                  or vim.fs.dirname(".git", { path = fname, upward = true })[1]
-                  or vim.fs.dirname(fname)
-              end,
-              capabilities = (function()
-                local cap = vim.lsp.protocol.make_client_capabilities()
-                cap.textDocument.completion.completionItem.snippetSupport = true
-                cap.textDocument.completion.completionItem.preselectSupport = true
-                cap.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
-                cap.textDocument.completion.completionItem.deprecatedSupport = true
-                cap.textDocument.completion.completionItem.insertReplaceSupport = true
-                cap.textDocument.completion.completionItem.labelDetailsSupport = true
-                cap.textDocument.completion.completionItem.commitCharactersSupport = true
-                cap.textDocument.completion.completionItem.resolveSupport = {
-                  properties = { "documentation", "detail", "additionalTextEdits" },
-                }
-                cap.textDocument.completion.completionItem.documentationFormat = { "markdown" }
-                cap.textDocument.codeAction = {
-                  dynamicRegistration = true,
-                  codeActionLiteralSupport = {
-                    codeActionKind = {
-                      valueSet = (function()
-                        local res = vim.tbl_values(vim.lsp.protocol.CodeActionKind)
-                        table.sort(res)
-                        return res
-                      end)(),
-                    },
-                  },
-                }
-
-                return cap
-              end)(),
+              --   on_new_config = function(new_config, _)
+              --     local julia = vim.fn.expand("~/.julia/environments/nvim-lspconfig/bin/julia")
+              --     if (vim.loop.fs_stat(julia) or {}).type == "file" then
+              --       new_config.cmd[1] = julia
+              --     end
+              --   end,
+              --   root_dir = function(fname)
+              --     local util = require("lspconfig.util")
+              --     return util.root_pattern("Project.toml")(fname)
+              --       or vim.fs.dirname(".git", { path = fname, upward = true })[1]
+              --       or vim.fs.dirname(fname)
+              --   end,
+              --   capabilities = (function()
+              --     local cap = vim.lsp.protocol.make_client_capabilities()
+              --     cap.textDocument.completion.completionItem.snippetSupport = true
+              --     cap.textDocument.completion.completionItem.preselectSupport = true
+              --     cap.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
+              --     cap.textDocument.completion.completionItem.deprecatedSupport = true
+              --     cap.textDocument.completion.completionItem.insertReplaceSupport = true
+              --     cap.textDocument.completion.completionItem.labelDetailsSupport = true
+              --     cap.textDocument.completion.completionItem.commitCharactersSupport = true
+              --     cap.textDocument.completion.completionItem.resolveSupport = {
+              --       properties = { "documentation", "detail", "additionalTextEdits" },
+              --     }
+              --     cap.textDocument.completion.completionItem.documentationFormat = { "markdown" }
+              --     cap.textDocument.codeAction = {
+              --       dynamicRegistration = true,
+              --       codeActionLiteralSupport = {
+              --         codeActionKind = {
+              --           valueSet = (function()
+              --             local res = vim.tbl_values(vim.lsp.protocol.CodeActionKind)
+              --             table.sort(res)
+              --             return res
+              --           end)(),
+              --         },
+              --       },
+              --     }
+              --
+              --     return cap
+              --   end)(),
               settings = {
                 julia = {
                   symbolCacheDownload = true,
@@ -137,7 +137,7 @@ return {
               },
             },
           },
-          formatter = "runic",
+          formatter = nil,
           linter = nil,
         },
         lua = {
@@ -277,7 +277,7 @@ return {
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
             -- Set toggle block
-            local inlay_hint_toggle_blocked = true
+            local inlay_hint_toggle_blocked = false
             if not inlay_hint_toggle_blocked then vim.lsp.inlay_hint.enable() end
 
             map(
@@ -312,9 +312,6 @@ return {
                 end
               end,
             })
-
-            -- Enable inlay hint for current buffer
-            vim.lsp.inlay_hint.enable()
           end
         end,
       })

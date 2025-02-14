@@ -18,7 +18,7 @@ vim.fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSi
 vim.fn.sign_define("DiagnosticSignOk", { text = " ", texthl = "Normal" })
 
 vim.diagnostic.config({
-  update_in_insert = true,
+  update_in_insert = false,
   severity_sort = true,
   signs = { text = symbols },
   virtual_lines = { current_line = true },

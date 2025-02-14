@@ -58,7 +58,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
       Folded = { link = "Comment" },
       WinBar = { link = "Normal" },
       WinBarNC = { link = "Normal" },
-      EndOfBuffer = { link = "CursorLine" },
+      EndOfBuffer = { link = "Normal" },
       StatusLine = { bold = true },
       LineNr = { bold = true },
       Whitespace = { italic = true },

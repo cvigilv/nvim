@@ -78,6 +78,7 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = "VeryLazy",
     config = function()
+      -- Setup
       require("treesitter-context").setup({
         multiwindow = true,
         max_lines = 0,
@@ -86,10 +87,22 @@ return {
         multiline_threshold = 20,
         trim_scope = "inner",
         mode = "topline",
-        separator = nil,
+        separator = "•",
         zindex = 20,
         on_attach = nil,
       })
+
+      -- Highlights
+      vim.api.nvim_set_hl(0, "TreesitterContext", { link = "Normal" })
+      vim.api.nvim_set_hl(0, "TreesitterContextSeparator", { link = "Comment" })
+
+      -- Keymaps
+      vim.keymap.set(
+        "n",
+        "[c",
+        function() require("treesitter-context").go_to_context(vim.v.count1) end,
+        { silent = true }
+      )
     end,
   }, -- }}}
   -- ZenMode {{{

@@ -9,7 +9,7 @@ return {
           colorcolumn = "96",
         },
         oob_char_hl = "Removed",
-        ignored_filetypes = { "log" },
+        ignored_filetypes = { "log", "oil" },
         ---@diagnostic disable-next-line: missing-fields
         logging = { enabled = true },
       })
