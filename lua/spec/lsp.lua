@@ -17,27 +17,6 @@ return {
           sh = { template = { annotation_convention = "google_bash" } },
         },
       })
-
-      -- Keymaps
-      vim.keymap.set(
-        "n",
-        "<Leader>ld",
-        function() require("neogen").generate({ type = "func" }) end,
-        { desc = "Generate function docstring", noremap = true, silent = true }
-      )
-
-      vim.keymap.set(
-        "n",
-        "<Leader>lD",
-        function()
-          vim.ui.select(
-            { "class", "func", "type", "file" },
-            { prompt = "Select docstring to generate:" },
-            function(choice) require("neogen").generate({ type = choice }) end
-          )
-        end,
-        { desc = "Pick docstring to generate", noremap = true, silent = true } --
-      )
     end,
   }, -- }}}
   { -- LSP & Co. {{{
@@ -320,14 +299,6 @@ return {
         pattern = "*",
         callback = function() require("lint").try_lint() end,
       })
-
-      -- Keymaps
-      vim.keymap.set(
-        "n",
-        "<leader>lf",
-        function() require("conform").format({ async = true }) end,
-        { desc = "Format buffer" }
-      )
     end,
   }, -- }}}a
 }

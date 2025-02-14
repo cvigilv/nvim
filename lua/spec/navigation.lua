@@ -13,15 +13,6 @@ return {
         auto_save = nil,
         disable_on_zoom = true,
       })
-
-      -- Keybindings
-      local opts = { noremap = true, silent = true }
-
-      vim.keymap.set({ "t", "n" }, "<C-h>", require("Navigator").left, opts)
-      vim.keymap.set({ "t", "n" }, "<C-k>", require("Navigator").up, opts)
-      vim.keymap.set({ "t", "n" }, "<C-l>", require("Navigator").right, opts)
-      vim.keymap.set({ "t", "n" }, "<C-j>", require("Navigator").down, opts)
-      vim.keymap.set({ "t", "n" }, "<C-p>", require("Navigator").previous, opts)
     end,
   }, -- }}}
   { -- oil {{{
@@ -54,12 +45,6 @@ return {
         },
         -- Set to false to disable all of the above keymaps
         use_default_keymaps = false,
-      })
-
-      vim.keymap.set("n", "<leader><CR>", require("oil").open, {
-        desc = "File browser",
-        noremap = true,
-        silent = true,
       })
     end,
   }, -- }}}
@@ -99,48 +84,6 @@ return {
       )
 
       -- Keymaps
-      vim.keymap.set(
-        "n",
-        "<Space>fa",
-        function() harpoon:list():add() end,
-        { desc = "Add file" }
-      )
-      vim.keymap.set(
-        "n",
-        "<Space>ff",
-        function()
-          harpoon.ui:toggle_quick_menu(harpoon:list(), {
-            border = { "🭽", "▔", "🭾", "▕", "🭿", "▁", "🭼", "▏" },
-            title = " Harpoon ",
-            title_pos = "left",
-            ui_width_ratio = 0.33,
-          })
-        end,
-        { desc = "Toggle quick menu" }
-      )
-
-      vim.keymap.set(
-        "n",
-        "[h",
-        function() harpoon:list():prev() end,
-        { desc = "Previous harpoon buffer" }
-      )
-      vim.keymap.set(
-        "n",
-        "]h",
-        function() harpoon:list():next() end,
-        { desc = "Next harpoon buffer" }
-      )
-
-      for i, key in ipairs({ "h", "j", "k", "l" }) do
-        vim.keymap.set(
-          "n",
-          "<Space>f" .. key,
-          function() harpoon:list():select(i) end,
-          { desc = "Select buffer #" .. key }
-        )
-      end
-
       harpoon:extend({
         UI_CREATE = function(cx)
           vim.keymap.set(
@@ -252,69 +195,6 @@ return {
           builtin = { prompt_title = "   Pickers   ", previewer = false },
         },
       })
-
-      -- Keymaps
-      local builtin = require("telescope.builtin")
-      vim.keymap.set(
-        "n",
-        ",ff",
-        M.project_files,
-        { silent = true, noremap = true, desc = "Find files" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fs",
-        "<CMD>Telescope live_grep<CR>",
-        { silent = true, noremap = true, desc = "Find string with Grep" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fw",
-        function() builtin.grep_string({ search = vim.fn.expand("<cword>") }) end,
-        { silent = true, noremap = true, desc = "Find word under cursor" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fW",
-        function() builtin.grep_string({ search = vim.fn.expand("<cWORD>") }) end,
-        { silent = true, noremap = true, desc = "Find WORD under cursor" }
-      )
-      vim.keymap.set(
-        "n",
-        ",ft",
-        function() builtin.grep_string({ search = " TODO: " }) end,
-        { silent = true, noremap = true, desc = "Find TODO comments" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fr",
-        function() builtin.resume() end,
-        { silent = true, noremap = true, desc = "Open last search result" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fb",
-        "<CMD>Telescope buffers<CR>",
-        { silent = true, noremap = true, desc = "Buffers" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fh",
-        "<CMD>Telescope help_tags<CR>",
-        { silent = true, noremap = true, desc = "Help tags" }
-      )
-      vim.keymap.set(
-        "n",
-        ",fd",
-        "<CMD>Telescope diagnostics<CR>",
-        { silent = true, noremap = true, desc = "LSP diagnostics" }
-      )
-      vim.keymap.set(
-        "n",
-        ",f?",
-        "<CMD>Telescope pickers<CR>",
-        { silent = true, noremap = true, desc = "Pickers" }
-      )
     end,
   }, -- }}}
 }

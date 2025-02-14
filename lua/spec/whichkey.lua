@@ -9,7 +9,7 @@ return {
     config = function()
       local wk = require("which-key")
       wk.setup({
-        preset = "modern",
+        preset = "helix",
         delay = 150,
         filter = function(mapping) return mapping.desc and mapping.desc ~= "" end,
         spec = {},
@@ -30,17 +30,16 @@ return {
         },
         win = {
           border = "single",
-          padding = { 2, 2 },
           title_pos = "center",
-          wo = { winblend = 10 },
+          wo = { winblend = 10, anchor = "NE" },
         },
         layout = {
-          width = { min = 20 },
-          spacing = 5,
+          width = { max = 16 },
         },
         icons = {
           breadcrumb = "➜",
-          separator = "-",
+          separator = "   ",
+          mappings = false,
         },
         disable = {
           ft = { "TelescopePrompt", "Lazy" },
@@ -49,13 +48,14 @@ return {
       })
       -- Keymap groupings
       wk.add({
-        { "<leader>f", icon = "󰈞", group = "+finder" },
-        { "<leader>g", icon = "󰊢", group = "+git" },
-        { "<leader>z", icon = "", group = "+zettelkasten" },
-        { "<leader>l", icon = "󰌘", group = "+lsp" },
-        { "<leader>d", icon = "", group = "+diagnostics" },
-        { "<space>f", icon = "󰛢 ", group = "+harpoon" },
-        { "<leader>s", icon = "󱃖 ", group = "+snippets" },
+        { "<leader>", icon = "", group = "+leader" },
+        { "<leader>f", icon = "", group = "+finder" },
+        { "<leader>g", icon = "", group = "+git" },
+        { "<leader>z", icon = "", group = "+zettelkasten" },
+        { "<leader>l", icon = "", group = "+lsp" },
+        { "<leader>d", icon = "", group = "+diagnostics" },
+        { "<space>f", icon = "", group = "+harpoon" },
+        { "<leader>s", icon = "", group = "+snippets" },
       })
     end,
   },

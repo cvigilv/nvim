@@ -41,7 +41,7 @@ _G.carlos.statusline = function()
   local components = {
     -- Git/CWD block
     " ",
-    h.ifttt(vim.b.gitsigns_status_dict, m.important(c.gitbranch()), " " .. c.filepath()),
+    h.ifttt(vim.b.gitsigns_status_dict, m.important(c.gitbranch()), nil),
     h.ifttt(vim.b.gitsigns_status_dict, "  ", nil),
     h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus()),
     " ",
@@ -53,7 +53,7 @@ _G.carlos.statusline = function()
     " ",
     c.fileicon(),
     h.ifttt(vim.b.gitsigns_status_dict, c.filepath(), nil),
-    m.important(c.filename() .. c.filestatus() .. "%*"),
+    m.important(c.filename() .. c.filestatus()),
     " ",
 
     -- LSP block

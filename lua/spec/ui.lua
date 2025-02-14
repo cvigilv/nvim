@@ -22,14 +22,6 @@ return {
       -- Highlights
       vim.api.nvim_set_hl(0, "TreesitterContext", { link = "Normal" })
       vim.api.nvim_set_hl(0, "TreesitterContextSeparator", { link = "Comment" })
-
-      -- Keymaps
-      vim.keymap.set(
-        "n",
-        "[c",
-        function() require("treesitter-context").go_to_context(vim.v.count1) end,
-        { silent = true }
-      )
     end,
   }, -- }}}
   -- quicker.nvim {{{
@@ -46,20 +38,6 @@ return {
         winfixheight = true,
         wrap = false,
         winfixbuf = true,
-      },
-      keys = {
-        {
-          ">",
-          function()
-            require("quicker").expand({ before = 3, after = 3, add_to_existing = true })
-          end,
-          desc = "Expand quickfix context",
-        },
-        {
-          "<",
-          function() require("quicker").collapse() end,
-          desc = "Collapse quickfix context",
-        },
       },
     },
   }, --}}}
