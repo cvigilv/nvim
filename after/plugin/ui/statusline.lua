@@ -6,31 +6,6 @@
 -- currently focused file/buffer. This information comes from current mode, diagnostics, LSP,
 -- Git, etc.
 
----Setup custom colors for statusline
----@return nil
-local setup_statusline_hlgroups = function()
-  local hc = require("carlos.helpers.colors")
-
-  local hlgroups = {
-    StatusLine = {
-      fg = hc.get_hlgroup_table("StatusLine").fg,
-      bg = hc.get_hlgroup_table("StatusLine").bg,
-      bold = false,
-    },
-    Bold = { bold = true },
-  }
-
-  hc.override_hlgroups(hlgroups)
-end
-
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("carlos::ui", { clear = false }),
-  pattern = "*",
-  callback = setup_statusline_hlgroups,
-})
-
-setup_statusline_hlgroups()
-
 -- Setup statusline
 local c = require("carlos.helpers.statusline.components")
 local h = require("carlos.helpers.statusline.helpers")
@@ -72,7 +47,9 @@ end
 vim.o.statusline = "%{%v:lua.carlos.statusline()%}"
 
 -- Special statuslines for some filetypes
+-- TODO: Leave term statusline to only current shell
 local augroup = vim.api.nvim_create_augroup("carlos::statusline", { clear = true })
+
 -- oil.nvim {{{
 vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,
@@ -109,6 +86,24 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         ui.align(),
       }
 
+      vim.api.nvim_set_option_value(
+        "stl",
+        vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),
+        { scope = "local" }
+      )
+    end
+  end,
+}) -- }}}
+-- terminal {{{
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  group = augroup,
+  callback = function()
+    if vim.api.nvim_get_option_value("buftype", { scope = "local" }) == "terminal" then
+      local components = {
+        ui.align(),
+        "%f",
+        ui.align(),
+      }
       vim.api.nvim_set_option_value(
         "stl",
         vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),

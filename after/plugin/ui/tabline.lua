@@ -7,17 +7,19 @@
 -- currently focused file/buffer, the number of additional windows open in this tab and
 -- if the current tab has any kind of status change.
 
+local C = require("carlos.helpers.tabline.components")
+local H = require("carlos.helpers.colors")
+local U = require("carlos.helpers.tabline.ui")
+
 -- Set custom color groups for tabline
 local setup_tabline_hlgroups = function()
-  local hc = require("carlos.helpers.colors")
-
   local colors = {
-    Normal = hc.get_hlgroup_table("Normal"),
-    Comment = hc.get_hlgroup_table("Comment"),
-    Constant = hc.get_hlgroup_table("Constant"),
-    TabLine = hc.get_hlgroup_table("TabLine"),
-    TabLineSel = hc.get_hlgroup_table("TabLineSel"),
-    TabLineFill = hc.get_hlgroup_table("TabLineFill"),
+    Normal = H.get_hlgroup_table("Normal"),
+    Comment = H.get_hlgroup_table("Comment"),
+    Constant = H.get_hlgroup_table("Constant"),
+    TabLine = H.get_hlgroup_table("TabLine"),
+    TabLineSel = H.get_hlgroup_table("TabLineSel"),
+    TabLineFill = H.get_hlgroup_table("TabLineFill"),
   }
 
   local hlgroups = {
@@ -29,20 +31,11 @@ local setup_tabline_hlgroups = function()
     TabLineDim = { fg = colors.Comment.fg, bg = colors.TabLine.bg },
   }
 
-  hc.override_hlgroups(hlgroups)
+  H.override_hlgroups(hlgroups)
 end
-
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("carlos::ui", { clear = false }),
-  pattern = "*",
-  callback = setup_tabline_hlgroups,
-})
-
--- Setup tabline
-local c = require("carlos.helpers.tabline.components")
-local u = require("carlos.helpers.tabline.ui")
 setup_tabline_hlgroups()
 
+-- Setup tabline
 local hlgroup_lut = {
   [true] = {
     caps = "%#TabLineSelCaps#",
@@ -94,12 +87,12 @@ _G.carlos.tabline = function()
       -- Add tab index
       hlgroup_lut[selected]["accent"],
       " ",
-      index < 10 and u.index_icons[index][tab_has_status] or u.index_icons.more[tab_has_status],
+      index < 10 and U.index_icons[index][tab_has_status] or U.index_icons.more[tab_has_status],
 
       -- Add focused buffer information
       hlgroup_lut[selected]["normal"],
       " ",
-      c.fileicon(bufname),
+      C.fileicon(bufname),
       vim.fn.fnamemodify(bufname, ":t"),
 
       -- Add other relevant tab information
@@ -119,3 +112,10 @@ _G.carlos.tabline = function()
 end
 
 vim.o.tabline = "%!v:lua.carlos.tabline()"
+
+-- Autocommands
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("carlos::ui", { clear = false }),
+  pattern = "*",
+  callback = setup_tabline_hlgroups,
+})

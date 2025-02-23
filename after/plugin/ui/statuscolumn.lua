@@ -2,7 +2,7 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT
 
--- Setup statuscolumn {{{
+-- Setup statuscolumn
 local c = require("carlos.helpers.statuscolumn.components")
 local h = require("carlos.helpers.statuscolumn.helpers")
 local ui = require("carlos.helpers.statuscolumn.ui")
@@ -28,7 +28,7 @@ _G.carlos.statuscolumn = function()
 end
 
 vim.o.statuscolumn = "%{%v:lua.carlos.statuscolumn()%}"
--- }}}
+
 -- Don't setup statuscolumn in some filetypes and buffers {{{
 -- NOTE: This is based on https://github.com/luukvbaal/statuscol.nvim/blob/d6f7f5437c5404d958b88bb73e0721b1c0e09223/lua/statuscol.lua#L445-L463
 local augroup = vim.api.nvim_create_augroup("carlos::statuscolumn", { clear = true })

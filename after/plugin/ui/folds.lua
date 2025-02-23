@@ -1,3 +1,7 @@
+---@module 'after.plugin.ui.folds'
+---@author Carlos Vigil-Vásquez
+---@license MIT
+
 -- NOTE: Adapted from https://www.reddit.com/r/neovim/comments/16sqyjz/finally_we_can_have_highlighted_folds/
 _G.carlos.foldtext = function()
   local fold_start = vim.v.foldstart
