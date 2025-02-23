@@ -4,7 +4,7 @@ vim.opt.autoread = true -- Update files that change by external processes
 vim.opt.backup = false -- Don't create backup files
 vim.opt.background = "light" -- Use light background by default
 vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
-vim.opt.completeopt = "menu,menuone,noselect,fuzzy" -- Set completeopt to have a better completion UX
+vim.opt.completeopt = "menu,menuone,noselect,fuzzy" -- Improve completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.colorcolumn = "" -- Managed by "afuera.nvim"
 vim.opt.cursorline = true -- Highlight current line
@@ -31,7 +31,6 @@ vim.opt.fillchars = { -- Characters used for UI things
   eob = " ",
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
-vim.opt.formatoptions:remove("t") -- Remove inserting new line at `textwidth`
 vim.opt.laststatus = 2 -- Per-window statusline
 vim.opt.list = true -- See whitespaces in current buffer
 vim.opt.listchars = "trail:∘,nbsp:‼,tab:╎ ,multispace: ,extends:…"
