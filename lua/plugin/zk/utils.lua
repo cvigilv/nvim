@@ -2,6 +2,19 @@
 ---@author Carlos Vigil Vásquez
 ---@license MIT 2024
 
+local read_n_lines = function(path, n)
+  n = n or 10
+  -- local ok, contents = pcall(function(f) return io.open(f, "r"):read("a") end, path)
+  local ok, contents = pcall(vim.fn.readfile, path, " ", n)
+  if ok and contents ~= nil then
+    -- local lines = vim.split(contents, "\n")
+    -- return vim.list_slice(lines, nil, n)
+    return contents
+  end
+  vim.print(contents)
+  return nil
+end
+
 local M = {}
 
 M.parse_yaml_line = function(line)
@@ -11,7 +24,7 @@ M.parse_yaml_line = function(line)
       return key, tonumber(value)
     elseif value:match("^true$") or value:match("^false$") then
       return key, value == "true"
-    elseif value:match("^'.*'$") or value:match('^".*"$') then
+    elseif value:match("^'.*'$") or value:match("^\".*\"$") then
       return key, value:sub(2, -2)
     else
       return key, value
@@ -130,15 +143,14 @@ M.get_title = function(note)
   -- Read file content
   local contents
   if note ~= nil then
-    contents = io.open(note, "r"):read("*a")
+    contents = read_n_lines(note, 3)
   else
-    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-    contents = table.concat(lines, "\n")
+    contents = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   end
 
   if contents ~= nil then
     -- Search title in each line
-    for _, line in ipairs(vim.split(contents, "\n", { trimempty = true })) do
+    for _, line in ipairs(contents) do
       if line ~= "" and string.find(line, "^# ") ~= nil then
         local title = line:gsub("^# ", "")
         return title
@@ -173,12 +185,14 @@ M.get_tags = function(note)
   local tags = {}
 
   -- Read file content
-  local content = vim.fn.readfile(note)
+  local content = read_n_lines(note, 5)
 
   -- Search tags in each line
-  for _, line in ipairs(content) do
-    for tag in line:gmatch("#%w+[/%w+]*") do -- NOTE: this pattern extract #tag/subtag tags
-      table.insert(tags, tag)
+  if content ~= nil then
+    for _, line in ipairs(content) do
+      for tag in line:gmatch("#%w+[/%w+]*") do -- NOTE: this pattern extract #tag/subtag tags
+        table.insert(tags, tag)
+      end
     end
   end
 
@@ -206,19 +220,21 @@ end
 ---@param note string Path to the note file
 ---@return string|nil type The type of the note ("Journal", "Idea", "Reference", "Map-of-Contents") or nil if no type is found
 M.get_type = function(note)
-  -- Read file content
-  local content = vim.fn.readfile(note)
+  -- Read file's first 10 lines
+  local content = read_n_lines(note, 5)
 
   -- Search tags in each line
-  for _, line in ipairs(content) do
-    if line:find("#journal") then
-      return "Journal"
-    elseif line:find("#idea") then
-      return "Idea"
-    elseif line:find("#reference") then
-      return "Reference"
-    elseif line:find("#moc") then
-      return "Map-of-Contents"
+  if content ~= nil then
+    for _, line in ipairs(content) do
+      if line:find("#journal") then
+        return "Journal"
+      elseif line:find("#idea") then
+        return "Idea"
+      elseif line:find("#reference") then
+        return "Reference"
+      elseif line:find("#moc") then
+        return "Map-of-Contents"
+      end
     end
   end
   return "Invalid type"
@@ -263,45 +279,46 @@ M.get_all_metadatas = function(opts)
   return all_notes_metadata
 end
 
----Get "from" links for a given note in a Zettelkasten system.
----@param note string The path of the note to find "from" links for
----@return table from_links Array of note paths that link to the given note
+---Get "to" links for a given note in a Zettelkasten system.
+---@param note string The path of the note to find "to" links for
+---@return table to_links Array of note paths that link to the given note
 ---@see M.get_from_links
-M.get_from_links = function(note, opts)
+M.get_to_links = function(note, opts)
   -- Read file content
-  local content = vim.fn.readfile(note)
+  local content = read_n_lines(note, -1)
 
   -- Get "from"/foward links in note
   local from_links = {}
-  for _, line in ipairs(content) do
-    for match in line:gmatch("%[.-%]%((.-%.md)%)") do
-      table.insert(from_links, vim.fn.resolve(opts.path .. match))
+  if content ~= nil then
+    for _, line in ipairs(content) do
+      for match in line:gmatch("%[.-%]%((.-%.md)%)") do
+        table.insert(from_links, vim.fn.resolve(opts.path .. match))
+      end
     end
   end
 
   return from_links
 end
 
----Get "to" links for a given note in a Zettelkasten system.
----@param note string The path of the note to find "to" links for
+---Get "from" links for a given note in a Zettelkasten system.
+---@param note string The path of the note to find "from" links for
 ---@param opts Zk.Config User config
----@return table to_links Array of note paths that link to the given note
----@see M.get_from_links
-M.get_to_links = function(note, opts)
+---@return table from_links Array of note paths that link to the given note
+---@see M.get_to_links
+M.get_from_links = function(note, opts)
   -- Get all notes in zettelkasten
   local all_notes = vim.split(vim.fn.glob(opts.path .. "*.md"), "\n", { trimempty = true })
 
-  -- Get "to" links from "from" links for each note in Zettelaksten
-  local to_links = {}
+  -- Get "from" links from "to" links for each note in Zettelaksten
+  local from_links = {}
   for _, n in ipairs(all_notes) do
-    local links = M.get_from_links(n, opts)
+    local links = M.get_to_links(n, opts)
     for _, l in ipairs(links) do
-      vim.print(l .. " == " .. note .. "? " .. tostring(l == note))
-      if l == note then table.insert(to_links, n) end
+      if l == note then table.insert(from_links, n) end
     end
   end
 
-  return to_links
+  return from_links
 end
 
 ---Retrieves all links associated with a note.

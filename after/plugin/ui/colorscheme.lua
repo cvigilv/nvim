@@ -4,16 +4,11 @@
 
 local augroup_colorscheme = vim.api.nvim_create_augroup("carlos::colorscheme", { clear = true })
 
-vim.api.nvim_create_autocmd({ "FocusGained" }, {
-  group = augroup_colorscheme,
-  callback = function()
-    local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
-    if theme == "Dark" then
-      vim.o.background = "dark"
-    else
-      vim.o.background = "light"
-    end
-  end,
-})
+local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
+if theme == "Dark" then
+  vim.o.background = "dark"
+else
+  vim.o.background = "light"
+end
 
 vim.cmd("colorscheme tempano")

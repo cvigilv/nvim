@@ -34,6 +34,7 @@ M.create_excmds = function(opts)
   -- UI
   vim.api.nvim_create_user_command(
     "ZkLinks",
+    -- TODO: Check if window is open to decide wheter opening it or focusing onto it
     function() ui.show_links(nil, opts) end,
     { desc = "Show links to file." }
   )

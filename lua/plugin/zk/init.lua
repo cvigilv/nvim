@@ -8,15 +8,16 @@ local M = {}
 ---@param opts Zk.Config User configuration table
 M.setup = function(opts)
   local config = require("plugin.zk.config")
-  local excmd = require("plugin.zk.excmd")
-  local autocmd = require("plugin.zk.autocmd")
 
   -- update defaults
   opts = config.update_config(opts)
 
   -- Module functionality
-  excmd.create_excmds(opts)
-  autocmd.setup(opts)
+  require("plugin.zk.excmd").create_excmds(opts)
+  require("plugin.zk.autocmd").setup(opts)
+  require("plugin.zk.cmp").setup(opts)
+
+  _G.carlos.zk = {}
 end
 
 return M

@@ -61,7 +61,7 @@ _G.carlos.winbar = function()
     vim.fn.expand("%:t"),
     "%#WinBarOOB#",
     stl.components.filestatus(),
-    c.is_harpooned(),
+    -- c.is_harpooned(),
     "%#WinBarCaps# %#WinBar# ",
   }
 

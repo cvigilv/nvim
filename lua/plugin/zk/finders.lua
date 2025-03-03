@@ -57,12 +57,8 @@ local function create_backdrop_win()
     { scope = "local", win = backdrop_win }
   )
   vim.api.nvim_set_option_value("winblend", 50, { scope = "local", win = backdrop_win })
-  vim.api.nvim_set_option_value("buftype", "nofile", { scope = "local", buf = backdrop_buf })
-  vim.api.nvim_set_option_value(
-    "filetype",
-    "lazy_backprop",
-    { scope = "local", buf = backdrop_buf }
-  )
+  vim.api.nvim_set_option_value("buftype", "nofile", { buf = backdrop_buf })
+  vim.api.nvim_set_option_value("filetype", "lazy_backprop", { buf = backdrop_buf })
 
   return backdrop_win, backdrop_buf
 end

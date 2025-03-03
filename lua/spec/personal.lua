@@ -141,15 +141,7 @@ return {
         advanced = {
           ignored = {},
           ignore_os_files = true,
-          ignore_patterns = { "^/tmp", "Luapad.lua$", "Claudio" },
-          -- ignore_rules = {
-          --   templates = {
-          --     include_os_files = true,
-          --     extras = { "*%.bak$" },
-          --   },
-          --   filenames = { "*_Luapad%.lua%" },
-          --   filetypes = {},
-          -- },
+          ignore_patterns = { "^/tmp", "Luapad.lua$", "Claudio", "^/private/" },
         },
       })
     end,

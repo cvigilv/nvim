@@ -24,8 +24,8 @@ _G.carlos.statusline = function()
 
     -- Buffer block
     " ",
-    c.harpoon_cheat(),
-    " ",
+    -- c.harpoon_cheat(),
+    -- " ",
     c.fileicon(),
     h.ifttt(vim.b.gitsigns_status_dict, c.filepath(), nil),
     m.important(c.filename() .. c.filestatus()),

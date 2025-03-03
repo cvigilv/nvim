@@ -11,6 +11,7 @@ local M = {}
 ---@field title string|"auto"
 ---@field modifiable boolean
 ---@field win_opts table
+---@field winhighlight table
 
 ---Creates a new floating window with the given contents and options.
 ---@param contents string|table The content to display in the floating window
@@ -33,6 +34,15 @@ function M.new_floating_win(contents, opts)
       cursorline = false,
       wrap = true,
       linebreak = true,
+    },
+    winhighlight = {
+      "Normal:CodeBlock",
+      "FloatNormal:CodeBlock",
+      "NormalFloat:CodeBlock",
+      "FloatBorder:CodeBlock",
+      "FloatTitle:CodeBlock",
+      "FloatFooter:CodeBlock",
+      "EndOfBuffer:CodeBlock",
     },
   }
   opts = opts or {}
@@ -69,8 +79,9 @@ function M.new_floating_win(contents, opts)
     border = opts.border,
     anchor = "NE",
     title = " " .. opts.title .. " ",
+    title_pos = "center",
     footer = opts.footer,
-    footer_pos = "right",
+    footer_pos = "center",
   }
 
   -- Create the floating window and configure
@@ -79,18 +90,9 @@ function M.new_floating_win(contents, opts)
     vim.api.nvim_set_option_value(opt, val, { win = float_win })
   end
 
-  local hl_overrides = {
-    "Normal:CodeBlock",
-    "FloatNormal:CodeBlock",
-    "NormalFloat:CodeBlock",
-    "FloatBorder:CodeBlock",
-    "FloatTitle:CodeBlock",
-    "FloatFooter:CodeBlock",
-    "EndOfBuffer:CodeBlock",
-  }
   vim.api.nvim_set_option_value(
     "winhighlight",
-    table.concat(hl_overrides, ","),
+    table.concat(opts.winhighlight, ","),
     { win = float_win }
   )
 
