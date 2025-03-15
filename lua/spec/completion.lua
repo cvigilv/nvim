@@ -91,7 +91,7 @@ return {
                 luasnip = "[SNIP]",
                 lazydev = "[NVIM]",
                 omni = "[OMNI]",
-                zk = "[ZK]",
+                cardex = "[CARDEX]",
               })[entry.source.name]
             item.kind = string.format(" %s ", kind_icons[item.kind])
 

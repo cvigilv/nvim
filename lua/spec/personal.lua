@@ -18,6 +18,11 @@ return {
       vim.keymap.set("n", ",,O", ":AfueraStatus<CR>")
     end,
   }, --}}}
+  { -- cardex {{{
+    dir = os.getenv("GITDIR") .. "/cardex.nvim",
+    -- event = "VeryLazy",
+    config = true,
+  }, -- }}}
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
     config = function()
@@ -32,6 +37,11 @@ return {
 
       vim.keymap.set("n", "<leader>C", ":ClaudioChat<CR>", {})
     end,
+  }, -- }}}
+  { -- diferente {{{
+    dir = os.getenv("GITDIR") .. "/diferente.nvim",
+    ft = "gitcommit",
+    config = true,
   }, -- }}}
   { -- esqueleto {{{
     dir = os.getenv("GITDIR") .. "/esqueleto.nvim",
@@ -145,10 +155,5 @@ return {
         },
       })
     end,
-  }, -- }}}
-  { -- diferente {{{
-    dir = os.getenv("GITDIR") .. "/diferente.nvim",
-    ft = "gitcommit",
-    config = true,
   }, -- }}}
 }

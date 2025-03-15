@@ -122,7 +122,7 @@ if &background == 'light'
   hi SyntasticStyleWarningSign ctermbg=253 ctermfg=130 guibg=#dcdfe7 guifg=#c57339
   hi SyntasticWarningSign ctermbg=253 ctermfg=130 guibg=#dcdfe7 guifg=#c57339
   hi ZenSpace ctermbg=125 guibg=#cc517a
-  hi TSFunction ctermfg=237 guifg=#505695
+  hi TSFunction ctermfg=237 guifg=#505695 cterm=bold gui=bold
   hi TSFunctionBuiltin ctermfg=237 guifg=#505695
   hi TSFunctionMacro ctermfg=237 guifg=#505695
   hi TSMethod ctermfg=237 guifg=#505695
@@ -257,7 +257,7 @@ else
   hi SyntasticStyleWarningSign ctermbg=235 ctermfg=216 guibg=#1e2132 guifg=#e2a478
   hi SyntasticWarningSign ctermbg=235 ctermfg=216 guibg=#1e2132 guifg=#e2a478
   hi ZenSpace ctermbg=203 guibg=#e27878
-  hi TSFunction ctermfg=252 guifg=#a3adcb
+  hi TSFunction ctermfg=252 guifg=#a3adcb cterm=bold gui=bold
   hi TSFunctionBuiltin ctermfg=252 guifg=#a3adcb
   hi TSFunctionMacro ctermfg=252 guifg=#a3adcb
   hi TSMethod ctermfg=252 guifg=#a3adcb

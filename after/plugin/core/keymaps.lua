@@ -28,29 +28,29 @@ vim.keymap.set(
   { desc = "Open diagnostics", noremap = true }
 )
 -- Plugins             {{{1
--- cvigilv/zk          {{{2
+-- cvigilv/cardex.nvim {{{2
 vim.keymap.set(
   "n",
   "<leader>zc",
-  ":ZkNewNote<CR>",
+  ":CardexNewNote<CR>",
   { noremap = true, silent = false, desc = "Create note" }
 )
 vim.keymap.set(
   "n",
   "<leader>zf",
-  ":ZkSearchNotes<CR>",
+  ":CardexSearchNotes<CR>",
   { noremap = true, silent = false, desc = "Search by notes metadata" }
 )
 vim.keymap.set(
   "n",
   "<leader>zt",
-  ":ZkSearchTags<CR>",
+  ":CardexSearchTags<CR>",
   { noremap = true, silent = false, desc = "Search by tags" }
 )
 vim.keymap.set(
   "n",
   "<leader>zl",
-  ":ZkLinks<CR>",
+  ":CardexLinks<CR>",
   { noremap = true, silent = false, desc = "Show note links" }
 )
 

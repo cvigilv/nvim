@@ -1,5 +1,7 @@
 # `nvim`
 
+@test
+
 new neovim config, aiming for:
 
 - 15 external plugins max (not counting lsp and completion things, does require lots of plugins to work properly...)
@@ -11,7 +13,8 @@ no more, no less. just a simple config that I would consider "feature complete"
 > failing miserably on the above points, but at least I'm trying...
 
 # structure
-~~~
+
+```
 .
 ├── after
 │   ├── ftplugin
@@ -23,13 +26,13 @@ no more, no less. just a simple config that I would consider "feature complete"
 │   │   └── tools
 │   ├── skeletons              # templates used by `cvigilv/esqueleto.nvim`
 │   │   ├── personal
-│   │   └── protera 
+│   │   └── protera
 │   ├── snippets               # snippets (don't use them very much)
 │   └── undodir                # undo history files
 ├── lua
 │   ├── plugin                 # personal plugins
 │   │   └── zk                 # personal note-taking system plugin
-│   └── user                   
+│   └── user
 │       ├── core               # core stuf of my config
 │       ├── helpers            # all the helper function I need
 │       │   ├── statuscolumn
@@ -40,7 +43,7 @@ no more, no less. just a simple config that I would consider "feature complete"
 │       └── pkgs               # lazy.nvim managed plugins
 └── spell
 
-~~~
+```
 
 # screenshots
 
@@ -55,7 +58,6 @@ no more, no less. just a simple config that I would consider "feature complete"
 
 just commit messages ux improvements via my diferente.nvim plugin and gitsigns.nvim
 
-
 <img width="1022" alt="Screenshot 2024-12-09 at 12 04 31 AM" src="https://github.com/user-attachments/assets/0d73c27d-bac9-460b-910f-0f5d9724040d">
 <img width="1022" alt="Screenshot 2024-12-09 at 12 04 36 AM" src="https://github.com/user-attachments/assets/eb209258-ad6d-4bd1-b598-3d65a93a2e7f">
 <img width="1022" alt="Screenshot 2024-12-09 at 12 06 49 AM" src="https://github.com/user-attachments/assets/de0ce494-40cc-4adc-9ab3-ef5ce5dfa05e">
@@ -65,8 +67,6 @@ just commit messages ux improvements via my diferente.nvim plugin and gitsigns.n
 working on a personal plugin for this (wip, very early in development; but its called claudio.nvim)
 
 <img width="1710" alt="Screenshot 2024-12-09 at 12 10 27 AM" src="https://github.com/user-attachments/assets/6b62cb2b-9518-4aac-94d2-dbc845410fbb">
-
-
 
 ## note-taking system
 

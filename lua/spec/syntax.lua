@@ -6,7 +6,6 @@ return {
         ensure_installed = {
           "julia",
           "python",
-          "org",
           "bash",
           "lua",
           "markdown",
