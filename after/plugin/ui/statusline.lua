@@ -51,15 +51,15 @@ vim.o.statusline = "%{%v:lua.carlos.statusline()%}"
 local augroup = vim.api.nvim_create_augroup("carlos::statusline", { clear = true })
 
 -- oil.nvim {{{
-vim.api.nvim_create_autocmd("BufWinEnter", {
+vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
+  pattern="oil",
   callback = function()
-    if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "oil" then
       local components = {
         ui.align(),
         " ",
         c.recording_macro(),
-        m.important(""),
+        m.important(" "),
         " ",
         m.important(c.oil()),
         c.filestatus(),
@@ -71,14 +71,13 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),
         { scope = "local" }
       )
-    end
   end,
 }) -- }}}
 -- quickfix {{{
-vim.api.nvim_create_autocmd("BufWinEnter", {
+vim.api.nvim_create_autocmd("FileType", {
+  pattern="qf",
   group = augroup,
   callback = function()
-    if vim.api.nvim_get_option_value("ft", { scope = "local" }) == "qf" then
       local components = {
         "    ",
         "󱖫 ",
@@ -91,16 +90,16 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),
         { scope = "local" }
       )
-    end
   end,
 }) -- }}}
 -- terminal {{{
-vim.api.nvim_create_autocmd("BufWinEnter", {
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "terminal",
   group = augroup,
   callback = function()
-    if vim.api.nvim_get_option_value("buftype", { scope = "local" }) == "terminal" then
       local components = {
         ui.align(),
+        m.important(">_ "),
         "%f",
         ui.align(),
       }
@@ -109,6 +108,5 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         vim.fn.join(vim.tbl_filter(function(value) return value ~= "" end, components), ""),
         { scope = "local" }
       )
-    end
   end,
 }) -- }}}

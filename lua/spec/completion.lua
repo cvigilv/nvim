@@ -27,7 +27,7 @@ local kind_icons = {
 }
 
 return {
-  { -- Autocompletion {{{
+  {
     "hrsh7th/nvim-cmp",
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = { -- {{{
@@ -142,7 +142,6 @@ return {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
           { name = "buffer", group_index = 1 },
-          { name = "path", group_index = 2 },
         },
       })
     end,

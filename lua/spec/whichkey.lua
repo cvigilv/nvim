@@ -36,7 +36,6 @@ return {
         layout = {
           width = { max = 16 },
         },
-        sort = { "desc", "local", "order", "group", "alphanum", "mod" },
         icons = {
           breadcrumb = "->",
           separator = "   ",
