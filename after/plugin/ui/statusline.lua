@@ -18,7 +18,7 @@ _G.carlos.statusline = function()
     " ",
     h.ifttt(vim.b.gitsigns_status_dict, m.important(c.gitbranch()), nil),
     h.ifttt(vim.b.gitsigns_status_dict, "  ", nil),
-    h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus()),
+    h.ifttt(vim.b.gitsigns_status_dict, c.gitstatus() , nil),
     " ",
     ui.align(),
 

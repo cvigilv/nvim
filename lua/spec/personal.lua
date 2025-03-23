@@ -9,7 +9,7 @@ return {
           colorcolumn = "96",
         },
         oob_char_hl = "Removed",
-        ignored_filetypes = { "log", "oil" },
+        ignored_filetypes = { "log", "oil", "orgagenda" },
         ---@diagnostic disable-next-line: missing-fields
         logging = { enabled = true },
       })
@@ -18,11 +18,11 @@ return {
       vim.keymap.set("n", ",,O", ":AfueraStatus<CR>")
     end,
   }, --}}}
-  { -- cardex {{{
-    dir = os.getenv("GITDIR") .. "/cardex.nvim",
-    -- event = "VeryLazy",
-    config = true,
-  }, -- }}}
+  -- { -- cardex {{{
+  --   dir = os.getenv("GITDIR") .. "/cardex.nvim",
+  --   -- event = "VeryLazy",
+  --   config = true,
+  -- }, -- }}}
   { -- claudio {{{
     dir = os.getenv("GITDIR") .. "/claudio.nvim",
     config = function()
