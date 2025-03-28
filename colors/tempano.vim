@@ -528,3 +528,11 @@ endif
 
 " Custom
 hi Bold cterm=bold gui=bold term=bold
+
+" Plugins
+" nvim-orgmode
+hi! link @org.agenda.header Comment
+hi! link @org.agenda.scheduled Number
+hi! link @org.agenda.deadline Removed
+hi! link @org.agenda.day Title
+hi @org.agenda.today gui=italic,reverse cterm=italic,reverse

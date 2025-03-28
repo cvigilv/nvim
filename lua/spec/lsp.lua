@@ -15,7 +15,7 @@ return {
       require("fidget").setup({ notification = { window = { relative = "win" } } })
 
       -- Define LSPs for each filetype
-      local languages = {-- {{{
+      local languages = { -- {{{
         julia = {
           julials = { -- {{{
             settings = {
@@ -93,7 +93,7 @@ return {
         python = { pyright = {} },
         sh = { bashls = {} },
         typst = { tinymist = {} },
-      }-- }}}
+      } -- }}}
 
       -- Ensure all servers are installed
       require("mason-lspconfig").setup({
@@ -124,6 +124,7 @@ return {
         group = vim.api.nvim_create_augroup("carlos::lsp", { clear = true }),
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then return end
 
           -- Keymap helper
           local map = function(keys, func, desc, mode)
