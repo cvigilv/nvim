@@ -33,7 +33,7 @@ vim.o.statuscolumn = "%{%v:lua.carlos.statuscolumn()%}"
 -- NOTE: This is based on https://github.com/luukvbaal/statuscol.nvim/blob/d6f7f5437c5404d958b88bb73e0721b1c0e09223/lua/statuscol.lua#L445-L463
 local augroup = vim.api.nvim_create_augroup("carlos::statuscolumn", { clear = true })
 
-local ignored_buftypes = { "nofile", "help", "quickfix", "loclist" }
+local ignored_buftypes = { "help", "quickfix", "loclist" }
 vim.api.nvim_create_autocmd("OptionSet", {
   group = augroup,
   pattern = "buftype",
@@ -52,7 +52,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         vim.api.nvim_get_option_value("buftype", { scope = "local" })
       )
     then
-      vim.api.nvim_set_option_value("stc", "", { scope = "local" })
+      vim.api.nvim_set_option_value("stc", "    ", { scope = "local" })
     end
   end,
 })
@@ -71,7 +71,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
         vim.api.nvim_get_option_value("filetype", { scope = "local" })
       )
     then
-      vim.api.nvim_set_option_value("stc", "", { scope = "local" })
+      vim.api.nvim_set_option_value("stc", "    ", { scope = "local" })
     end
   end,
 })

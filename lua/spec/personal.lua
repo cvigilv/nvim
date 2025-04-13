@@ -1,6 +1,7 @@
 return {
   { -- afuera {{{
     dir = os.getenv("GITDIR") .. "/afuera.nvim",
+    enabled=false,
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require("afuera").setup({
@@ -9,7 +10,7 @@ return {
           colorcolumn = "96",
         },
         oob_char_hl = "Removed",
-        ignored_filetypes = { "log", "oil", "orgagenda" },
+        ignored_filetypes = { "log", "oil", "orgagenda", "org" },
         ---@diagnostic disable-next-line: missing-fields
         logging = { enabled = true },
       })

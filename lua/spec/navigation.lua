@@ -141,6 +141,7 @@ return {
       -- Intelligent previewer
       local intelligent_previewer = function(filepath, bufnr, opts)
         filepath = vim.fn.expand(filepath)
+        ---@diagnostic disable-next-line: missing-fields
         Job:new({
           command = "file",
           args = { "--mime-type", "-b", filepath },
@@ -176,23 +177,15 @@ return {
           sorting_strategy = "ascending",
           path_display = { "truncate = 3", "smart" },
           layout_strategy = "bottom_pane",
-          layout_config = {
-            bottom_pane = {
-              height = 0.4,
-              prompt_position = "top",
-              preview_width = 0.6,
-            },
-          },
           winblend = 0,
           border = true,
-          borderchars = { "▔", "▕", "▁", "▏", "🭽", "🭾", "🭿", "🭼" },
           buffer_previewer_maker = intelligent_previewer,
         },
         pickers = {
-          find_files = { prompt_title = "   Find files   " },
-          git_files = { prompt_title = "   Git files   " },
-          live_grep = { prompt_title = "   Live Grep   " },
-          builtin = { prompt_title = "   Pickers   ", previewer = false },
+          find_files = { prompt_title = "   Find files   ", theme="ivy" },
+          git_files = { prompt_title = "   Git files   ", theme="ivy" },
+          live_grep = { prompt_title = "   Live Grep   ", theme="ivy" },
+          builtin = { prompt_title = "   Pickers   ", previewer = false, theme="ivy" },
         },
       })
     end,

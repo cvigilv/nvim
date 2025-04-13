@@ -28,42 +28,6 @@ vim.keymap.set(
   { desc = "Open diagnostics", noremap = true }
 )
 -- Plugins             {{{1
--- cvigilv/cardex.nvim {{{2
-vim.keymap.set(
-  "n",
-  "<leader>zc",
-  ":CardexNewNote<CR>",
-  { noremap = true, silent = false, desc = "Create note" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>zf",
-  ":CardexSearchNotes<CR>",
-  { noremap = true, silent = false, desc = "Search by notes metadata" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>zt",
-  ":CardexSearchTags<CR>",
-  { noremap = true, silent = false, desc = "Search by tags" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>zl",
-  ":CardexLinks<CR>",
-  { noremap = true, silent = false, desc = "Show note links" }
-)
-
--- --- Bind ,zl to create a link from current visual selection
--- --- TODO: Add second step where a Telescope prompt appears and I can easily select a note from
--- ---       its title.
--- vim.keymap.set(
---   { "x", "v" },
---   "<leader>zl",
---   [[c[<C-r>"]()<C-c>i]],
---   vim.tbl_extend("keep", { noremap = true, silent = false }, { desc = "Create new link" })
--- )
-
 -- cvigilv/afuera.nvim {{{2
 vim.keymap.set("n", ",,o", ":AfueraToggle<CR>", { desc = "Toggle Afuera" })
 vim.keymap.set("n", ",,O", ":AfueraStatus<CR>", { desc = "Afuera status" })
@@ -105,6 +69,7 @@ vim.keymap.set("n", "<leader><CR>", require("oil").open, {
   noremap = true,
   silent = true,
 })
+
 
 -- harpoon.nvim        {{{2
 local harpoon = require("harpoon")

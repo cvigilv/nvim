@@ -28,7 +28,8 @@ endif
 let g:colors_name = 'tempano'
 
 if &background == 'light'
-  hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#33374c
+  " hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#33374c
+  hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#000000
   hi MsgArea ctermbg=white ctermfg=237 guibg=#ffffff guifg=#33374c
   hi ColorColumn cterm=NONE ctermbg=253 ctermfg=NONE guibg=#dcdfe7 guifg=NONE
   hi CursorColumn cterm=NONE ctermbg=253 ctermfg=NONE guibg=#dcdfe7 guifg=NONE

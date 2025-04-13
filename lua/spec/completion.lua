@@ -83,6 +83,13 @@ return {
               return item
             end
 
+            -- Handle rldx.nvim
+            if entry.source.name == "cmp_rolodex" then
+                item.kind = "Contact"
+                item.menu = "[RLDX]"
+                return item
+            end
+
             -- Add icons to completion items
             item.menu = item.kind
               .. " "
