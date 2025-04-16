@@ -65,3 +65,19 @@ vim.api.nvim_create_autocmd("FileType", {
     if do_vsplit then vim.cmd("wincmd L") end
   end,
 })
+
+-- Better built-in filepath completion
+local function simulate_keypress(key)
+  local termcodes = vim.api.nvim_replace_termcodes(key, true, false, true)
+  vim.api.nvim_feedkeys(termcodes, "m", false)
+end
+
+vim.api.nvim_create_autocmd("CompleteDone", {
+  callback = function(ev)
+    if vim.v.event.complete_type == "files" and vim.v.event.reason == "accept" then
+      simulate_keypress("<c-x>")
+      simulate_keypress("<c-f>")
+    end
+  end,
+  desc="Complete multiple path components with built-in completion (<C-x><C-f>)"
+})
