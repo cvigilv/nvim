@@ -22,9 +22,9 @@ vim.opt.fillchars = { -- Characters used for UI things
 
   -- Fold
   fold = " ",
-  foldopen = "▾",
-  foldsep = "│",
-  foldclose = "▸",
+  foldopen = "",
+  foldsep = " ",
+  foldclose = "",
 
   -- Other
   diff = "╱",

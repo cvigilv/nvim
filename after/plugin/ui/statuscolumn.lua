@@ -11,16 +11,14 @@ _G.carlos.statuscolumn = function()
   local signs = h.get_signs()
   local components = {
     " ",
+    " ",
     c.other(signs, "GitSigns"),
     " ",
     ui.aligner(),
     c.linenumber(),
     " ",
-    -- "%#CursorLine#▏",
-    (vim.v.relnum == 0 and vim.api.nvim_get_option_value("cursorline", { scope = "local" }))
-        and "%#CursorLine#"
-      or "%#Normal#",
-    "▏",
+    c.fold(vim.v.lnum),
+    " ",
     " ",
   }
 

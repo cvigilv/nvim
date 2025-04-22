@@ -1,3 +1,4 @@
+local fzy = require("telescope.algos.fzy")
 ---@diagnostic disable: assign-type-mismatch
 
 local function get_visual_selection()
@@ -21,6 +22,8 @@ return {
     dependencies = {
       "danilshvalov/org-modern.nvim",
     },
+    event = "VeryLazy",
+    ft = "org",
     config = function()
       -- Colors overrides
       local color_add_fg = "#475946"
@@ -138,32 +141,33 @@ return {
             -- org_babel_tangle = "",
           },
         },
+
+        -- ID
+        -- org_id_link_to_org_use_id=true,
+        -- org_id_method="ts",
+        -- org_id_ts_format="%Y%m%dT%H%M%S",
+
         org_adapt_indentation = false,
         org_agenda_files = {
           "~/org/agenda/*",
           "~/org/calendar/*",
           "~/org/journal/*",
+          "~/org/notes/*",
           "~/org/refile.org",
         },
         org_default_notes_file = "~/org/refile.org",
         org_archive_location = "~/org/archive/archive_%s",
+        -- org_agenda_files = "~/org-examples/agenda.org",
+        -- org_default_notes_file = "~/org-examples/inbox.org",
         org_startup_folded = "content",
         org_capture_templates = {
           x = {
             description = "Contact",
-            target = "~/org/rolodex.org",
+            target = "~/org/contacts.org",
             template = "* %?\n:PROPERTIES:\n:NICKNAME:\n:DISPLAYNAME:\n:END:\n",
             properties = { empty_lines = 1 },
           },
           c = {
-            description = "Code",
-            target = "~/org/refile.org",
-            template = [[**** %U %?
-                %a
-            ]],
-            properties = { empty_lines = 1 },
-          },
-          P = {
             description = "Journal - Personal",
             datetree = true,
             target = "~/org/journal/personal.org",
@@ -184,18 +188,10 @@ return {
             template = "**** %U\n%?",
             properties = { empty_lines = 1 },
           },
-          ---@diagnostic disable-next-line: assign-type-mismatch
-          i = {
-            description = "Note - Idea",
-            target = "~/org/notes/%<%Y%m%d%s>.org",
-            template = "* %? :idea:",
-            properties = { empty_lines = 1 },
-          },
-          r = {
-            description = "Note - Reference",
-            target = "~/org/notes/%<%Y%m%d%s>.org",
-            template = "#+TAGS: PAPER(p) REVIEW(r) BLOG(b) OTHER(?)\n* %? :reference:",
-            properties = { empty_lines = 1 },
+          n = {
+            description = "Note",
+            target = "~/org/notes/%<%Y%m%d>T%<%H%M%S>.org",
+            template = "* %? :%^{Note type:|reference|reference|idea|meta}:",
           },
           ---@diagnostic disable-next-line: assign-type-mismatch
           e = "Event",
@@ -305,18 +301,122 @@ return {
           },
         },
       })
+      vim.keymap.set("n", "<leader>oA", ":Org agenda g<CR>", {desc="GTD"})
     end,
   },
   {
-    "nvim-orgmode/telescope-orgmode.nvim",
+    -- "nvim-orgmode/telescope-orgmode.nvim",
+    dir = os.getenv("GITDIR") .. "/telescope-orgmode.nvim",
     event = "VeryLazy",
     dependencies = {
       "nvim-orgmode/orgmode",
       "nvim-telescope/telescope.nvim",
     },
     config = function()
+      -- Initialize
       require("telescope").load_extension("orgmode")
 
+      -- Setup custom sorter
+      local sorters = require("telescope.sorters")
+
+      -- NOTE: heavily inspired in https://www.jonashietala.se/blog/2024/05/08/browse_posts_with_telescopenvim/
+      local function split_prompt(prompt)
+        local tags = {}
+        local contact = {}
+        local headline = {}
+        local path = {}
+        for word in prompt:gmatch("([^%s]+)") do
+          local fst = word:sub(1, 1)
+          if fst == ":" then
+            for _, tag in ipairs(vim.split(word:sub(2), ":", { trimempty = true })) do
+              table.insert(tags, tag)
+            end
+          elseif fst == "@" then
+            table.insert(contact, word:sub(2))
+          elseif fst == "~" then
+            table.insert(path, word)
+          else
+            table.insert(headline, word)
+          end
+        end
+
+        return {
+          tags = tags,
+          contact = contact,
+          path = path,
+          headline = vim.fn.join(headline, " "),
+        }
+      end
+
+      local function score_element(prompt_elements, entry_element, sorter)
+        if prompt_elements == nil then return 0 end
+
+        -- We didn't prompt for this type, ignore it.
+        if next(prompt_elements) == nil then return 0 end
+
+        -- We prompted for this type, but entry didn't have it, so remove the entry.
+        -- For example if we prompt for a series, this removes all posts
+        -- without a series.
+        if not entry_element then return -1 end
+
+        -- Convert multiple entry values to a string like `tag1:tag2`.
+        local entry
+        if type(entry_element) == "string" then
+          entry = entry_element
+        elseif type(entry_element) == "table" then
+          entry = vim.fn.join(entry_element, ":")
+        end
+
+        local total = 0
+        for _, prompt_element in ipairs(prompt_elements) do
+          local score = sorter:scoring_function(prompt_element, entry)
+          -- Require a match for every element.
+          if score < 0 then return -1 end
+          total = total + score
+        end
+
+        return total
+      end
+
+      local function split_entry(entry)
+        local components = vim.split(entry, "  ", { plain = true, trimempty = true })
+        return {
+          tags = components[1],
+          line = components[2],
+          location = components[3],
+        }
+      end
+
+      local function org_sorter(opts)
+        opts = opts or {}
+        local fzy_sorter = sorters.get_fzy_sorter(opts)
+
+        return sorters.Sorter:new({
+          discard = true,
+
+          -- NOTE: The scoring is done over "ordinal" it seems. Check telescope-orgmode and
+          -- telescope.nvim code to see how its implemented
+          scoring_function = function(_, prompt, entry)
+            prompt = split_prompt(prompt)
+            entry = split_entry(entry)
+
+            local tags_score = score_element(prompt.tags, entry.tags, fzy_sorter)
+            if tags_score < 0 then return -1 end
+
+            local path_score = score_element(prompt.path, entry.location, fzy_sorter)
+            if path_score < 0 then return -1 end
+
+            local headline_score = fzy_sorter:scoring_function(prompt.headline, entry.line)
+            if headline_score < 0 then return -1 end
+
+            return tags_score + path_score + headline_score
+          end,
+
+          highlighter = fzy_sorter.highlighter,
+        })
+      end
+
+      -- Keymaps
       vim.keymap.set(
         "n",
         "<leader>zr",
@@ -332,7 +432,7 @@ return {
         "<leader>zf",
         function()
           require("telescope").extensions.orgmode.search_headings(
-            require("telescope.themes").get_ivy({})
+            require("telescope.themes").get_ivy({ sorter = org_sorter({}) })
           )
         end,
         { desc = "Search headlings" }
@@ -349,9 +449,9 @@ return {
       )
     end,
   },
-  {
+  { -- {{{
     "michhernand/RLDX.nvim",
-    enabled=false,
+    enabled = true,
     ft = "org",
     dependencies = {
       "hrsh7th/nvim-cmp",
@@ -359,14 +459,14 @@ return {
     config = function()
       -- Setup rolodex
       require("rldx").setup({
-        prefix_char = "&",
+        prefix_char = "@",
         filename = vim.fn.stdpath("config") .. "/extras/rolodex.json",
         schema_ver = "latest",
       })
 
       -- Better highlight group
-      vim.cmd([[hi! link RolodexHighlight Constant]])
-      vim.cmd([[hi! link RolodexPattern Constant]])
+      vim.cmd([[hi! link RolodexHighlight @comment.warning]])
+      vim.cmd([[hi! link RolodexPattern @comment.warning]])
 
       -- Setupo completion
       require("cmp").setup.filetype("org", {
@@ -381,6 +481,24 @@ return {
       { "<leader>oxl", "<cmd>RldxLoad<CR>" },
       { "<leader>oxs", "<cmd>RldxSave<CR>" },
       { "<leader>oxd", "<cmd>RldxDelete<CR>" },
+    },
+  }, -- }}}
+  {
+    dir = os.getenv("GITDIR") .. "denote.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "stevearc/oil.nvim",
+    },
+    event="VeryLazy",
+    opts = {
+      filetype = "org",
+      directory = "~/org/notes",
+      add_heading = true,
+      retitle_heading = false,
+      integrations = {
+        oil = true,
+        telescope = { enabled = true, opts = require("telescope.themes").get_ivy({}) },
+      },
     },
   },
 }

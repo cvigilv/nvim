@@ -5,14 +5,15 @@ return {
     keys = { "<leader>R" },
     ft = "lua",
   }, -- }}}
-  -- snacks.nvim {{{
+  -- anki.nvim {{{
   {
-    "folke/snacks.nvim",
-    ---@type snacks.Config
+    "rareitems/anki.nvim",
+    depedencies = { "nvim-lua/plenary.nvim" },
     opts = {
-      image = {
-        inline = false,
-      },
+      models = {
+        ["Basic"] = "french"
+      }
     },
-  }, --}}}
+  },
+  -- }}}
 }

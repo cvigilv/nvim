@@ -59,6 +59,12 @@ return {
         wildcards = {
           expand = true,
           lookup = {
+            -- Orgmode
+            ["denote-identifier"] = function()
+              local t = os.time()
+              return os.date("%Y%m%d", t) .. "T" .. os.date("%H%M%S", t)
+            end,
+
             -- Github
             ["gh-username"] = "cvigilv",
             ["gh-root"] = function()
@@ -152,7 +158,7 @@ return {
         advanced = {
           ignored = {},
           ignore_os_files = true,
-          ignore_patterns = { "^/tmp", "Luapad.lua$", "Claudio", "^/private/" },
+          ignore_patterns = { "^/tmp", "Luapad.lua$", "Claudio", "^/var" },
         },
       })
     end,

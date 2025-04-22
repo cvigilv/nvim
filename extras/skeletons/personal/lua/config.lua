@@ -2,7 +2,7 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT ${year}
 
--- ---@class {lua-module-name}.Logging.Configuration
+-- ---@class ${lua-module-name}.Logging.Configuration
 -- ---@field enabled boolean Whether logging should be activated
 -- ---@field level string Any messages above this level will be logged
 -- ---@field highlights boolean Should highlighting be used in console (using echohl)

@@ -38,7 +38,7 @@ if &background == 'light'
   hi Conceal ctermbg=254 ctermfg=244 guibg=#e8e9ec guifg=#8389a3
   hi Constant ctermfg=97 guifg=#7759b4
   hi Cursor ctermbg=237 ctermfg=254 guibg=#33374c guifg=#e8e9ec
-  hi CursorLineNr cterm=NONE ctermbg=251 ctermfg=237 guibg=#cad0de guifg=#576a9e
+  hi CursorLineNr cterm=NONE ctermfg=237 guifg=#576a9e
   hi Delimiter ctermfg=237 guifg=#33374c
   hi DiffAdd ctermbg=79 ctermfg=23 guibg=#d4dbd1 guifg=#475946
   hi DiffChange ctermbg=116 ctermfg=24 guibg=#ced9e1 guifg=#375570
@@ -58,7 +58,7 @@ if &background == 'light'
   hi Ignore ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
   hi Include ctermfg=25 guifg=#2d539e
   hi IncSearch cterm=reverse ctermfg=NONE gui=reverse guifg=NONE term=reverse
-  hi LineNr ctermbg=253 ctermfg=248 guibg=#dcdfe7 guifg=#9fa7bd
+  hi LineNr ctermfg=248 guifg=#9fa7bd
   hi MatchParen ctermbg=250 ctermfg=0 guibg=#bec0c9 guifg=#33374c
   hi ModeMsg ctermfg=244 guifg=#8389a3
   hi MoreMsg ctermfg=64 guifg=#668e3d
@@ -173,7 +173,7 @@ else
   hi Conceal ctermbg=234 ctermfg=242 guibg=#161821 guifg=#6b7089
   hi Constant ctermfg=140 guifg=#a093c7
   hi Cursor ctermbg=252 ctermfg=234 guibg=#c6c8d1 guifg=#161821
-  hi CursorLineNr cterm=bold ctermbg=237 ctermfg=253 guibg=#2a3158 guifg=#cdd1e6 gui=bold
+  hi CursorLineNr cterm=bold ctermfg=253 guifg=#cdd1e6 gui=bold
   hi Delimiter ctermfg=252 guifg=#c6c8d1
   hi DiffAdd ctermbg=29 ctermfg=158 guibg=#45493e guifg=#c0c5b9
   hi DiffChange ctermbg=23 ctermfg=159 guibg=#384851 guifg=#b3c3cc
@@ -193,7 +193,7 @@ else
   hi Ignore ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
   hi Include ctermfg=110 guifg=#84a0c6
   hi IncSearch cterm=reverse ctermfg=NONE gui=reverse guifg=NONE term=reverse
-  hi LineNr ctermbg=235 ctermfg=239 guibg=#1e2132 guifg=#444b71 cterm=bold gui=bold
+  hi LineNr ctermfg=239 guifg=#444b71
   hi MatchParen ctermbg=237 ctermfg=255 guibg=#3e445e guifg=#ffffff
   hi ModeMsg ctermfg=242 guifg=#6b7089
   hi MoreMsg ctermfg=150 guifg=#b4be82

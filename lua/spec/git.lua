@@ -2,8 +2,7 @@ return {
   -- gitsigns {{{
   {
     "lewis6991/gitsigns.nvim",
-    config = function()
-      require("gitsigns").setup({
+    opts = {
         signcolumn = false,
         numhl = true,
         linehl = false,
@@ -32,7 +31,6 @@ return {
           row = 0,
           col = 1,
         },
-      })
-    end,
+    },
   }, -- }}}
 }

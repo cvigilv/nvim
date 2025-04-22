@@ -5,17 +5,17 @@
 
 -- Diagnostic symbols for display in the sign column.
 local symbols = {
-  [vim.diagnostic.severity.ERROR] = "󰅙 ",
-  [vim.diagnostic.severity.WARN] = " ",
-  [vim.diagnostic.severity.HINT] = " ",
-  [vim.diagnostic.severity.INFO] = " ",
+  [vim.diagnostic.severity.ERROR] = "E",
+  [vim.diagnostic.severity.WARN] = "W",
+  [vim.diagnostic.severity.HINT] = "H",
+  [vim.diagnostic.severity.INFO] = "I",
 }
 
-vim.fn.sign_define("DiagnosticSignError", { text = "󰅙 ", texthl = "DiagnosticSignError" })
-vim.fn.sign_define("DiagnosticSignWarn", { text = " ", texthl = "DiagnosticSignWarn" })
-vim.fn.sign_define("DiagnosticSignHint", { text = " ", texthl = "DiagnosticSignHint" })
-vim.fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSignInfo" })
-vim.fn.sign_define("DiagnosticSignOk", { text = " ", texthl = "Normal" })
+vim.fn.sign_define("DiagnosticSignError", { text = "E", texthl = "DiagnosticSignError" })
+vim.fn.sign_define("DiagnosticSignWarn", { text = "W", texthl = "DiagnosticSignWarn" })
+vim.fn.sign_define("DiagnosticSignHint", { text = "H", texthl = "DiagnosticSignHint" })
+vim.fn.sign_define("DiagnosticSignInfo", { text = "I", texthl = "DiagnosticSignInfo" })
+vim.fn.sign_define("DiagnosticSignOk", { text = " ", texthl = "Normal" })
 
 vim.diagnostic.config({
   update_in_insert = false,

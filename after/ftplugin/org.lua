@@ -2,7 +2,7 @@ _G.carlos.org = {}
 
 
 -- Contact management
-require("plugin.org-contact").init()
+-- require("plugin.org-contact").init()
 
 -- Pretty statuscolumn gutter
 

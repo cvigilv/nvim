@@ -126,6 +126,10 @@ return {
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if not client then return end
 
+
+          -- Lightbulb
+          require('lightbulb').attach_lightbulb(args.buf, client.id)
+
           -- Keymap helper
           local map = function(keys, func, desc, mode)
             mode = mode or "n"
