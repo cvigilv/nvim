@@ -29,7 +29,8 @@ let g:colors_name = 'tempano'
 
 if &background == 'light'
   " hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#33374c
-  hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#000000
+  " hi Normal ctermbg=254 ctermfg=237 guibg=#e8e9ec guifg=#000000
+  hi Normal ctermbg=254 ctermfg=237 guibg=#f5f6f9 guifg=#000000
   hi MsgArea ctermbg=white ctermfg=237 guibg=#ffffff guifg=#33374c
   hi ColorColumn cterm=NONE ctermbg=253 ctermfg=NONE guibg=#dcdfe7 guifg=NONE
   hi CursorColumn cterm=NONE ctermbg=253 ctermfg=NONE guibg=#dcdfe7 guifg=NONE
@@ -164,7 +165,8 @@ if &background == 'light'
     let g:terminal_ansi_colors = ['#eeeeee', '#cc517a', '#668e3d', '#c57339', '#2d539e', '#7759b4', '#3f83a6', '#33374c', '#8389a3', '#cc3768', '#598030', '#b6662d', '#22478e', '#6845ad', '#327698', '#262a3f']
   endif
 else
-  hi Normal ctermbg=234 ctermfg=252 guibg=#161821 guifg=#c6c8d1
+  " hi Normal ctermbg=234 ctermfg=252 guibg=#161821 guifg=#c6c8d1
+  hi Normal ctermbg=234 ctermfg=252 guibg=#111111 guifg=#c6c8d1
   hi MsgArea ctermbg=black ctermfg=252 guibg=#000000 guifg=#c6c8d1
   hi ColorColumn cterm=NONE ctermbg=235 ctermfg=NONE guibg=#1e2132 guifg=NONE
   hi CursorColumn cterm=NONE ctermbg=235 ctermfg=NONE guibg=#1e2132 guifg=NONE

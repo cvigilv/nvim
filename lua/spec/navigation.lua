@@ -168,24 +168,34 @@ return {
 
       -- Setup
       require("telescope").setup({
-        defaults = {
+        -- defaults = {
+        --   prompt_prefix = "? ",
+        --   selection_prefix = "  ",
+        --   multi_icon = "!",
+        --   initial_mode = "insert",
+        --   selection_strategy = "reset",
+        --   sorting_strategy = "ascending",
+        --   path_display = { "truncate = 3", "smart" },
+        --   layout_strategy = "bottom_pane",
+        --   winblend = 0,
+        --   border = true,
+        --   buffer_previewer_maker = intelligent_previewer,
+        -- },
+        defaults = require("telescope.themes").get_ivy({
           prompt_prefix = "? ",
           selection_prefix = "  ",
           multi_icon = "!",
+          layout_config = { height = 0.4, width=0.8 },
           initial_mode = "insert",
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           path_display = { "truncate = 3", "smart" },
-          layout_strategy = "bottom_pane",
-          winblend = 0,
-          border = true,
-          buffer_previewer_maker = intelligent_previewer,
-        },
+        }),
         pickers = {
-          find_files = { prompt_title = "   Find files   ", theme="ivy" },
-          git_files = { prompt_title = "   Git files   ", theme="ivy" },
-          live_grep = { prompt_title = "   Live Grep   ", theme="ivy" },
-          builtin = { prompt_title = "   Pickers   ", previewer = false, theme="ivy" },
+          find_files = { prompt_title = "   Find files   "}, --, theme = "ivy" },
+          git_files = { prompt_title = "   Git files   "}, --theme = "ivy" },
+          live_grep = { prompt_title = "   Live Grep   "}, --theme = "ivy" },
+          builtin = { prompt_title = "   Pickers   ", previewer = false}, --theme = "ivy" },
         },
       })
     end,

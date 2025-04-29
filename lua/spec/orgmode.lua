@@ -16,7 +16,7 @@ local function get_visual_selection()
 end
 
 return {
-  {
+  { -- orgmode
     -- dir = os.getenv("GITDIR") .. "/orgmode",
     "nvim-orgmode/orgmode",
     dependencies = {
@@ -329,11 +329,10 @@ return {
           },
         },
       })
-      vim.keymap.set("n", "<leader>oA", ":Org agenda g<CR>", {desc="GTD"})
+      vim.keymap.set("n", "<leader>oA", ":Org agenda g<CR>", { desc = "GTD" })
     end,
   },
-  {
-    -- "nvim-orgmode/telescope-orgmode.nvim",
+  { -- telescope-orgmode
     dir = os.getenv("GITDIR") .. "/telescope-orgmode.nvim",
     event = "VeryLazy",
     dependencies = {
@@ -477,7 +476,7 @@ return {
       )
     end,
   },
-  { -- {{{
+  { -- RLDX
     "michhernand/RLDX.nvim",
     enabled = true,
     ft = "org",
@@ -511,13 +510,13 @@ return {
       { "<leader>oxd", "<cmd>RldxDelete<CR>" },
     },
   }, -- }}}
-  {
+  { -- denote
     dir = os.getenv("GITDIR") .. "denote.nvim",
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "stevearc/oil.nvim",
     },
-    event="VeryLazy",
+    event = "VeryLazy",
     opts = {
       filetype = "org",
       directory = "~/org/notes",
@@ -525,7 +524,15 @@ return {
       retitle_heading = false,
       integrations = {
         oil = true,
-        telescope = { enabled = true, opts = require("telescope.themes").get_ivy({}) },
+        telescope = {
+          enabled = true,
+          opts = require("telescope.themes").get_ivy({
+            layout_config = { height = 0.30 },
+            previewer = false,
+            prompt_prefix = "[Denote files] ",
+            prompt_title = false,
+          }),
+        },
       },
     },
   },
