@@ -240,7 +240,35 @@ return {
           INACTIVE = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
         },
 
-        notifications = { enabled = true },
+        notifications = {
+          enabled = true,
+          cron_enabled = true,
+          repeater_reminder_time = true,
+          deadline_warning_reminder_time = true,
+          reminder_time = {0, 15},
+          deadline_reminder = true,
+          scheduled_reminder = true,
+          notifier = function(tasks)
+            for _, task in ipairs(tasks) do
+              local title = string.format("%s (%s)", task.category, task.humanized_duration)
+              local subtitle =
+                string.format("%s %s %s", string.rep("*", task.level), task.todo or "", task.title)
+              local date = string.format("%s: %s", task.type, task.time:to_string())
+
+              if vim.fn.executable("terminal-notifier") == 1 then
+                vim.system({
+                  "terminal-notifier",
+                  "-title",
+                  title,
+                  "-subtitle",
+                  subtitle,
+                  "-message",
+                  date,
+                })
+              end
+            end
+          end
+        },
 
         ui = {
           menu = {
