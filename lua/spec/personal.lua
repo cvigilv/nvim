@@ -24,21 +24,21 @@ return {
   --   -- event = "VeryLazy",
   --   config = true,
   -- }, -- }}}
-  { -- claudio {{{
-    dir = os.getenv("GITDIR") .. "/claudio.nvim",
-    config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require("claudio").setup({
-        ---@diagnostic disable-next-line: missing-fields
-        tools = {
-          include_builtin = true,
-          prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools",
-        },
-      })
-
-      vim.keymap.set("n", "<leader>C", ":ClaudioChat<CR>", {})
-    end,
-  }, -- }}}
+  -- { -- claudio {{{
+  --   dir = os.getenv("GITDIR") .. "/claudio.nvim",
+  --   config = function()
+  --     ---@diagnostic disable-next-line: missing-fields
+  --     require("claudio").setup({
+  --       ---@diagnostic disable-next-line: missing-fields
+  --       tools = {
+  --         include_builtin = true,
+  --         prompts_dir = vim.fn.stdpath("config") .. "/extras/prompts/tools",
+  --       },
+  --     })
+  --
+  --     vim.keymap.set("n", "<leader>C", ":ClaudioChat<CR>", {})
+  --   end,
+  -- }, -- }}}
   { -- diferente {{{
     dir = os.getenv("GITDIR") .. "/diferente.nvim",
     ft = "gitcommit",

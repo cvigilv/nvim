@@ -2,11 +2,8 @@ return {
   {
     "echasnovski/mini.nvim",
     config = function()
-      -- mini.ai {{{1
       require("mini.ai").setup()
-      -- mini.align {{{1
       require("mini.align").setup()
-      -- mini.bracketed {{{1
       require("mini.bracketed").setup({
         file = { suffix = "", options = {} },
         indent = { suffix = "", options = {} },
@@ -14,19 +11,15 @@ return {
         treesitter = { suffix = "", options = {} },
         yank = { suffix = "", options = {} },
       })
-      -- mini.indentscope {{{1
       require("mini.indentscope").setup({
         draw = {
-          delay = 100,
+          delay = 0,
           priority = 2,
-          animation = function(s, n) return s / n * 10 end,
+          animation = function(s, n) return (1 - math.pow(1 - s / n, 10)) * 10 end,
         },
       })
-      -- mini.comment {{{1
       require("mini.comment").setup()
-      -- mini.surround {{{1
       require("mini.surround").setup()
-      -- mini.splitjoin {{{1
       require("mini.splitjoin").setup()
       require("mini.hipatterns").setup({
         highlighters = {
@@ -43,6 +36,6 @@ return {
           hex_color = require("mini.hipatterns").gen_highlighter.hex_color(),
         },
       })
-    end, --}}}
+    end,
   },
 }

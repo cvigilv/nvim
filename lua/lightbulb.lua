@@ -6,7 +6,7 @@ local M = {}
 
 local lb_name = 'mariasolos/lightbulb'
 local lb_namespace = vim.api.nvim_create_namespace(lb_name)
-local lb_icon = "*"
+local lb_icon = ""
 local lb_group = vim.api.nvim_create_augroup(lb_name, {})
 local code_action_method = vim.lsp.protocol.Methods.textDocument_codeAction
 

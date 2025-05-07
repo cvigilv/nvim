@@ -225,11 +225,11 @@ return {
         org_todo_keywords = {
           "NEXT(n)",
           "TODO(t)",
-          "BLOCKED(b)",
+          "BLOCKED(b)", --STOP
           "|",
           "DONE(d)",
-          "CANCELED(c)",
-          "INACTIVE(i)",
+          "CANCELED(c)", --CNCL
+          "INACTIVE(i)", -- delete
         },
         org_todo_keyword_faces = {
           NEXT = ":foreground " .. color_changed_bg .. " :background " .. color_changed_fg,
@@ -245,14 +245,18 @@ return {
           cron_enabled = true,
           repeater_reminder_time = true,
           deadline_warning_reminder_time = true,
-          reminder_time = {0, 15},
+          reminder_time = { 0, 15 },
           deadline_reminder = true,
           scheduled_reminder = true,
           notifier = function(tasks)
             for _, task in ipairs(tasks) do
               local title = string.format("%s (%s)", task.category, task.humanized_duration)
-              local subtitle =
-                string.format("%s %s %s", string.rep("*", task.level), task.todo or "", task.title)
+              local subtitle = string.format(
+                "%s %s %s",
+                string.rep("*", task.level),
+                task.todo or "",
+                task.title
+              )
               local date = string.format("%s: %s", task.type, task.time:to_string())
 
               if vim.fn.executable("terminal-notifier") == 1 then
@@ -267,7 +271,7 @@ return {
                 })
               end
             end
-          end
+          end,
         },
 
         ui = {
@@ -480,6 +484,7 @@ return {
     "michhernand/RLDX.nvim",
     enabled = true,
     ft = "org",
+    event = "VeryLazy",
     dependencies = {
       "hrsh7th/nvim-cmp",
     },
@@ -516,12 +521,12 @@ return {
       "nvim-telescope/telescope.nvim",
       "stevearc/oil.nvim",
     },
-    event = "VeryLazy",
+    -- event = "VeryLazy",
+    --@type Denote.Configuration
     opts = {
       filetype = "org",
       directory = "~/org/notes",
-      add_heading = true,
-      retitle_heading = false,
+      prompts = { "title", "signature", "keywords" },
       integrations = {
         oil = true,
         telescope = {
