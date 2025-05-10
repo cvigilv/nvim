@@ -27,11 +27,8 @@ vim.keymap.set(
   vim.diagnostic.open_float,
   { desc = "Open diagnostics", noremap = true }
 )
--- Plugins             {{{1
--- cvigilv/afuera.nvim {{{2
-vim.keymap.set("n", ",,o", ":AfueraToggle<CR>", { desc = "Toggle Afuera" })
-vim.keymap.set("n", ",,O", ":AfueraStatus<CR>", { desc = "Afuera status" })
 
+-- Plugins             {{{1
 -- navigator           {{{2
 vim.keymap.set(
   { "t", "n" },
@@ -63,52 +60,13 @@ vim.keymap.set(
   require("Navigator").previous,
   { noremap = true, silent = true }
 )
+
 -- oil.nvim            {{{2
 vim.keymap.set("n", "<leader><CR>", require("oil").open, {
   desc = "File browser",
   noremap = true,
   silent = true,
 })
-
-
--- harpoon.nvim        {{{2
-local harpoon = require("harpoon")
-vim.keymap.set("n", "<Space>fa", function() harpoon:list():add() end, { desc = "Add file" })
-vim.keymap.set(
-  "n",
-  "<Space>ff",
-  function()
-    harpoon.ui:toggle_quick_menu(harpoon:list(), {
-      border = { "🭽", "▔", "🭾", "▕", "🭿", "▁", "🭼", "▏" },
-      title = " Harpoon ",
-      title_pos = "left",
-      ui_width_ratio = 0.33,
-    })
-  end,
-  { desc = "Toggle quick menu" }
-)
-
-vim.keymap.set(
-  "n",
-  "[h",
-  function() harpoon:list():prev() end,
-  { desc = "Previous harpoon buffer" }
-)
-vim.keymap.set(
-  "n",
-  "]h",
-  function() harpoon:list():next() end,
-  { desc = "Next harpoon buffer" }
-)
-
-for i, key in ipairs({ "h", "j", "k", "l" }) do
-  vim.keymap.set(
-    "n",
-    "<Space>f" .. key,
-    function() harpoon:list():select(i) end,
-    { desc = "Select buffer #" .. key }
-  )
-end
 
 -- telescope.nvim      {{{2
 local telescope_builtin = require("telescope.builtin")
@@ -171,27 +129,6 @@ vim.keymap.set(
   ",f?",
   "<CMD>Telescope builtin<CR>",
   { silent = true, noremap = true, desc = "Pickers" }
-)
-
--- neogen.nvim         {{{2
-vim.keymap.set(
-  "n",
-  "<Leader>ld",
-  function() require("neogen").generate({ type = "func" }) end,
-  { desc = "Generate function docstring", noremap = true, silent = true }
-)
-
-vim.keymap.set(
-  "n",
-  "<Leader>lD",
-  function()
-    vim.ui.select(
-      { "class", "func", "type", "file" },
-      { prompt = "Select docstring to generate:" },
-      function(choice) require("neogen").generate({ type = choice }) end
-    )
-  end,
-  { desc = "Pick docstring to generate", noremap = true, silent = true } --
 )
 
 -- conform.nvim        {{{2

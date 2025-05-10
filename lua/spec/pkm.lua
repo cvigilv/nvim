@@ -1,23 +1,9 @@
-local fzy = require("telescope.algos.fzy")
----@diagnostic disable: assign-type-mismatch
-
-local function get_visual_selection()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
-  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-  lines[1] = string.sub(lines[1], s_start[3], -1)
-  if n_lines == 1 then
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
-  else
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
-  end
-  return table.concat(lines, "\n")
-end
+---@module "spec.pkm"
+---@author Carlos Vigil-Vásquez
+---@license MIT 2025
 
 return {
   { -- orgmode
-    -- dir = os.getenv("GITDIR") .. "/orgmode",
     "nvim-orgmode/orgmode",
     dependencies = {
       "danilshvalov/org-modern.nvim",
@@ -336,150 +322,6 @@ return {
       vim.keymap.set("n", "<leader>oA", ":Org agenda g<CR>", { desc = "GTD" })
     end,
   },
-  { -- telescope-orgmode
-    dir = os.getenv("GITDIR") .. "/telescope-orgmode.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "nvim-orgmode/orgmode",
-      "nvim-telescope/telescope.nvim",
-    },
-    config = function()
-      -- Initialize
-      require("telescope").load_extension("orgmode")
-
-      -- Setup custom sorter
-      local sorters = require("telescope.sorters")
-
-      -- NOTE: heavily inspired in https://www.jonashietala.se/blog/2024/05/08/browse_posts_with_telescopenvim/
-      local function split_prompt(prompt)
-        local tags = {}
-        local contact = {}
-        local headline = {}
-        local path = {}
-        for word in prompt:gmatch("([^%s]+)") do
-          local fst = word:sub(1, 1)
-          if fst == ":" then
-            for _, tag in ipairs(vim.split(word:sub(2), ":", { trimempty = true })) do
-              table.insert(tags, tag)
-            end
-          elseif fst == "@" then
-            table.insert(contact, word:sub(2))
-          elseif fst == "~" then
-            table.insert(path, word)
-          else
-            table.insert(headline, word)
-          end
-        end
-
-        return {
-          tags = tags,
-          contact = contact,
-          path = path,
-          headline = vim.fn.join(headline, " "),
-        }
-      end
-
-      local function score_element(prompt_elements, entry_element, sorter)
-        if prompt_elements == nil then return 0 end
-
-        -- We didn't prompt for this type, ignore it.
-        if next(prompt_elements) == nil then return 0 end
-
-        -- We prompted for this type, but entry didn't have it, so remove the entry.
-        -- For example if we prompt for a series, this removes all posts
-        -- without a series.
-        if not entry_element then return -1 end
-
-        -- Convert multiple entry values to a string like `tag1:tag2`.
-        local entry
-        if type(entry_element) == "string" then
-          entry = entry_element
-        elseif type(entry_element) == "table" then
-          entry = vim.fn.join(entry_element, ":")
-        end
-
-        local total = 0
-        for _, prompt_element in ipairs(prompt_elements) do
-          local score = sorter:scoring_function(prompt_element, entry)
-          -- Require a match for every element.
-          if score < 0 then return -1 end
-          total = total + score
-        end
-
-        return total
-      end
-
-      local function split_entry(entry)
-        local components = vim.split(entry, "  ", { plain = true, trimempty = true })
-        return {
-          tags = components[1],
-          line = components[2],
-          location = components[3],
-        }
-      end
-
-      local function org_sorter(opts)
-        opts = opts or {}
-        local fzy_sorter = sorters.get_fzy_sorter(opts)
-
-        return sorters.Sorter:new({
-          discard = true,
-
-          -- NOTE: The scoring is done over "ordinal" it seems. Check telescope-orgmode and
-          -- telescope.nvim code to see how its implemented
-          scoring_function = function(_, prompt, entry)
-            prompt = split_prompt(prompt)
-            entry = split_entry(entry)
-
-            local tags_score = score_element(prompt.tags, entry.tags, fzy_sorter)
-            if tags_score < 0 then return -1 end
-
-            local path_score = score_element(prompt.path, entry.location, fzy_sorter)
-            if path_score < 0 then return -1 end
-
-            local headline_score = fzy_sorter:scoring_function(prompt.headline, entry.line)
-            if headline_score < 0 then return -1 end
-
-            return tags_score + path_score + headline_score
-          end,
-
-          highlighter = fzy_sorter.highlighter,
-        })
-      end
-
-      -- Keymaps
-      vim.keymap.set(
-        "n",
-        "<leader>zr",
-        function()
-          require("telescope").extensions.orgmode.refile_heading(
-            require("telescope.themes").get_ivy({})
-          )
-        end,
-        { desc = "Refile heading" }
-      )
-      vim.keymap.set(
-        "n",
-        "<leader>zf",
-        function()
-          require("telescope").extensions.orgmode.search_headings(
-            require("telescope.themes").get_ivy({ sorter = org_sorter({}) })
-          )
-        end,
-        { desc = "Search headlings" }
-      )
-      vim.keymap.set(
-        "n",
-        "<leader>zi",
-        function()
-          require("telescope").extensions.orgmode.insert_link(
-            require("telescope.themes").get_ivy({})
-          )
-        end,
-        { desc = "Insert link" }
-      )
-    end,
-  },
   { -- RLDX
     "michhernand/RLDX.nvim",
     enabled = true,
@@ -521,8 +363,7 @@ return {
       "nvim-telescope/telescope.nvim",
       "stevearc/oil.nvim",
     },
-    -- event = "VeryLazy",
-    --@type Denote.Configuration
+    ---@type Denote.Configuration
     opts = {
       filetype = "org",
       directory = "~/org/notes",

@@ -83,23 +83,15 @@ return {
               return item
             end
 
-            -- Handle rldx.nvim
-            if entry.source.name == "cmp_rolodex" then
-                item.kind = "Contact"
-                item.menu = "[RLDX]"
-                return item
-            end
-
             -- Add icons to completion items
             item.menu = item.kind
               .. " "
-              .. ({
+              .. (({
                 nvim_lsp = "[LSP]",
                 luasnip = "[SNIP]",
                 lazydev = "[NVIM]",
                 omni = "[OMNI]",
-                cardex = "[CARDEX]",
-              })[entry.source.name]
+              })[entry.source.name] or "[PLUG]")
             item.kind = string.format(" %s ", kind_icons[item.kind])
 
             return item

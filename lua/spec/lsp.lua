@@ -1,3 +1,7 @@
+---@module "spec.lsp"
+---@author Carlos Vigil-Vásquez
+---@license MIT 2025
+
 return {
   { -- LSP {{{
     "neovim/nvim-lspconfig",

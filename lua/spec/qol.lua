@@ -1,3 +1,7 @@
+---@module "spec.qol"
+---@author Carlos Vigil-Vásquez
+---@license MIT 2025
+
 return {
   {
     "echasnovski/mini.nvim",

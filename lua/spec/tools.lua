@@ -1,5 +1,9 @@
+---@module "spec.tools"
+---@author Carlos Vigil-Vásquez
+---@license MIT 2025
+
 return {
-  { -- Documentation generation {{{
+  { -- neogen: Documentation generation
     "danymat/neogen",
     dependencies = { "nvim-treesitter/nvim-treesitter", "L3MON4D3/LuaSnip" },
     keys = { "<Leader>ld", "<Leader>lD" },
@@ -25,7 +29,6 @@ return {
         function() require("neogen").generate({ type = "func" }) end,
         { desc = "Generate function docstring", noremap = true, silent = true }
       )
-
       vim.keymap.set(
         "n",
         "<Leader>lD",
@@ -39,9 +42,10 @@ return {
         { desc = "Pick docstring to generate", noremap = true, silent = true } --
       )
     end,
-  }, -- }}}
-  { -- Formatter and Linter {{{
+  },
+  { -- Formatters and Linters
     "WhoIsSethDaniel/mason-tool-installer.nvim", -- Tool installer
+    event="VeryLazy",
     dependencies = {
       "neovim/nvim-lspconfig",
       "williamboman/mason-lspconfig.nvim",
@@ -127,5 +131,10 @@ return {
         { desc = "Format buffer" }
       )
     end,
-  }, --}}}
+  },
+  { -- luapad: REPL for lua development
+    "rafcamlet/nvim-luapad",
+    keys = { "<leader>R" },
+    ft = "lua",
+  }
 }

@@ -1,6 +1,12 @@
+---@module "spec.git"
+---@author Carlos Vigil-Vásquez
+---@license MIT 2025
+
 return {
-  -- gitsigns {{{
-  {
+  { -- fugitive
+    "tpope/vim-fugitive"
+  },
+  { -- gitsigns
     "lewis6991/gitsigns.nvim",
     opts = {
         signcolumn = false,
