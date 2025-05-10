@@ -89,6 +89,7 @@ return {
             -- Add icons to completion items
             item.menu = item.kind
               .. " "
+<<<<<<< Updated upstream:lua/user/pkgs/completion.lua
               .. ({
                 buffer = "[Buf]",
                 nvim_lsp = "[LSP]",
@@ -99,6 +100,15 @@ return {
                 git = "[Git]",
                 zk = "[ZK]",
               })[entry.source.name]
+=======
+              .. (({
+                nvim_lsp = "[LSP]",
+                luasnip = "[SNIP]",
+                lazydev = "[NVIM]",
+                omni = "[OMNI]",
+                cardex = "[CARDEX]",
+              })[entry.source.name] or "[PLUG]")
+>>>>>>> Stashed changes:lua/spec/completion.lua
             item.kind = string.format(" %s ", kind_icons[item.kind])
 
             return item

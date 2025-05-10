@@ -1,6 +1,9 @@
 return {
   { -- Navigator {{{
     "numToStr/Navigator.nvim",
+    dependencies = {
+      "hrsh7th/nvim-swm",
+    },
     keys = {
       "<C-h>",
       "<C-k>",
@@ -9,10 +12,13 @@ return {
       "<C-p>",
     },
     config = function()
+      -- Setup plugins
       require("Navigator").setup({
         auto_save = nil,
         disable_on_zoom = true,
+        mux = "auto",
       })
+<<<<<<< Updated upstream:lua/user/pkgs/navigation.lua
 
       -- Keybindings
       local opts = { noremap = true, silent = true }
@@ -22,6 +28,43 @@ return {
       vim.keymap.set({ "t", "n" }, "<C-l>", require("Navigator").right, opts)
       vim.keymap.set({ "t", "n" }, "<C-j>", require("Navigator").down, opts)
       vim.keymap.set({ "t", "n" }, "<C-p>", require("Navigator").previous, opts)
+=======
+      local swm = require("swm")
+
+      -- Movements
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-h>",
+        function() return swm.h() or require("Navigator").left() end,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-j>",
+        function() return swm.j() or require("Navigator").up() end,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-k>",
+        function() return swm.k() or require("Navigator").down() end,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-l>",
+        function() return swm.l() or require("Navigator").right() end,
+        { noremap = true, silent = true }
+      )
+
+      -- Misc
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-p>",
+        require("Navigator").previous,
+        { noremap = true, silent = true }
+      )
+>>>>>>> Stashed changes:lua/spec/navigation.lua
     end,
   }, -- }}}
   { -- oil {{{
@@ -228,6 +271,10 @@ return {
           prompt_prefix = "? ",
           selection_prefix = "  ",
           multi_icon = "!",
+<<<<<<< Updated upstream:lua/user/pkgs/navigation.lua
+=======
+          layout_config = { height = 0.4, width = 0.8 },
+>>>>>>> Stashed changes:lua/spec/navigation.lua
           initial_mode = "insert",
           selection_strategy = "reset",
           sorting_strategy = "ascending",
@@ -246,10 +293,17 @@ return {
           buffer_previewer_maker = intelligent_previewer,
         },
         pickers = {
+<<<<<<< Updated upstream:lua/user/pkgs/navigation.lua
           find_files = { prompt_title = "   Find files   " },
           git_files = { prompt_title = "   Git files   " },
           live_grep = { prompt_title = "   Live Grep   " },
           builtin = { prompt_title = "   Pickers   ", previewer = false },
+=======
+          find_files = { prompt_title = "   Find files   " }, --, theme = "ivy" },
+          git_files = { prompt_title = "   Git files   " }, --theme = "ivy" },
+          live_grep = { prompt_title = "   Live Grep   " }, --theme = "ivy" },
+          builtin = { prompt_title = "   Pickers   ", previewer = false }, --theme = "ivy" },
+>>>>>>> Stashed changes:lua/spec/navigation.lua
         },
       })
 
