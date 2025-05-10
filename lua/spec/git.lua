@@ -3,11 +3,9 @@
 ---@license MIT 2025
 
 return {
-  { -- fugitive
-    "tpope/vim-fugitive"
-  },
-  { -- gitsigns
+  { -- Gitsigns
     "lewis6991/gitsigns.nvim",
+    event = "VeryLazy",
     opts = {
         signcolumn = false,
         numhl = true,
@@ -38,5 +36,5 @@ return {
           col = 1,
         },
     },
-  }, -- }}}
+  },
 }

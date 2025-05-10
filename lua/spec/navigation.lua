@@ -3,7 +3,7 @@
 ---@license MIT 2025
 
 return {
-  { -- Navigator {{{
+  { -- Navigator
     "numToStr/Navigator.nvim",
     keys = {
       "<C-h>",
@@ -12,44 +12,40 @@ return {
       "<C-j>",
       "<C-p>",
     },
-    config = function()
-      require("Navigator").setup({
-        auto_save = nil,
-        disable_on_zoom = true,
-      })
-    end,
-  }, -- }}}
-  { -- oil {{{
+    opts = {
+      auto_save = nil,
+      disable_on_zoom = true,
+    },
+  },
+  { -- oil
     "stevearc/oil.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("oil").setup({
-        view_options = {
-          show_hidden = true,
-        },
-        columns = { "icon" },
-        default_file_explorer = true,
-        restore_win_options = true,
-        skip_confirm_for_simple_edits = false,
-        delete_to_trash = false,
-        prompt_save_on_select_new_entry = true,
-        keymaps = {
-          ["g?"] = "actions.show_help",
-          ["<CR>"] = "actions.select",
-          ["|"] = "actions.select_vsplit",
-          ["-"] = "actions.select_split",
-          ["<C-t>"] = "actions.select_tab",
-          ["<C-p>"] = "actions.preview",
-          ["<C-c>"] = "actions.close",
-          ["<C-r>"] = "actions.refresh",
-          ["."] = "actions.parent",
-          ["_"] = "actions.open_cwd",
-          ["`"] = "actions.cd",
-          ["g."] = "actions.toggle_hidden",
-        },
-        use_default_keymaps = false,
-      })
-    end,
+    opts = {
+      view_options = {
+        show_hidden = true,
+      },
+      columns = { "icon" },
+      default_file_explorer = true,
+      restore_win_options = true,
+      skip_confirm_for_simple_edits = false,
+      delete_to_trash = false,
+      prompt_save_on_select_new_entry = true,
+      keymaps = {
+        ["g?"] = "actions.show_help",
+        ["<CR>"] = "actions.select",
+        ["|"] = "actions.select_vsplit",
+        ["-"] = "actions.select_split",
+        ["<C-t>"] = "actions.select_tab",
+        ["<C-p>"] = "actions.preview",
+        ["<C-c>"] = "actions.close",
+        ["<C-r>"] = "actions.refresh",
+        ["."] = "actions.parent",
+        ["_"] = "actions.open_cwd",
+        ["`"] = "actions.cd",
+        ["g."] = "actions.toggle_hidden",
+      },
+      use_default_keymaps = false,
+    },
   },
   { -- Telescope
     "nvim-telescope/telescope.nvim",
@@ -73,17 +69,18 @@ return {
           prompt_prefix = "? ",
           selection_prefix = "  ",
           multi_icon = "!",
-          layout_config = { height = 0.4, width=0.8 },
+          layout_config = { height = 0.4, width = 0.8 },
           initial_mode = "insert",
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           path_display = { "truncate = 3", "smart" },
+          previewer=false,
         }),
         pickers = {
-          find_files = { prompt_title = "   Find files   "},
-          git_files = { prompt_title = "   Git files   "},
-          live_grep = { prompt_title = "   Live Grep   "},
-          builtin = { prompt_title = "   Pickers   ", previewer = false},
+          find_files = { prompt_title = "   Find files   " },
+          git_files = { prompt_title = "   Git files   " },
+          live_grep = { prompt_title = "   Live Grep   " },
+          builtin = { prompt_title = "   Pickers   ", previewer = false },
         },
       })
     end,

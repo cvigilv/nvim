@@ -326,10 +326,7 @@ return {
     "michhernand/RLDX.nvim",
     enabled = true,
     ft = "org",
-    event = "VeryLazy",
-    dependencies = {
-      "hrsh7th/nvim-cmp",
-    },
+    dependencies = { "hrsh7th/nvim-cmp" },
     config = function()
       -- Setup rolodex
       require("rldx").setup({
@@ -342,7 +339,7 @@ return {
       vim.cmd([[hi! link RolodexHighlight @comment.warning]])
       vim.cmd([[hi! link RolodexPattern @comment.warning]])
 
-      -- Setupo completion
+      -- Setup completion
       require("cmp").setup.filetype("org", {
         sources = {
           { name = "cmp_rolodex" },
@@ -359,9 +356,17 @@ return {
   }, -- }}}
   { -- denote
     dir = os.getenv("GITDIR") .. "denote.nvim",
+    cmd = "Denote",
+    ft = "org",
+    event = "BufRead *" .. vim.fs.abspath("~/org/notes") .. "*",
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "stevearc/oil.nvim",
+    },
+    keys = {
+      {"<leader>zf", "<Plug>Denote search", desc = "Search Denote files"},
+      {"<leader>zc", "<Plug>Denote note", desc = "New Denote note"},
+      {"<leader>zr", "<Plug>Denote rename-file", desc = "Rename current Denote note"},
     },
     ---@type Denote.Configuration
     opts = {
