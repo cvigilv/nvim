@@ -69,7 +69,7 @@ return {
           prompt_prefix = "? ",
           selection_prefix = "  ",
           multi_icon = "!",
-          layout_config = { height = 0.2, width = 0.6 },
+          layout_config = { height = 16, width = 0.6 },
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           path_display = { "filename_first" },
