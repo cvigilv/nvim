@@ -10,6 +10,9 @@ return {
     },
     event = "VeryLazy",
     ft = "org",
+    keys = {
+      { "<leader>oA", ":Org agenda g<CR>", "GTD" },
+    },
     config = function()
       -- Colors overrides
       local color_add_fg = "#475946"
@@ -22,7 +25,7 @@ return {
       -- Extras
       local Menu = require("org-modern.menu")
 
-      -- Setup orgmode
+      -- Setup
       require("orgmode").setup({
         mappings = {
           global = {
@@ -136,23 +139,12 @@ return {
         org_adapt_indentation = false,
         org_agenda_files = {
           "~/org/agenda/*",
-          "~/org/calendar/*",
-          "~/org/journal/*",
-          "~/org/notes/*",
           "~/org/refile.org",
         },
         org_default_notes_file = "~/org/refile.org",
         org_archive_location = "~/org/archive/archive_%s",
-        -- org_agenda_files = "~/org-examples/agenda.org",
-        -- org_default_notes_file = "~/org-examples/inbox.org",
         org_startup_folded = "content",
         org_capture_templates = {
-          x = {
-            description = "Contact",
-            target = "~/org/contacts.org",
-            template = "* %?\n:PROPERTIES:\n:NICKNAME:\n:DISPLAYNAME:\n:END:\n",
-            properties = { empty_lines = 1 },
-          },
           c = {
             description = "Journal - Personal",
             datetree = true,
@@ -263,6 +255,7 @@ return {
         ui = {
           menu = {
             handler = function(data)
+              data.title = " " .. data.title .. " "
               Menu:new({
                 window = {
                   margin = { 1, 0, 1, 0 },
@@ -272,7 +265,7 @@ return {
                   zindex = 1000,
                 },
                 icons = {
-                  separator = "➜",
+                  separator = "->",
                 },
               }):open(data)
             end,
@@ -319,7 +312,6 @@ return {
           },
         },
       })
-      vim.keymap.set("n", "<leader>oA", ":Org agenda g<CR>", { desc = "GTD" })
     end,
   },
   { -- RLDX
@@ -364,9 +356,9 @@ return {
       "stevearc/oil.nvim",
     },
     keys = {
-      {"<leader>zf", "<Plug>Denote search", desc = "Search Denote files"},
-      {"<leader>zc", "<Plug>Denote note", desc = "New Denote note"},
-      {"<leader>zr", "<Plug>Denote rename-file", desc = "Rename current Denote note"},
+      { "<leader>zf", "<Plug>Denote search", desc = "Search Denote files" },
+      { "<leader>zc", "<Plug>Denote note", desc = "New Denote note" },
+      { "<leader>zr", "<Plug>Denote rename-file", desc = "Rename current Denote note" },
     },
     ---@type Denote.Configuration
     opts = {
