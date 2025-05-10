@@ -1,2 +1,3 @@
 undodir/
 .DS_Store
+*.bak
