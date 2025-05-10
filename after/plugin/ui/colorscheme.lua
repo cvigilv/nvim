@@ -4,8 +4,9 @@
 
 vim.api.nvim_create_autocmd("Colorscheme", {
   pattern = {"zenbones", "neobones"},
-  callback = function()
+  callback = function(ev)
     local lush = require("lush")
+    local base = require(ev.match)
 
     local bg = vim.opt.bg == "dark" and "#000000" or "#ffffff"
 
@@ -16,6 +17,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
           MsgArea({ bg = bg }),
           ModeArea({ bg = bg }),
           TabLineFill({ bg = bg }),
+          NormalFloat({ base.Normal })
         }
       end
     )
