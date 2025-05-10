@@ -1,8 +1,0 @@
----@module "spec.fennel"
----@author Carlos Vigil-Vásquez
----@license MIT 2025
-
-return {
-  { "Olical/nfnl", ft = "fennel" }
-}
-

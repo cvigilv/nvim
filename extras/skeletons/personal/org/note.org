@@ -1,6 +1,0 @@
-#+TITLE:      ${cursor}
-#+DATE:       [${lua:os.date("%Y-%m-%d %a %H:%M")}]
-#+FILETAGS:   ${lua:vim.fn.input("Tags: ")}
-#+CATEGORY:   NOTE
-#+IDENTIFIER: ${denote-identifier}
-

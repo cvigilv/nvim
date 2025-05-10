@@ -4,34 +4,22 @@ vim.g.mapleader = ","
 -- Setup personal global table
 _G.carlos = {}
 
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
----@diagnostic disable-next-line: undefined-field
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "--branch=stable",
-    lazyrepo,
-    lazypath,
-  })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
+-- Bootstrap lazy.nvim and nfnl.nvim
+local pack_path = vim.fn.stdpath("data") .. "/site/pack"
+
+local function ensure (user, repo)
+  -- Ensures a given github.com/USER/REPO is cloned in the pack/packer/start directory.
+  local install_path = string.format("%s/packer/start/%s", pack_path, repo, repo)
+  if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+    vim.api.nvim_command(string.format("!git clone https://github.com/%s/%s %s", user, repo, install_path))
+    vim.api.nvim_command(string.format("packadd %s", repo))
   end
 end
-vim.opt.rtp:prepend(lazypath)
+ensure("Olical", "nfnl")
+ensure("folke", "lazy.nvim")
 
 -- Load packages
 require("lazy").setup("spec", {
-  ui = { pills = true },
   change_detection = { enabled = false },
   performance = {
     rtp = {
