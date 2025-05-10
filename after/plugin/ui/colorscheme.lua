@@ -2,13 +2,26 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024-2025
 
-local augroup_colorscheme = vim.api.nvim_create_augroup("carlos::colorscheme", { clear = true })
+vim.api.nvim_create_autocmd("Colorscheme", {
+  pattern = {"zenbones", "neobones"},
+  callback = function()
+    local lush = require("lush")
 
-local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
-if theme == "Dark" then
-  vim.o.background = "dark"
-else
-  vim.o.background = "light"
-end
+    local bg = vim.opt.bg == "dark" and "#000000" or "#ffffff"
 
-vim.cmd("colorscheme tempano")
+    local specs = lush.parse(
+      function()
+        return {
+          Folded({}),
+          MsgArea({ bg = bg }),
+          ModeArea({ bg = bg }),
+          TabLineFill({ bg = bg }),
+        }
+      end
+    )
+    -- Apply specs using lush tool-chain
+    lush.apply(lush.compile(specs))
+  end,
+})
+
+vim.cmd("colorscheme zenbones")

@@ -7,37 +7,15 @@ return {
     "stevearc/quicker.nvim",
     filetype = "qf",
     opts = {
-      opts = {
-        buflisted = false,
-        colorcolumn = "",
-        number = true,
-        relativenumber = false,
-        signcolumn = "auto",
-        winfixheight = true,
-        wrap = false,
-        winfixbuf = true,
-      },
-      keys = {
-        {
-          ">",
-          function()
-            require("quicker").expand({ before = 2, after = 2, add_to_existing = true })
-          end,
-          desc = "Expand quickfix context",
-        },
-        {
-          "<",
-          function() require("quicker").collapse() end,
-          desc = "Collapse quickfix context",
-        },
-      },
+      buflisted = false,
+      colorcolumn = "",
+      number = true,
+      relativenumber = false,
+      signcolumn = "auto",
+      winfixheight = true,
+      wrap = false,
+      winfixbuf = true,
     },
-  },
-  { -- zenbones
-    "zenbones-theme/zenbones.nvim",
-    dependencies = "rktjmp/lush.nvim",
-    lazy = false,
-    priority = 1000,
   },
   { -- which-key
     "folke/which-key.nvim",
@@ -93,5 +71,26 @@ return {
         { "<leader>s", icon = "", group = "+snippets" },
       })
     end,
+  },
+  { -- zenbones
+    "zenbones-theme/zenbones.nvim",
+    dependencies = "rktjmp/lush.nvim",
+    lazy = false,
+    priority = 1000,
+    init = function()
+      vim.g.zenbones_lightness = "bright"
+      vim.g.zenbones_colorize_diagnostic_underline_text = true
+      vim.g.neobones_lightness = "bright"
+      vim.g.neobones_colorize_diagnostic_underline_text = true
+      vim.g.zenwritten_lightness = "bright"
+      vim.g.zenwritten_colorize_diagnostic_underline_text = true
+      vim.g.zenwritten_lightness = "bright"
+      vim.g.zenwritten_colorize_diagnostic_underline_text = true
+    end,
+  },
+  { -- bareline.nvim
+    "hernancerm/bareline.nvim",
+    event = "VimEnter",
+    opts = {},
   },
 }
