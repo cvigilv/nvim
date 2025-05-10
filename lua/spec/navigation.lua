@@ -69,20 +69,88 @@ return {
           prompt_prefix = "? ",
           selection_prefix = "  ",
           multi_icon = "!",
-          layout_config = { height = 0.4, width = 0.8 },
-          initial_mode = "insert",
+          layout_config = { height = 0.2, width = 0.6 },
           selection_strategy = "reset",
           sorting_strategy = "ascending",
-          path_display = { "truncate = 3", "smart" },
-          previewer=false,
+          path_display = { "filename_first" },
         }),
         pickers = {
-          find_files = { prompt_title = "   Find files   " },
-          git_files = { prompt_title = "   Git files   " },
-          live_grep = { prompt_title = "   Live Grep   " },
-          builtin = { prompt_title = "   Pickers   ", previewer = false },
+          find_files = {
+            prompt_title = false,
+            prompt_prefix = "[Find files] ",
+            previewer = false,
+          },
+          git_files = {
+            prompt_title = false,
+            prompt_prefix = "[Git files] ",
+            previewer = false,
+          },
+          live_grep = { prompt_title = false, prompt_prefix = "[Live Grep] " },
+          builtin = { prompt_title = false, prompt_prefix = "[Pickers] ", previewer = false },
         },
       })
+
+      local telescope_builtin = require("telescope.builtin")
+      vim.keymap.set(
+        "n",
+        ",ff",
+        telescope_builtin.find_files,
+        { silent = true, noremap = true, desc = "Find files" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fs",
+        "<CMD>Telescope live_grep<CR>",
+        { silent = true, noremap = true, desc = "Find string with Grep" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fw",
+        function() telescope_builtin.grep_string({ search = vim.fn.expand("<cword>") }) end,
+        { silent = true, noremap = true, desc = "Find word under cursor" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fW",
+        function() telescope_builtin.grep_string({ search = vim.fn.expand("<cWORD>") }) end,
+        { silent = true, noremap = true, desc = "Find WORD under cursor" }
+      )
+      vim.keymap.set(
+        "n",
+        ",ft",
+        function() telescope_builtin.grep_string({ search = " TODO: " }) end,
+        { silent = true, noremap = true, desc = "Find TODO comments" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fr",
+        function() telescope_builtin.resume() end,
+        { silent = true, noremap = true, desc = "Open last search result" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fb",
+        "<CMD>Telescope buffers<CR>",
+        { silent = true, noremap = true, desc = "Buffers" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fh",
+        "<CMD>Telescope help_tags<CR>",
+        { silent = true, noremap = true, desc = "Help tags" }
+      )
+      vim.keymap.set(
+        "n",
+        ",fd",
+        "<CMD>Telescope diagnostics<CR>",
+        { silent = true, noremap = true, desc = "LSP diagnostics" }
+      )
+      vim.keymap.set(
+        "n",
+        ",f?",
+        "<CMD>Telescope builtin<CR>",
+        { silent = true, noremap = true, desc = "Pickers" }
+      )
     end,
   }, -- }}}
 }

@@ -1,6 +1,6 @@
 local map = vim.keymap.set
 
--- Quickfix            {{{1
+-- Quick-fix            {{{1
 map("n", "]Q", ":cnewer<CR>", { silent = false, desc = "Next quickfix list" })
 map("n", "[Q", ":colder<CR>", { silent = false, desc = "Previous quickfix list" })
 
@@ -62,73 +62,11 @@ vim.keymap.set(
 )
 
 -- oil.nvim            {{{2
-vim.keymap.set("n", "<leader><CR>", require("oil").open, {
-  desc = "File browser",
-  noremap = true,
-  silent = true,
-})
-
--- telescope.nvim      {{{2
-local telescope_builtin = require("telescope.builtin")
 vim.keymap.set(
   "n",
-  ",ff",
-  telescope_builtin.find_files,
-  { silent = true, noremap = true, desc = "Find files" }
-)
-vim.keymap.set(
-  "n",
-  ",fs",
-  "<CMD>Telescope live_grep<CR>",
-  { silent = true, noremap = true, desc = "Find string with Grep" }
-)
-vim.keymap.set(
-  "n",
-  ",fw",
-  function() telescope_builtin.grep_string({ search = vim.fn.expand("<cword>") }) end,
-  { silent = true, noremap = true, desc = "Find word under cursor" }
-)
-vim.keymap.set(
-  "n",
-  ",fW",
-  function() telescope_builtin.grep_string({ search = vim.fn.expand("<cWORD>") }) end,
-  { silent = true, noremap = true, desc = "Find WORD under cursor" }
-)
-vim.keymap.set(
-  "n",
-  ",ft",
-  function() telescope_builtin.grep_string({ search = " TODO: " }) end,
-  { silent = true, noremap = true, desc = "Find TODO comments" }
-)
-vim.keymap.set(
-  "n",
-  ",fr",
-  function() telescope_builtin.resume() end,
-  { silent = true, noremap = true, desc = "Open last search result" }
-)
-vim.keymap.set(
-  "n",
-  ",fb",
-  "<CMD>Telescope buffers<CR>",
-  { silent = true, noremap = true, desc = "Buffers" }
-)
-vim.keymap.set(
-  "n",
-  ",fh",
-  "<CMD>Telescope help_tags<CR>",
-  { silent = true, noremap = true, desc = "Help tags" }
-)
-vim.keymap.set(
-  "n",
-  ",fd",
-  "<CMD>Telescope diagnostics<CR>",
-  { silent = true, noremap = true, desc = "LSP diagnostics" }
-)
-vim.keymap.set(
-  "n",
-  ",f?",
-  "<CMD>Telescope builtin<CR>",
-  { silent = true, noremap = true, desc = "Pickers" }
+  "<leader><CR>",
+  require("oil").open,
+  {desc = "File browser", noremap = true, silent = true,}
 )
 
 -- conform.nvim        {{{2
@@ -172,11 +110,12 @@ vim.keymap.set(
   function() require("gitsigns").undo_stage_hunk({ vim.fn.line("v"), vim.fn.line(".") }) end,
   { noremap = true, silent = true, desc = "Undo stage hunk" }
 )
-vim.keymap.set("n", "<leader>gd", function()
-  require("gitsigns").toggle_deleted()
-  require("gitsigns").toggle_linehl()
-end, { noremap = true, silent = true, desc = "Toggle diff" })
-
+vim.keymap.set(
+  "n",
+  "<leader>gd",
+  function()require("gitsigns").toggle_deleted() require("gitsigns").toggle_linehl()end,
+  { noremap = true, silent = true, desc = "Toggle diff" }
+)
 vim.keymap.set(
   "n",
   "]g",
