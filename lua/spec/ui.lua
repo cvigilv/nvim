@@ -72,6 +72,11 @@ return {
       })
     end,
   },
+  { -- bareline.nvim
+    "hernancerm/bareline.nvim",
+    event = "VimEnter",
+    opts = {}
+  },
   { -- zenbones
     "zenbones-theme/zenbones.nvim",
     dependencies = "rktjmp/lush.nvim",
@@ -79,18 +84,50 @@ return {
     priority = 1000,
     init = function()
       vim.g.zenbones_lightness = "bright"
+      vim.g.zenbones_darkness = "stark"
+      vim.g.zenbones_lighten_noncurrent_window = true
+      vim.g.zenbones_darken_noncurrent_window = true
       vim.g.zenbones_colorize_diagnostic_underline_text = true
+
       vim.g.neobones_lightness = "bright"
+      vim.g.neobones_darkness = "stark"
+      vim.g.neobones_lighten_noncurrent_window = true
+      vim.g.neobones_darken_noncurrent_window = true
       vim.g.neobones_colorize_diagnostic_underline_text = true
+
       vim.g.zenwritten_lightness = "bright"
-      vim.g.zenwritten_colorize_diagnostic_underline_text = true
-      vim.g.zenwritten_lightness = "bright"
+      vim.g.zenwritten_darkness = "stark"
+      vim.g.zenwritten_lighten_noncurrent_window = true
+      vim.g.zenwritten_darken_noncurrent_window = true
       vim.g.zenwritten_colorize_diagnostic_underline_text = true
     end,
   },
-  { -- bareline.nvim
-    "hernancerm/bareline.nvim",
-    event = "VimEnter",
-    opts = {},
+  { -- modus-themes
+    "miikanissi/modus-themes.nvim",
+    opts = {
+      style = "auto",
+      variant = "default",
+      transparent = false,
+      dim_inactive = false,
+      hide_inactive_statusline = false,
+      line_nr_column_background = false,
+      sign_column_background = false,
+      styles = {
+        comments = { italic = true },
+        keywords = {},
+        functions = { bold = true },
+        variables = {},
+      },
+      on_highlights = function(highlights, colors)
+        highlights.MsgArea = { fg = highlights.Normal.bg }
+        highlights.TabLineFill = { fg = highlights.Normal.bg }
+        highlights.TabLine = { fg = highlights.StatusLine.bg }
+        highlights.OutOfBounds = { bg = highlights.NormalSB.bg }
+        highlights.NormalNC = { bg = highlights.Normal.bg }
+        highlights.NormalFloat = { bg = highlights.Normal.bg }
+        highlights.NormalSB = { bg = highlights.Normal.bg }
+        highlights.Folded = { fg = nil, bg = nil }
+      end,
+    },
   },
 }
