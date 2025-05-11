@@ -131,14 +131,10 @@ return {
           },
         },
 
-        -- ID
-        -- org_id_link_to_org_use_id=true,
-        -- org_id_method="ts",
-        -- org_id_ts_format="%Y%m%dT%H%M%S",
-
         org_adapt_indentation = false,
         org_agenda_files = {
           "~/org/agenda/*",
+          "~/org/notes/*",
           "~/org/refile.org",
         },
         org_default_notes_file = "~/org/refile.org",
@@ -203,19 +199,17 @@ return {
         org_todo_keywords = {
           "NEXT(n)",
           "TODO(t)",
-          "BLOCKED(b)", --STOP
+          "STOP(b)", --STOP
           "|",
           "DONE(d)",
-          "CANCELED(c)", --CNCL
-          "INACTIVE(i)", -- delete
+          "CNCL(c)", --CNCL
         },
         org_todo_keyword_faces = {
           NEXT = ":foreground " .. color_changed_bg .. " :background " .. color_changed_fg,
           TODO = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
-          BLOCKED = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
+          BLCK = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
           DONE = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
-          CANCELED = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
-          INACTIVE = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
+          CNCL = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
         },
 
         notifications = {
