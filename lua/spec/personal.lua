@@ -20,10 +20,48 @@ return {
       wildcards = {
         expand = true,
         lookup = {
-          -- Org-mode
+          -- Denote
+          ["denote-title"] = function()
+            local Denote = require("denote.internal")
+            local filename = vim.api.nvim_buf_get_name(0)
+            local fields = Denote.parse_filename(filename, false)
+            return "#+TITLE:      " .. (fields.title or "")
+          end,
+          ["denote-date"] = function()
+            local Denote = require("denote.internal")
+            local filename = vim.api.nvim_buf_get_name(0)
+            local fields = Denote.parse_filename(filename, false)
+            local time = {
+              year = tonumber(string.sub(fields.date, 1, 4)),
+              month = tonumber(string.sub(fields.date, 5, 6)),
+              day = tonumber(string.sub(fields.date, 7, 8)),
+              hour = tonumber(string.sub(fields.date, 10, 11)),
+              min = tonumber(string.sub(fields.date, 12, 13)),
+              sec = tonumber(string.sub(fields.date, 14, 15)),
+            }
+            local timestamp = os.date("[%Y-%m-%d %a %H:%M:%S]", os.time(time))
+            return "#+DATE:       " .. (timestamp or "")
+          end,
+          ["denote-keywords"] = function()
+            local Denote = require("denote.internal")
+            local filename = vim.api.nvim_buf_get_name(0)
+            local fields = Denote.parse_filename(filename, true)
+            if fields.keywords ~= nil then
+              return "#+FILETAGS:   " .. ":" .. table.concat(fields.keywords, ":") .. ":"
+            end
+            return "#+FILETAGS:   "
+          end,
+          ["denote-signature"] = function()
+            local Denote = require("denote.internal")
+            local filename = vim.api.nvim_buf_get_name(0)
+            local fields = Denote.parse_filename(filename, false)
+            return "#+SIGNATURE:  " .. (fields.signature or "")
+          end,
           ["denote-identifier"] = function()
-            local t = os.time()
-            return os.date("%Y%m%d", t) .. "T" .. os.date("%H%M%S", t)
+            local Denote = require("denote.internal")
+            local filename = vim.api.nvim_buf_get_name(0)
+            local fields = Denote.parse_filename(filename, false)
+            return "#+IDENTIFIER: " .. fields.date
           end,
 
           -- GitHub
