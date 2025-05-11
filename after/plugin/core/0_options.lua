@@ -12,13 +12,21 @@ vim.opt.diffopt = "internal,filler,closeoff,linematch:60"
 vim.opt.fileencoding = "UTF-8" -- Character encoding for the file in the buffer
 vim.opt.fillchars = { -- Characters used for UI things
   -- Window splitting
-  vert = "┃",
-  vertleft = "┫",
-  vertright = "┣",
-  verthoriz = "╋",
-  horiz = "━",
-  horizup = "┻",
-  horizdown = "┳",
+  -- vert = "┃",
+  -- vertleft = "┫",
+  -- vertright = "┣",
+  -- verthoriz = "╋",
+  -- horiz = "━",
+  -- horizup = "┻",
+  -- horizdown = "┳",
+
+  vert = " ",
+  vertleft = " ",
+  vertright = " ",
+  verthoriz = " ",
+  horiz = " ",
+  horizup = " ",
+  horizdown = " ",
 
   -- Fold
   fold = " ",
