@@ -6,13 +6,13 @@ vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
 vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
 vim.b.minihipatterns_disable = true
 
--- Custom statuscolumn
--- NOTE: the objective of this custom statusline is so we can partially conceal the headings stars, such
--- that the stars are placed in the statuscolumn, making them stay aligned with the rest of the text.
+-- Custom status column
+--- NOTE: the objective of this custom status line is so we can partially conceal the headings stars, such
+--- that the stars are placed in the status column, making them stay aligned with the rest of the text.
 local C = require("carlos.helpers.colors")
 local S = require("carlos.helpers.string")
 
-local max_stc_width = 16
+local max_stc_width = 12
 
 local function asterisk_count(line_number, maxstars)
   maxstars = maxstars or max_stc_width
@@ -29,23 +29,23 @@ local function asterisk_count(line_number, maxstars)
         .. count
         .. "#"
         .. S.lpad(string.rep("*", count --[[@as number]]), maxstars, " ")
-        .. "%#OrgStc#"
+        .. "%*"
     end
   end
 
   return string.rep(" ", max_stc_width)
 end
 
---- Define statuscolumn custom highlight group
-local normal = C.get_hlgroup_table("Normal") or "#ffffff"
-local comment = C.get_hlgroup_table("Whitespace") or "#000000"
+--- Define status column custom highlight group
+local normal = C.get_hlgroup_table("Normal") or { bg = "#ffffff" }
+local comment = C.get_hlgroup_table("Comment") or { bg = "#000000" }
 vim.cmd("hi! OrgStc guibg=" .. normal.bg .. " guifg=" .. comment.fg .. " gui=italic")
 
---- Set statuscolumn
+--- Set status column
 _G.carlos.org.statuscolumn = function()
   local components = {
     " ",
-    "%#OrgStc#",
+    -- "%#OrgStc#",
     asterisk_count(vim.v.lnum, max_stc_width - 2),
     " ",
   }
@@ -140,29 +140,30 @@ local function CenterWindow()
   local new_center_width = vim.api.nvim_win_get_width(win)
   if new_center_width > center_width then vim.api.nvim_win_set_width(win, center_width) end
 end
-
 local function enable_writing_mode(bufnr)
   CenterWindow()
-  vim.api.nvim_set_option_value("spell", true, {scope="local"})
-  vim.api.nvim_set_option_value("number", false, {scope ="local"})
-  vim.api.nvim_set_option_value("relativenumber", false, {scope ="local"})
-  vim.api.nvim_set_option_value("showtabline", 0, {scope ="local"})
-  vim.api.nvim_set_option_value("laststatus", 0, {scope ="local"})
-  vim.api.nvim_set_option_value("winbar", "", {scope="global"})
-  vim.api.nvim_set_option_value("statusline", "", {scope="global"})
+  vim.api.nvim_set_option_value("spell", true, { scope = "local" })
+  vim.api.nvim_set_option_value("number", false, { scope = "local" })
+  vim.api.nvim_set_option_value("relativenumber", false, { scope = "local" })
+  vim.api.nvim_set_option_value("showtabline", 0, { scope = "local" })
+  vim.api.nvim_set_option_value("laststatus", 0, { scope = "local" })
+  vim.api.nvim_set_option_value("winbar", "", { scope = "global" })
+  vim.api.nvim_set_option_value("statusline", "", { scope = "global" })
 end
-
-local function disable_writing_mode(bufnr) 
+local function disable_writing_mode(bufnr)
   vim.cmd("only")
-  vim.api.nvim_set_option_value("spell", false, {scope="local"})
-  vim.api.nvim_set_option_value("number", true, {scope ="local"})
-  vim.api.nvim_set_option_value("relativenumber", true, {scope ="local"})
-  vim.api.nvim_set_option_value("showtabline", 2, {scope ="local"})
-  vim.api.nvim_set_option_value("laststatus", 2, {scope ="local"})
-  vim.api.nvim_set_option_value("winbar", "%{%v:lua.carlos.winbar()%}", {scope="global"})
-  vim.api.nvim_set_option_value("statusline", "%{%v:lua.carlos.statusline()%}", {scope="global"})
+  vim.api.nvim_set_option_value("spell", false, { scope = "local" })
+  vim.api.nvim_set_option_value("number", true, { scope = "local" })
+  vim.api.nvim_set_option_value("relativenumber", true, { scope = "local" })
+  vim.api.nvim_set_option_value("showtabline", 2, { scope = "local" })
+  vim.api.nvim_set_option_value("laststatus", 2, { scope = "local" })
+  vim.api.nvim_set_option_value("winbar", "%{%v:lua.carlos.winbar()%}", { scope = "global" })
+  vim.api.nvim_set_option_value(
+    "statusline",
+    "%{%v:lua.carlos.statusline()%}",
+    { scope = "global" }
+  )
 end
-
 local function toggle_writing_mode(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
 
