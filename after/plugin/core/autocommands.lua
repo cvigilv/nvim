@@ -38,12 +38,12 @@ vim.api.nvim_create_autocmd({ "TermOpen", "BufEnter" }, {
   end,
 })
 
--- Automatically open quickfix
+-- Automatically open quick-fix
 vim.cmd([[autocmd QuickFixCmdPost [^l]* cwindow]])
 vim.cmd([[autocmd QuickFixCmdPost    l* lwindow]])
 vim.cmd([[autocmd VimEnter            * cwindow]])
 
--- Activate cursorline only for focused window
+-- Activate cursor line only for focused window
 vim.cmd([[
 augroup FocusHighlight
     au!
@@ -54,7 +54,7 @@ augroup FocusHighlight
 augroup END
 ]])
 
--- `help` and `man` open to the rightt (if possible)
+-- `help` and `man` open to the right (if possible)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "help", "man" },
   callback = function()
@@ -66,18 +66,27 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Better built-in filepath completion
+-- Better built-in file path completion
 local function simulate_keypress(key)
   local termcodes = vim.api.nvim_replace_termcodes(key, true, false, true)
   vim.api.nvim_feedkeys(termcodes, "m", false)
 end
 
 vim.api.nvim_create_autocmd("CompleteDone", {
-  callback = function(ev)
+  callback = function()
     if vim.v.event.complete_type == "files" and vim.v.event.reason == "accept" then
       simulate_keypress("<c-x>")
       simulate_keypress("<c-f>")
     end
   end,
-  desc="Complete multiple path components with built-in completion (<C-x><C-f>)"
+  desc = "Complete multiple path components with built-in completion (<C-x><C-f>)",
+})
+
+-- Automatically open file picker whenever I enter neovim without arguments
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    if vim.fn.argc() == 0 and not vim.tbl_contains(vim.tbl_values(vim.v.argv), "-c") then
+      vim.cmd("Telescope find_files layout_config={height=0.5}")
+    end
+  end,
 })
