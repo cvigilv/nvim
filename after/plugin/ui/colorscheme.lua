@@ -54,7 +54,13 @@ vim.api.nvim_create_autocmd("Colorscheme", {
 
 -- Differentiate plugin files with lighter/darker backgrounds
 vim.api.nvim_create_autocmd("BufWinEnter", {
-  pattern = { "/private/*.org", "*\\[CodeCompanion\\]*", "oil://*" },
+  pattern = {
+    "/private/*.org",
+    "*\\[CodeCompanion\\]*",
+    "oil://*",
+    "*orgagenda",
+    "*COMMIT_EDITMSG"
+  },
   callback = function(ev)
     vim.api.nvim_set_option_value(
       "winhighlight",
