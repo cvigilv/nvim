@@ -11,8 +11,10 @@ return {
     event = "VeryLazy",
     ft = "org",
     keys = {
-      { "<leader>oA", ":Org agenda g<CR>", "GTD" },
+      { "<leader>oA", ":Org agenda g<CR>", "Open GTD calendar view" },
+      { "<leader>oC", ":Org capture p<CR>", "Capture to PhD journal" },
     },
+    cmd = { "Org" },
     config = function()
       -- Colors overrides
       local color_add_fg = "#475946"
@@ -134,7 +136,9 @@ return {
         org_adapt_indentation = false,
         org_agenda_files = {
           "~/org/agenda/*",
+          "~/org/calendar/*",
           "~/org/notes/*",
+          "~/org/journal/*",
           "~/org/refile.org",
         },
         org_default_notes_file = "~/org/refile.org",
