@@ -12,13 +12,48 @@ return {
       "<C-j>",
       "<C-p>",
     },
-    opts = {
-      auto_save = nil,
-      disable_on_zoom = true,
-    },
+    config = function()
+      ---@diagnostic disable-next-line: missing-fields
+      require("Navigator").setup({
+        auto_save = nil,
+        disable_on_zoom = true,
+      })
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-h>",
+        require("Navigator").left,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-k>",
+        require("Navigator").up,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-l>",
+        require("Navigator").right,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-j>",
+        require("Navigator").down,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "t", "n" },
+        "<C-p>",
+        require("Navigator").previous,
+        { noremap = true, silent = true }
+      )
+    end,
   },
   { -- oil
     "stevearc/oil.nvim",
+    keys = { "<leader><CR>" },
+    cmd = "Oil",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       view_options = {
