@@ -4,17 +4,16 @@
 
 local augroup = vim.api.nvim_create_augroup("carlos.colorscheme", { clear = true })
 
--- Synchronize theme with tmux
 vim.api.nvim_create_autocmd("OptionSet", {
+  desc="Synchronize theme with tmux",
   pattern = "background",
   callback = function()
     vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
   end,
   group = augroup,
 })
-
--- Color scheme overrides
 vim.api.nvim_create_autocmd("Colorscheme", {
+  desc="Override color scheme",
   pattern = { "zen*", "*bones" },
   callback = function(ev)
     local lush = require("lush")
@@ -53,9 +52,8 @@ vim.api.nvim_create_autocmd("Colorscheme", {
   end,
   group = augroup,
 })
-
--- Differentiate plugin files with lighter/darker backgrounds
 vim.api.nvim_create_autocmd("BufWinEnter", {
+  desc = "Dim special buffers",
   pattern = {
     "/private/*.org",
     "*\\[CodeCompanion\\]*",
@@ -88,8 +86,8 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   end,
   group = augroup,
 })
-
 vim.api.nvim_create_autocmd("VimEnter", {
+  desc="Lazy-load color scheme",
   callback = function()
     -- Defaults
     local bg = "light"
