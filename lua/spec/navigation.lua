@@ -43,6 +43,7 @@ return {
         ["_"] = "actions.open_cwd",
         ["`"] = "actions.cd",
         ["g."] = "actions.toggle_hidden",
+        ["gx"] = "actions.open_external",
       },
       use_default_keymaps = false,
     },
