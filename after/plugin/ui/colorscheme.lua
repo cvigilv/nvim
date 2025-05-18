@@ -2,24 +2,16 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024-2025
 
+local augroup = vim.api.nvim_create_augroup("carlos.colorscheme", { clear = true })
+
 -- Synchronize theme with tmux
 vim.api.nvim_create_autocmd("OptionSet", {
   pattern = "background",
   callback = function()
     vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
   end,
+  group = augroup,
 })
-
--- Synchronize color scheme with system
-local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
-local colorscheme = "zenbones"
-if theme == "Dark" then
-  colorscheme = "neobones"
-  vim.o.background = "dark"
-else
-  vim.o.background = "light"
-end
-vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
 
 -- Color scheme overrides
 vim.api.nvim_create_autocmd("Colorscheme", {
@@ -59,6 +51,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
       group = vim.api.nvim_create_augroup("carlos::colorscheme", { clear = true }),
     })
   end,
+  group = augroup,
 })
 
 -- Differentiate plugin files with lighter/darker backgrounds
@@ -93,6 +86,30 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       once = true,
     })
   end,
+  group = augroup,
 })
 
-vim.cmd("colorscheme " .. colorscheme)
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    -- Defaults
+    local bg = "light"
+    local colorscheme = "zenbones"
+
+    -- Synchronize color scheme with system
+    local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
+    if theme == "Dark" then
+      colorscheme = "neobones"
+      bg = "dark"
+    end
+
+    -- Set color scheme
+    vim.o.background = bg
+    vim.cmd("colorscheme " .. colorscheme)
+
+    -- Return true to delete
+    return true
+  end,
+  once = true,
+  nested = true,
+  group = augroup,
+})
