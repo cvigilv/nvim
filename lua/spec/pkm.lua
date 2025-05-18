@@ -361,7 +361,7 @@ return {
     ---@type Denote.Configuration
     opts = {
       filetype = "org",
-      directory = "~/org/notes",
+      directory = vim.fs.abspath("~/Insync/itmightbecarlos@gmail.com/Google Drive/org/notes"),
       prompts = { "title", "signature", "keywords" },
       integrations = {
         oil = true,
