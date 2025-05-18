@@ -2,6 +2,14 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2024-2025
 
+-- Synchronize theme with tmux
+vim.api.nvim_create_autocmd("OptionSet", {
+  pattern = "background",
+  callback = function()
+    vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
+  end,
+})
+
 -- Synchronize color scheme with system
 local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
 local colorscheme = "zenbones"
@@ -11,6 +19,7 @@ if theme == "Dark" then
 else
   vim.o.background = "light"
 end
+vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
 
 -- Color scheme overrides
 vim.api.nvim_create_autocmd("Colorscheme", {
@@ -59,7 +68,11 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     "*\\[CodeCompanion\\]*",
     "oil://*",
     "*orgagenda",
-    "*COMMIT_EDITMSG"
+    "*COMMIT_EDITMSG",
+    "*quickfix*",
+    "term:*",
+    "*doc/*.txt",
+    "*_Luapad.lua",
   },
   callback = function(ev)
     vim.api.nvim_set_option_value(
