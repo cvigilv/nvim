@@ -102,32 +102,4 @@ return {
       vim.g.zenwritten_colorize_diagnostic_underline_text = true
     end,
   },
-  { -- modus-themes
-    "miikanissi/modus-themes.nvim",
-    opts = {
-      style = "auto",
-      variant = "default",
-      transparent = false,
-      dim_inactive = false,
-      hide_inactive_statusline = false,
-      line_nr_column_background = false,
-      sign_column_background = false,
-      styles = {
-        comments = { italic = true },
-        keywords = {},
-        functions = { bold = true },
-        variables = {},
-      },
-      on_highlights = function(highlights, colors)
-        highlights.MsgArea = { fg = highlights.Normal.bg }
-        highlights.TabLineFill = { fg = highlights.Normal.bg }
-        highlights.TabLine = { fg = highlights.StatusLine.bg }
-        highlights.OutOfBounds = { bg = highlights.NormalSB.bg }
-        highlights.NormalNC = { bg = highlights.Normal.bg }
-        highlights.NormalFloat = { bg = highlights.Normal.bg }
-        highlights.NormalSB = { bg = highlights.Normal.bg }
-        highlights.Folded = { fg = nil, bg = nil }
-      end,
-    },
-  },
 }
