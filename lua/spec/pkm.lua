@@ -8,13 +8,14 @@ return {
     dependencies = {
       "danilshvalov/org-modern.nvim",
     },
-    event = "VeryLazy",
     ft = "org",
     keys = {
+      "<leader>oa",
+      "<leader>oc",
       { "<leader>oA", ":Org agenda g<CR>", "Open GTD calendar view" },
       { "<leader>oC", ":Org capture p<CR>", "Capture to PhD journal" },
     },
-    cmd = { "Org" },
+    cmd = "Org",
     config = function()
       -- Colors overrides
       local color_add_fg = "#475946"
@@ -203,15 +204,15 @@ return {
         org_todo_keywords = {
           "NEXT(n)",
           "TODO(t)",
-          "STOP(b)", --STOP
+          "STOP(b)",
           "|",
           "DONE(d)",
-          "CNCL(c)", --CNCL
+          "CNCL(c)",
         },
         org_todo_keyword_faces = {
           NEXT = ":foreground " .. color_changed_bg .. " :background " .. color_changed_fg,
           TODO = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
-          BLCK = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
+          STOP = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
           DONE = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
           CNCL = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
         },
