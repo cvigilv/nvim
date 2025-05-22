@@ -102,6 +102,7 @@ return {
 
       -- Ensure all servers are installed
       require("mason-lspconfig").setup({
+        automatic_enable = false,
         automatic_installation = true,
         ensure_installed = vim
           .iter(vim.tbl_values(languages))
