@@ -5,6 +5,9 @@
 return {
   { -- Navigator
     "numToStr/Navigator.nvim",
+    dependencies = {
+      "hrsh7th/nvim-swm",
+    },
     keys = {
       "<C-h>",
       "<C-k>",
@@ -13,35 +16,43 @@ return {
       "<C-p>",
     },
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
+      -- Setup plugins
       require("Navigator").setup({
         auto_save = nil,
         disable_on_zoom = true,
+        mux = "auto",
       })
+
+      -- Keybindings
+      local swm = require("swm")
+
+      -- Movements
       vim.keymap.set(
-        { "t", "n" },
+        { "n", "t" },
         "<C-h>",
-        require("Navigator").left,
+        function() return swm.h() or require("Navigator").left() end,
         { noremap = true, silent = true }
       )
       vim.keymap.set(
-        { "t", "n" },
-        "<C-k>",
-        require("Navigator").up,
-        { noremap = true, silent = true }
-      )
-      vim.keymap.set(
-        { "t", "n" },
-        "<C-l>",
-        require("Navigator").right,
-        { noremap = true, silent = true }
-      )
-      vim.keymap.set(
-        { "t", "n" },
+        { "n", "t" },
         "<C-j>",
-        require("Navigator").down,
+        function() return swm.j() or require("Navigator").up() end,
         { noremap = true, silent = true }
       )
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-k>",
+        function() return swm.k() or require("Navigator").down() end,
+        { noremap = true, silent = true }
+      )
+      vim.keymap.set(
+        { "n", "t" },
+        "<C-l>",
+        function() return swm.l() or require("Navigator").right() end,
+        { noremap = true, silent = true }
+      )
+
+      -- Misc
       vim.keymap.set(
         { "t", "n" },
         "<C-p>",
