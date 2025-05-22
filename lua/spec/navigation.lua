@@ -111,6 +111,61 @@ return {
       "<leader>fZ",
     },
     config = function()
+      local action_state = require("telescope.actions.state")
+      local actions = require("telescope.actions")
+
+      -- Helpers
+      local function ismedia(path)
+        local media_extensions = {
+          "png",
+          "jpg",
+          "jpeg",
+          "gif",
+          "webp",
+          "svg",
+          "mp4",
+          "mkv",
+          "avi",
+          "mov",
+          "webm",
+          "pdf",
+          "mp3",
+          "wav",
+          "flac",
+          "ogg",
+        }
+        return path and vim.tbl_contains(media_extensions, vim.fn.fnamemodify(path, ":e"))
+      end
+
+      -- Custom actions
+      local function open_media(prompt_bufnr)
+        print("Running custom <CR> event")
+        local selection = action_state.get_selected_entry()
+        local path = selection.path or selection.value
+
+        -- Check if file is a PDF
+        print("ismedia? " .. tostring(ismedia(path)))
+        if ismedia(path) then
+          actions.close(prompt_bufnr)
+
+          -- Determine command based on OS
+          local open_cmd
+          if vim.fn.has("mac") == 1 then
+            open_cmd = "open"
+          elseif vim.fn.has("unix") == 1 then
+            open_cmd = "xdg-open"
+          elseif vim.fn.has("win32") == 1 then
+            open_cmd = "start"
+          end
+
+          -- Execute the command to open PDF externally
+          if open_cmd then vim.fn.jobstart({ open_cmd, path }) end
+        else
+          -- Use default action for non-PDF files
+          actions.select_default(prompt_bufnr)
+        end
+      end
+
       require("telescope").setup({
         defaults = require("telescope.themes").get_ivy({
           prompt_prefix = "? ",
@@ -120,6 +175,10 @@ return {
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           path_display = { "filename_first" },
+          mappings = {
+            i = { ["<CR>"] = open_media },
+            n = { ["<CR>"] = open_media },
+          },
         }),
         pickers = {
           find_files = {
