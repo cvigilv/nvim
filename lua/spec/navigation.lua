@@ -189,4 +189,10 @@ return {
       )
     end,
   }, -- }}}
+  { -- scrollEOF
+    "Aasim-A/scrollEOF.nvim",
+    tag = "1.2.7",
+    event = { "CursorMoved", "WinScrolled" },
+      opts = { insert_mode = true, floating = false }
+  },
 }
