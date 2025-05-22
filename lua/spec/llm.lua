@@ -10,6 +10,13 @@ return {
         chat = { adapter = "anthropic" },
         inline = { adapter = "anthropic" },
       },
+      display = {
+        chat = {
+          window = {
+            layout = "buffer",
+          },
+        },
+      },
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
