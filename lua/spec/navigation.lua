@@ -63,7 +63,7 @@ return {
   },
   { -- oil
     "stevearc/oil.nvim",
-    keys = { { "n", "<leader><CR>", "<Plug>Oil<CR>" } },
+    keys = { { "<leader><CR>", ":Oil<CR>" } },
     cmd = "Oil",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
@@ -98,6 +98,7 @@ return {
     "nvim-telescope/telescope.nvim",
     dependencies = "nvim-lua/plenary.nvim",
     cmd = "Telescope",
+    event = "VeryLazy",
     keys = {
       "<leader>ff",
       "<leader>fs",
@@ -107,8 +108,8 @@ return {
       "<leader>fd",
       "<leader>fh",
       "<leader>f?",
-      "<leader>fz",
-      "<leader>fZ",
+      "<leader>zl",
+      "<leader>zf",
     },
     config = function()
       local action_state = require("telescope.actions.state")
@@ -139,12 +140,10 @@ return {
 
       -- Custom actions
       local function open_media(prompt_bufnr)
-        print("Running custom <CR> event")
         local selection = action_state.get_selected_entry()
         local path = selection.path or selection.value
 
         -- Check if file is a PDF
-        print("ismedia? " .. tostring(ismedia(path)))
         if ismedia(path) then
           actions.close(prompt_bufnr)
 
@@ -175,21 +174,25 @@ return {
           selection_strategy = "reset",
           sorting_strategy = "ascending",
           path_display = { "filename_first" },
-          mappings = {
-            i = { ["<CR>"] = open_media },
-            n = { ["<CR>"] = open_media },
-          },
         }),
         pickers = {
           find_files = {
             prompt_title = false,
             prompt_prefix = "[Find files] ",
             previewer = false,
+            mappings = {
+              i = { ["<CR>"] = open_media },
+              n = { ["<CR>"] = open_media },
+            },
           },
           git_files = {
             prompt_title = false,
             prompt_prefix = "[Git files] ",
             previewer = false,
+            mappings = {
+              i = { ["<CR>"] = open_media },
+              n = { ["<CR>"] = open_media },
+            },
           },
           live_grep = { prompt_title = false, prompt_prefix = "[Live Grep] " },
           builtin = { prompt_title = false, prompt_prefix = "[Pickers] ", previewer = false },
@@ -263,6 +266,6 @@ return {
     "Aasim-A/scrollEOF.nvim",
     tag = "1.2.7",
     event = { "CursorMoved", "WinScrolled" },
-      opts = { insert_mode = true, floating = false }
+    opts = { insert_mode = true, floating = false },
   },
 }
