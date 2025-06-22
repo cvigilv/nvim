@@ -7,6 +7,98 @@ return {
     "nvim-orgmode/orgmode",
     dependencies = {
       "danilshvalov/org-modern.nvim",
+      { -- RLDX
+        "michhernand/RLDX.nvim",
+        enabled = true,
+        ft = "org",
+        dependencies = { "hrsh7th/nvim-cmp" },
+        keys = {
+          { "<leader>oxa", "<cmd>RldxAdd<CR>" },
+          { "<leader>oxl", "<cmd>RldxLoad<CR>" },
+          { "<leader>oxs", "<cmd>RldxSave<CR>" },
+          { "<leader>oxd", "<cmd>RldxDelete<CR>" },
+        },
+        config = function()
+          -- Setup rolodex
+          require("rldx").setup({
+            prefix_char = "@",
+            filename = vim.fn.stdpath("config") .. "/extras/rolodex.json",
+            schema_ver = "latest",
+          })
+
+          -- Better highlight group
+          vim.cmd([[hi! link RolodexHighlight @comment.warning]])
+          vim.cmd([[hi! link RolodexPattern @comment.warning]])
+
+          -- Setup completion
+          require("cmp").setup.filetype("org", {
+            sources = {
+              { name = "cmp_rolodex", trigger_characters = { "@" } },
+              { name = "omni" },
+            },
+          })
+        end,
+      },
+      { -- denote
+        dir = os.getenv("GITDIR") .. "denote.nvim",
+        cmd = "Denote",
+        ft = "org",
+        event = {
+          "BufRead *" .. vim.fs.abspath("~/org/") .. "*",
+          "VeryLazy",
+        },
+        dependencies = {
+          "nvim-telescope/telescope.nvim",
+          "stevearc/oil.nvim",
+        },
+        keys = {},
+        config = function()
+          ---@type Denote.Configuration
+          require("denote").setup({
+            filetype = "org",
+            directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org",
+            prompts = { "title", "signature", "keywords" },
+            integrations = {
+              oil = true,
+              telescope = {
+                enabled = true,
+                opts = require("telescope.themes").get_ivy({
+                  layout_config = { height = 0.30 },
+                  previewer = false,
+                  prompt_prefix = "[Denote] ",
+                  prompt_title = false,
+                }),
+              },
+            },
+          })
+          vim.cmd([[
+            hi def link DenoteDate      DiagnosticHint
+            hi def link DenoteSignature DiagnosticError
+            hi def link DenoteTitle     DiagnosticOK
+            hi def link DenoteKeywords  DiagnosticWarning
+            hi def link DenoteExtension Comment
+          ]])
+          vim.keymap.set(
+            "n",
+            "<leader>zf",
+            ":Denote search<CR>",
+            { desc = "Search Denote files" }
+          )
+          vim.keymap.set(
+            "n",
+            "<leader>zl",
+            ":Denote insert-link<CR>",
+            { desc = "Insert link to Denote files" }
+          )
+          vim.keymap.set("n", "<leader>zc", ":Denote note<CR>", { desc = "New Denote note" })
+          vim.keymap.set(
+            "n",
+            "<leader>zr",
+            ":Denote rename-file<CR>",
+            { desc = "Rename current Denote note" }
+          )
+        end,
+      },
     },
     ft = "org",
     keys = {
@@ -16,6 +108,7 @@ return {
       { "<leader>oC", ":Org capture p<CR>", "Capture to PhD journal" },
     },
     cmd = "Org",
+    event = "VeryLazy",
     config = function()
       -- Colors overrides
       local color_add_fg = "#475946"
@@ -67,12 +160,6 @@ return {
             org_agenda_refile = "R",
             org_agenda_add_note = "N",
             org_agenda_show_help = "g?",
-          },
-          capture = {
-            -- org_capture_finalize =  "<C-c>" ,
-            -- org_capture_refile =  "<leader>or" ,
-            -- org_capture_kill =  "<C-x>" ,
-            -- org_capture_show_help = "g?",
           },
           note = {
             org_note_finalize = "<C-c>",
@@ -135,58 +222,48 @@ return {
         },
 
         org_adapt_indentation = false,
-        org_agenda_files = {
-          "~/org/agenda/*",
-          "~/org/calendar/*",
-          "~/org/notes/*",
-          "~/org/journal/*",
-          "~/org/refile.org",
-        },
-        org_default_notes_file = "~/org/refile.org",
-        org_archive_location = "~/org/archive/archive_%s",
+        org_agenda_files = "~/org/.org/**",
+        org_default_notes_file = "~/org/.org/inbox.org",
+        org_archive_location = "~/org/.archive/archive_%s",
         org_startup_folded = "content",
         org_capture_templates = {
           c = {
             description = "Journal - Personal",
             datetree = true,
-            target = "~/org/journal/personal.org",
+            target = "~/org/" .. os.date("%Y") .. "0101T090000==logs--dailies__personal.org",
             template = "**** %U\n%?",
+            ---@diagnostic disable-next-line: missing-fields
             properties = { empty_lines = 1 },
           },
           p = {
             description = "Journal - PhD",
             datetree = true,
-            target = "~/org/journal/phd.org",
+            target = "~/org/" .. os.date("%Y") .. "0101T090001==logs--dailies__phd.org",
             template = "**** %U\n%?",
+            ---@diagnostic disable-next-line: missing-fields
             properties = { empty_lines = 1 },
           },
           w = {
             description = "Journal - Work",
             datetree = true,
-            target = "~/org/journal/work.org",
+            target = "~/org/" .. os.date("%Y") .. "0101T090002==logs--dailies__work.org",
             template = "**** %U\n%?",
+            ---@diagnostic disable-next-line: missing-fields
             properties = { empty_lines = 1 },
-          },
-          n = {
-            description = "Note",
-            target = "~/org/notes/%<%Y%m%d>T%<%H%M%S>.org",
-            template = "* %? :%^{Note type:|reference|reference|idea|meta}:",
           },
           ---@diagnostic disable-next-line: assign-type-mismatch
           e = "Event",
           er = {
             description = "Recurring",
             template = "** %?\n %T",
-            target = "~/org/calendar/local.org",
+            target = "~/org/.org/calendar/local.org",
             headline = "Recurring",
-            properties = { empty_lines = 1 },
           },
           eo = {
             description = "One-time",
             template = "** %?\n %T",
-            target = "~/org/calendar/local.org",
+            target = "~/org/.org/calendar/local.org",
             headline = "One-time",
-            properties = { empty_lines = 1 },
           },
         },
 
@@ -286,96 +363,36 @@ return {
                 org_agenda_remove_tags = true,
               },
               {
+                org_agenda_overriding_header = "Deadlines",
+                type = "tags_todo",
+                match = "DEADLINE>=\"<today>\"",
+                org_agenda_remove_tags = true,
+              },
+              {
+                org_agenda_overriding_header = "Tasks",
                 type = "tags_todo",
                 match = "TODO=\"NEXT\"",
                 org_agenda_todo_ignore_deadlines = "all",
-                org_agenda_overriding_header = "Tasks",
+                org_agenda_todo_ignore_scheduled = "all",
+                org_agenda_remove_tags = true,
               },
               {
-                type = "tags_todo",
-                match = "DEADLINE>=\"<today>\"",
-                org_agenda_overriding_header = "Deadlines",
-              },
-              {
+                org_agenda_overriding_header = "Inbox",
                 type = "tags_todo",
                 match = "TODO=\"TODO\"",
-                org_agenda_files = { "~/org/refile.org" },
-                org_agenda_overriding_header = "Inbox",
+                org_agenda_files = { "~/org/.org/inbox.org" },
+                org_agenda_remove_tags = true,
               },
               {
+                org_agenda_overriding_header = "Completed today",
                 type = "tags",
                 match = "CLOSED>=\"<today>\"",
-                org_agenda_overriding_header = "Completed today",
+                org_agenda_remove_tags = true,
               },
             },
           },
         },
       })
     end,
-  },
-  { -- RLDX
-    "michhernand/RLDX.nvim",
-    enabled = true,
-    ft = "org",
-    dependencies = { "hrsh7th/nvim-cmp" },
-    config = function()
-      -- Setup rolodex
-      require("rldx").setup({
-        prefix_char = "@",
-        filename = vim.fn.stdpath("config") .. "/extras/rolodex.json",
-        schema_ver = "latest",
-      })
-
-      -- Better highlight group
-      vim.cmd([[hi! link RolodexHighlight @comment.warning]])
-      vim.cmd([[hi! link RolodexPattern @comment.warning]])
-
-      -- Setup completion
-      require("cmp").setup.filetype("org", {
-        sources = {
-          { name = "cmp_rolodex" },
-          { name = "omni" },
-        },
-      })
-    end,
-    keys = {
-      { "<leader>oxa", "<cmd>RldxAdd<CR>" },
-      { "<leader>oxl", "<cmd>RldxLoad<CR>" },
-      { "<leader>oxs", "<cmd>RldxSave<CR>" },
-      { "<leader>oxd", "<cmd>RldxDelete<CR>" },
-    },
-  }, -- }}}
-  { -- denote
-    dir = os.getenv("GITDIR") .. "denote.nvim",
-    cmd = "Denote",
-    ft = "org",
-    event = "BufRead *" .. vim.fs.abspath("~/org/notes") .. "*",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "stevearc/oil.nvim",
-    },
-    keys = {
-      { "<leader>zf", "<Plug>Denote search", desc = "Search Denote files" },
-      { "<leader>zc", "<Plug>Denote note", desc = "New Denote note" },
-      { "<leader>zr", "<Plug>Denote rename-file", desc = "Rename current Denote note" },
-    },
-    ---@type Denote.Configuration
-    opts = {
-      filetype = "org",
-      directory = vim.fs.abspath("~/Insync/itmightbecarlos@gmail.com/Google Drive/org/notes"),
-      prompts = { "title", "signature", "keywords" },
-      integrations = {
-        oil = true,
-        telescope = {
-          enabled = true,
-          opts = require("telescope.themes").get_ivy({
-            layout_config = { height = 0.30 },
-            previewer = false,
-            prompt_prefix = "[Denote files] ",
-            prompt_title = false,
-          }),
-        },
-      },
-    },
   },
 }
