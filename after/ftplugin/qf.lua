@@ -7,3 +7,5 @@ vim.api.nvim_create_autocmd("WinEnter", {
   desc = "Automatically quit if quickfix window is the last window",
   command = [[if winnr('$') == 1 && &buftype == "quickfix"|q|endif]],
 })
+
+vim.keymap.set("n", "?", ":Cfilter ")
