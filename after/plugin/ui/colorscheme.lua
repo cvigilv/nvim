@@ -5,7 +5,7 @@
 local augroup = vim.api.nvim_create_augroup("carlos.colorscheme", { clear = true })
 
 vim.api.nvim_create_autocmd("OptionSet", {
-  desc="Synchronize theme with tmux",
+  desc = "Synchronize theme with tmux",
   pattern = "background",
   callback = function()
     vim.cmd("silent !tmux source ~/.config/tmux/tmux_" .. vim.o.background .. ".conf")
@@ -13,7 +13,7 @@ vim.api.nvim_create_autocmd("OptionSet", {
   group = augroup,
 })
 vim.api.nvim_create_autocmd("Colorscheme", {
-  desc="Override color scheme",
+  desc = "Override color scheme",
   pattern = { "zen*", "*bones" },
   callback = function(ev)
     local lush = require("lush")
@@ -24,6 +24,7 @@ vim.api.nvim_create_autocmd("Colorscheme", {
       local bg = vim.api.nvim_get_option_value("background", { scope = "global" }) == "dark"
           and "#000000"
         or "#ffffff"
+
       local specs = lush.parse(
         function()
           return {
@@ -66,18 +67,31 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     "*_Luapad.lua",
   },
   callback = function(ev)
-    vim.api.nvim_set_option_value(
+    local current_winhighlight = vim.api.nvim_get_option_value(
       "winhighlight",
-      "Normal:OutOfBounds",
       { scope = "local", win = vim.api.nvim_get_current_win() }
     )
+
+    if current_winhighlight ~= "" then
+      vim.api.nvim_set_option_value(
+        "winhighlight",
+        current_winhighlight .. ",Normal:OutOfBounds",
+        { scope = "local", win = vim.api.nvim_get_current_win() }
+      )
+    else
+      vim.api.nvim_set_option_value(
+        "winhighlight",
+        "Normal:OutOfBounds",
+        { scope = "local", win = vim.api.nvim_get_current_win() }
+      )
+    end
 
     vim.api.nvim_create_autocmd("BufWinLeave", {
       pattern = ev.match,
       callback = function()
         vim.api.nvim_set_option_value(
           "winhighlight",
-          "",
+          current_winhighlight,
           { scope = "local", win = vim.api.nvim_get_current_win() }
         )
       end,
@@ -87,7 +101,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,
 })
 vim.api.nvim_create_autocmd("VimEnter", {
-  desc="Lazy-load color scheme",
+  desc = "Lazy-load color scheme",
   callback = function()
     -- Defaults
     local bg = "light"
