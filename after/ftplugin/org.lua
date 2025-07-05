@@ -1,17 +1,22 @@
--- Define global scope of current file
-_G.carlos.org = {}
-
--- Options
-vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
-vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
+-- Plugins
+vim.b.miniindentscope_disable = true
 vim.b.minihipatterns_disable = true
 
--- Custom status column
+-- Options
+_G.carlos.org = {}
+vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
+vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
+
+-- Keymaps
+vim.keymap.set("n", ",sw", ":Writing<CR>", {desc = "Toggle writing mode"})
+vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", {desc = "Toggle spell checker"})
+
+-- Extra
+--- Status column
 --- NOTE: the objective of this custom status line is so we can partially conceal the headings stars, such
 --- that the stars are placed in the status column, making them stay aligned with the rest of the text.
 local C = require("carlos.helpers.colors")
 local S = require("carlos.helpers.string")
-
 local max_stc_width = 12
 
 local function asterisk_count(line_number, maxstars)
@@ -36,12 +41,12 @@ local function asterisk_count(line_number, maxstars)
   return string.rep(" ", max_stc_width)
 end
 
---- Define status column custom highlight group
+---- Define status column custom highlight group
 local normal = C.get_hlgroup_table("Normal") or { bg = "#ffffff" }
 local comment = C.get_hlgroup_table("Comment") or { bg = "#000000" }
 vim.cmd("hi! OrgStc guibg=" .. normal.bg .. " guifg=" .. comment.fg .. " gui=italic")
 
---- Set status column
+---- Set status column
 _G.carlos.org.statuscolumn = function()
   local components = {
     " ",
@@ -52,14 +57,13 @@ _G.carlos.org.statuscolumn = function()
 
   return table.concat(components, "")
 end
-
 vim.api.nvim_set_option_value(
   "statuscolumn",
   "%{%v:lua.carlos.org.statuscolumn()%}",
   { scope = "local" }
 )
 
---- Conceal heading stars
+---- Conceal heading stars
 local function conceal_heading_stars()
   local ns_id = vim.api.nvim_create_namespace("carlos::org::conceal_heading_stars")
 
@@ -91,10 +95,9 @@ local function conceal_heading_stars()
 end
 conceal_heading_stars()
 
--- Writing mode
+--- Writing mode
 vim.b.carlos_writing_mode_enabled = false
-
-local function CenterWindow()
+local function center_window()
   -- Get the current window and buffer
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
@@ -141,7 +144,7 @@ local function CenterWindow()
   if new_center_width > center_width then vim.api.nvim_win_set_width(win, center_width) end
 end
 local function enable_writing_mode(bufnr)
-  CenterWindow()
+  center_window()
   vim.api.nvim_set_option_value("spell", true, { scope = "local" })
   vim.api.nvim_set_option_value("number", false, { scope = "local" })
   vim.api.nvim_set_option_value("relativenumber", false, { scope = "local" })
@@ -176,5 +179,4 @@ local function toggle_writing_mode(bufnr)
   end
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
-
-vim.api.nvim_create_user_command("Writing", toggle_writing_mode, {})
+vim.api.nvim_creat_user_command("Writing", toggle_writing_mode, {})

@@ -1,3 +1,4 @@
+-- Options
 vim.api.nvim_set_option_value("tw", 96, { scope = "local" })
 vim.api.nvim_set_option_value(
   "formatexpr",
