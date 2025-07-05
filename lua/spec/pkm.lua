@@ -377,6 +377,11 @@ return {
                 org_agenda_remove_tags = true,
               },
               {
+                org_agenda_overriding_header = "From dailies",
+                type = "tags_todo",
+                org_agenda_files = { "~/org/*dailies*.org" },
+              },
+              {
                 org_agenda_overriding_header = "Inbox",
                 type = "tags_todo",
                 match = "TODO=\"TODO\"",
