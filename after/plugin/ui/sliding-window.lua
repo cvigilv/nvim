@@ -28,6 +28,7 @@ local function slide_up(height)
     width = width,
   })
 
+  -- Set winhighlight without overriding previous settings
   vim.api.nvim_set_option_value(
     "winhighlight",
     vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) ~= ""
@@ -98,7 +99,7 @@ local function slide_down(height)
   local sliding_win = vim.api.nvim_open_win(buf, false, {
     relative = "win",
     win = current_win,
-    border = { "", "", "", "│", "+", "─", "+", "│" },
+    border = { "", "", "", "│", "┘", "─", "└", "│" },
     focusable = true,
     col = 4,
     row = 0,
