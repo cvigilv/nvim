@@ -100,4 +100,4 @@ local function toggle_writing_mode(bufnr)
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
 
-vim.api.nvim_creat_user_command("Writing", toggle_writing_mode, {})
+vim.api.nvim_create_user_command("Writing", toggle_writing_mode, {})
