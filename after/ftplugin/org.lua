@@ -160,12 +160,12 @@ local function disable_writing_mode(bufnr)
   vim.api.nvim_set_option_value("relativenumber", true, { scope = "local" })
   vim.api.nvim_set_option_value("showtabline", 2, { scope = "local" })
   vim.api.nvim_set_option_value("laststatus", 2, { scope = "local" })
-  vim.api.nvim_set_option_value("winbar", "%{%v:lua.carlos.winbar()%}", { scope = "global" })
-  vim.api.nvim_set_option_value(
-    "statusline",
-    "%{%v:lua.carlos.statusline()%}",
-    { scope = "global" }
-  )
+  -- vim.api.nvim_set_option_value("winbar", "%{%v:lua.carlos.winbar()%}", { scope = "global" })
+  -- vim.api.nvim_set_option_value(
+  --   "statusline",
+  --   "%{%v:lua.carlos.statusline()%}",
+  --   { scope = "global" }
+  -- )
 end
 local function toggle_writing_mode(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
@@ -179,4 +179,4 @@ local function toggle_writing_mode(bufnr)
   end
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
-vim.api.nvim_create_user_command("Writing", toggle_writing_mode, {})
+vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
