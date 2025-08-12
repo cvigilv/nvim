@@ -34,7 +34,6 @@ return {
           require("cmp").setup.filetype("org", {
             sources = {
               { name = "cmp_rolodex", trigger_characters = { "@" } },
-              { name = "omni" },
             },
           })
         end,

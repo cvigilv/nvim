@@ -1,1 +1,271 @@
-{"contacts": {"md5::7b929bdb1cfd90d35de800e59e24f281": {"salt": "knyBmsEkkTpQX7n3", "properties": [], "name": "fena.balmaceda", "metadata": {"encryption": "plaintext"}}, "md5::9fe279feac2cd4eb5e04c2f071020112": {"salt": "XC4NCKGxtZI5hzCD", "properties": [], "name": "jeppe.vdl", "metadata": {"encryption": "plaintext"}}, "md5::b4ae0082e557712744da6c63b1c7f673": {"salt": "LkK4mCu5GFbL7bV5", "properties": [], "name": "clement.bordas", "metadata": {"encryption": "plaintext"}}, "md5::35ac428fa3d001ad6b0c4b3eb6dc144b": {"salt": "Mcpdqwu3s7MSOlq2", "properties": [], "name": "francisco.llull", "metadata": {"encryption": "plaintext"}}, "md5::dff00ed6887df4731cd91db5f35f61ac": {"salt": "0Kfne5he5GRZLfZB", "properties": [], "name": "francois.trottein", "metadata": {"encryption": "plaintext"}}, "md5::fcb2af4f7467aea2f3ccc4a279768c62": {"salt": "Gc3v2nbEnQ7u6vY0", "properties": [], "name": "bram.spanoghe", "metadata": {"encryption": "plaintext"}}, "md5::2249e054270b7c16e30a0f6abaefe4a1": {"salt": "cpiELiiPKrRlJe76", "properties": [], "name": "michiel.stock", "metadata": {"encryption": "plaintext"}}, "md5::3d35cc885dd50b24eb78a589bab53933": {"salt": "au6ag5GxiiK2DlDA", "properties": [], "name": "damien.devos", "metadata": {"encryption": "plaintext"}}, "md5::0d4710f6b3b6b96473e85123d72384e1": {"salt": "DsQkyHcEamfHBeHa", "properties": [], "name": "angeline.reboul", "metadata": {"encryption": "plaintext"}}, "md5::14311ba0b4510f6cc77a20b20a1dccbe": {"salt": "z9dncF4k5rZ4vWka", "name": "david.moyano", "metadata": {"encryption": "plaintext"}}, "md5::aabbff06efb84193d5c420c3a8929fdd": {"salt": "1ArgW3vSTsvyCpRr", "properties": [], "name": "simon.correa", "metadata": {"encryption": "plaintext"}}, "md5::4c5c7f2ba35a27667f30941ffbe1bb88": {"salt": "mCYwlyTEDkmAbIdg", "properties": [], "name": "leo.alvarez", "metadata": {"encryption": "plaintext"}}, "md5::8b17b3f7080672e5fcc2b7eb1d7d630b": {"salt": "Vs95NgkEc4XZxX04", "properties": [], "name": "bernard.debaets", "metadata": {"encryption": "plaintext"}}, "md5::2648980a99bd3ca61554ab1d2ac8e3e7": {"salt": "wThU8w5DiczoIQGr", "properties": [], "name": "javiera.vasquez", "metadata": {"encryption": "plaintext"}}, "md5::0ecfd21f3346891724a0522185248c07": {"salt": "sqq9lhsTcfnrYkuj", "properties": [], "name": "ruben.garcia", "metadata": {"encryption": "plaintext"}}}, "header": {"rldx_schema": "0.3.0"}}
+{
+  "contacts": {
+    "md5::75db6080a178492eccc0c3e97fd4629e": {
+      "salt": "TbomErf1LRCS3oVG",
+      "properties": [
+        {
+          "name": "Francisco Llull",
+          "nick": "Panchito",
+          "tags": [
+            "protera",
+            "phd",
+            "amigos"
+          ]
+        }
+      ],
+      "name": "francisco.llull",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::aa1be994b909ab14d43d177d21574778": {
+      "salt": "LtgR3QVyBrHkZB2G",
+      "properties": [
+        {
+          "name": "Damien Devos",
+          "nick": "Damien D.",
+          "tags": [
+            "phd",
+            "microplatypus",
+            "pasteur",
+            "ciil"
+          ]
+        }
+      ],
+      "name": "damien.devos",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::77321b5afbf83c1eb56fb0ba0d69ac99": {
+      "salt": "okMmXvCPsl1TesZP",
+      "properties": [
+        {
+          "name": "Bram Spanoghe",
+          "nick": "Bram S.",
+          "tags": [
+            "phd",
+            "kermit",
+            "ugent"
+          ]
+        }
+      ],
+      "name": "bram.spanoghe",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::815aec5f3d29a1a17c5e7961d472e46f": {
+      "salt": "hmgzcKosNXgoXMop",
+      "properties": [
+        {
+          "name": "Rubén García",
+          "nick": "Rubén G.",
+          "tags": [
+            "phd",
+            "microplatypus"
+          ]
+        }
+      ],
+      "name": "ruben.garcia",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::6a515c990c9342a152ed7931184ed477": {
+      "salt": "dKIkPnJyz5f1PE9Q",
+      "properties": [
+        {
+          "name": "David Moyano",
+          "nick": "David D.",
+          "tags": [
+            "phd",
+            "microplatypus"
+          ]
+        }
+      ],
+      "name": "david.moyano",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::04d6d52b58800513e71d97a5f8761222": {
+      "salt": "2U0wlcGkSnzdbyXQ",
+      "properties": [
+        {
+          "name": "Leonardo Alvarez",
+          "nick": "Leo",
+          "tags": [
+            "protera",
+            "stepwise"
+          ]
+        }
+      ],
+      "name": "leo.alvarez",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::e7e7c4f161b0a2e570c69c2f442b2a67": {
+      "salt": "qC8lReDN3IaiWIgJ",
+      "properties": [
+        {
+          "name": "Michiel Stock",
+          "nick": "Michiel S.",
+          "tags": [
+            "phd",
+            "kermit",
+            "ugent"
+          ]
+        }
+      ],
+      "name": "michiel.stock",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::b8ae825d54c8afb7690f11679c134b90": {
+      "salt": "826cDbGUcVWwAYwX",
+      "properties": [
+        {
+          "name": "Jeppe Van den Langenbergh",
+          "nick": "Jeppe",
+          "tags": [
+            "phd",
+            "kermit",
+            "ugent",
+            "student"
+          ]
+        }
+      ],
+      "name": "jeppe.vdl",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::e676dbffdd3854deaedc2f735ee62d82": {
+      "salt": "vApf50Fc8yY31bCx",
+      "properties": [
+        {
+          "name": "Simón Correa",
+          "nick": "Simón",
+          "tags": [
+            "protera",
+            "stepwise"
+          ]
+        }
+      ],
+      "name": "simon.correa",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::9f05274dece044772ba7d172114698ab": {
+      "salt": "E3saJjOI25P7Gzlz",
+      "properties": [
+        {
+          "name": "Bernard de Baets",
+          "nick": "Bernard de Baets",
+          "tags": [
+            "phd",
+            "kermit",
+            "ugent"
+          ]
+        }
+      ],
+      "name": "bernard.debaets",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::b45ad46372b0917908237ef3b2754e7e": {
+      "salt": "l4OAHRD6uHiQAcTS",
+      "properties": [
+        {
+          "name": "Francois Trottein",
+          "nick": "Francois T.",
+          "tags": [
+            "phd",
+            "pasteur",
+            "ciil"
+          ]
+        }
+      ],
+      "name": "francois.trottein",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::fb735c3a9aa27647de007ed225938612": {
+      "salt": "DN1GzpKNRZAicGU5",
+      "properties": [
+        {
+          "name": "Clement Bordas",
+          "nick": "Clement B.",
+          "tags": [
+            "phd",
+            "pasteur",
+            "ciil"
+          ]
+        }
+      ],
+      "name": "clement.bordas",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::d83b9fa6b7539091208abd647fc985da": {
+      "salt": "oSkD8nxgdZNgeA8v",
+      "properties": [
+        {
+          "name": "Javiera Vásquez Ugarte",
+          "nick": "Mamá",
+          "tags": [
+            "familia"
+          ]
+        }
+      ],
+      "name": "javiera.vasquez",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::26569dc7563b2e3645cf9945b4c223dd": {
+      "salt": "NYJiJ5npNstrBXWA",
+      "properties": [
+        {
+          "tags": [
+            "familia"
+          ],
+          "name": "Fernanda Balmaceda López",
+          "nickname": "Piña"
+        }
+      ],
+      "name": "fena.balmaceda",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    },
+    "md5::aeb52d51fde590768c63729345e1d575": {
+      "salt": "Cbc3JaHCHN43Wh8H",
+      "properties": [
+        {
+          "name": "Angeline Reboul",
+          "nick": "Angy",
+          "tags": [
+            "phd",
+            "microplatypus",
+            "pasteur"
+          ]
+        }
+      ],
+      "name": "angeline.reboul",
+      "metadata": {
+        "encryption": "plaintext"
+      }
+    }
+  },
+  "header": {
+    "rldx_schema": "0.3.0"
+  }
+}

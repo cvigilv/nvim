@@ -180,3 +180,5 @@ local function toggle_writing_mode(bufnr)
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
+
+vim.keymap.set("n", ",or", function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end)
