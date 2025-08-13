@@ -182,3 +182,11 @@ end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 
 vim.keymap.set("n", ",or", function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end)
+
+require('plugin.zotero').setup({
+  denote_silo_path = "/Users/carlos/org/zotero",
+  zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
+  better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
+  default_time = "09:00:00",
+  debug = true
+})
