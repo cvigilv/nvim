@@ -96,10 +96,14 @@ local query_annotations_template = [[
     itemAnnotations.comment,
     itemAnnotations.pageLabel,
     itemAnnotations.color,        -- Added color, might be useful
-    itemAnnotations.sortIndex     -- Added for potential sorting later
+    itemAnnotations.sortIndex,    -- Added for potential sorting later
+    pdf_items.key AS pdfKey,      -- Get the PDF attachment key for Zotero links
+    annotation_items.key AS annotationKey  -- Get the annotation key for Zotero links
   FROM items
   JOIN itemAttachments ON items.itemID = itemAttachments.parentItemID
   JOIN itemAnnotations ON itemAnnotations.parentItemID = itemAttachments.ItemID
+  JOIN items AS pdf_items ON pdf_items.itemID = itemAttachments.itemID  -- PDF attachment item
+  LEFT JOIN items AS annotation_items ON annotation_items.itemID = itemAnnotations.itemID  -- Annotation item
   WHERE items.key = '%s'
   ORDER BY CAST(itemAnnotations.pageLabel AS INTEGER), itemAnnotations.sortIndex; -- Order by page, then position
 ]]

@@ -8,8 +8,8 @@ vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
 vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
 
 -- Keymaps
-vim.keymap.set("n", ",sw", ":Writing<CR>", {desc = "Toggle writing mode"})
-vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", {desc = "Toggle spell checker"})
+vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })
+vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checker" })
 
 -- Extra
 --- Status column
@@ -183,10 +183,10 @@ vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 
 vim.keymap.set("n", ",or", function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end)
 
-require('plugin.zotero').setup({
-  denote_silo_path = "/Users/carlos/org/zotero",
+require("plugin.zotero").setup({
+  denote_silo_path = "/Users/carlos/org",
   zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
   better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
   default_time = "09:00:00",
-  debug = true
+  debug = false,
 })

@@ -4,12 +4,13 @@ local M = {}
 
 -- Setup function
 function M.setup(opts)
-  print("FOOOOO")
   sync.setup(opts)
 
   -- Create user commands
-  vim.api.nvim_create_user_command("ZoteroSync", function() sync.sync() end, {
-    desc = "Sync Zotero library to Denote files",
+  vim.api.nvim_create_user_command("ZoteroSync", function() 
+    sync.sync() 
+  end, {
+    desc = "Sync Zotero library to Denote files using SQLite database",
   })
 
   vim.api.nvim_create_user_command("ZoteroDebug", function(args)
