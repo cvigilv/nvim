@@ -182,6 +182,7 @@ local function toggle_writing_mode(bufnr)
 end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 
+--- Denote
 vim.keymap.set(
   "n",
   ",or",
@@ -190,3 +191,12 @@ vim.keymap.set(
 
 -- Contacts
 require("plugin.pkm.contacto").setup()
+
+--- Zotero
+require("plugin.zotero").setup({
+  denote_silo_path = "/Users/carlos/org",
+  zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
+  better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
+  default_time = "09:00:00",
+  debug = false,
+})
