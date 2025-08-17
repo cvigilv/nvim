@@ -136,5 +136,8 @@ return {
     "rafcamlet/nvim-luapad",
     keys = { "<leader>R" },
     ft = "lua",
+  },
+  {
+    dir = "/Users/carlos/git/jason.nvim/"
   }
 }

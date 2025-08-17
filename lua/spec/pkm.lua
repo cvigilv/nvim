@@ -7,37 +7,6 @@ return {
     "nvim-orgmode/orgmode",
     dependencies = {
       "danilshvalov/org-modern.nvim",
-      { -- RLDX
-        "michhernand/RLDX.nvim",
-        enabled = true,
-        ft = "org",
-        dependencies = { "hrsh7th/nvim-cmp" },
-        keys = {
-          { "<leader>oxa", "<cmd>RldxAdd<CR>" },
-          { "<leader>oxl", "<cmd>RldxLoad<CR>" },
-          { "<leader>oxs", "<cmd>RldxSave<CR>" },
-          { "<leader>oxd", "<cmd>RldxDelete<CR>" },
-        },
-        config = function()
-          -- Setup rolodex
-          require("rldx").setup({
-            prefix_char = "@",
-            filename = vim.fn.stdpath("config") .. "/extras/rolodex.json",
-            schema_ver = "latest",
-          })
-
-          -- Better highlight group
-          vim.cmd([[hi! link RolodexHighlight @comment.warning]])
-          vim.cmd([[hi! link RolodexPattern @comment.warning]])
-
-          -- Setup completion
-          require("cmp").setup.filetype("org", {
-            sources = {
-              { name = "cmp_rolodex", trigger_characters = { "@" } },
-            },
-          })
-        end,
-      },
       { -- denote
         dir = os.getenv("GITDIR") .. "denote.nvim",
         cmd = "Denote",

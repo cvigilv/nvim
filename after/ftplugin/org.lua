@@ -8,8 +8,9 @@ vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
 vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
 
 -- Keymaps
-vim.keymap.set("n", ",sw", ":Writing<CR>", {desc = "Toggle writing mode"})
-vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", {desc = "Toggle spell checker"})
+vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })
+vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checker" })
+vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", { desc = "Find Zotero" })
 
 -- Extra
 --- Status column
@@ -181,4 +182,11 @@ local function toggle_writing_mode(bufnr)
 end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 
-vim.keymap.set("n", ",or", function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end)
+vim.keymap.set(
+  "n",
+  ",or",
+  function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end
+)
+
+-- Contacts
+require("plugin.pkm.contacto").setup()

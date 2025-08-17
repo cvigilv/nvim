@@ -96,7 +96,44 @@ return {
   },
   { -- Telescope
     "nvim-telescope/telescope.nvim",
-    dependencies = "nvim-lua/plenary.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      {
+        dir = "/Users/carlos/git/telescope-zotero.nvim",
+        dependencies = {
+          { "kkharji/sqlite.lua" },
+        },
+        config = function()
+          require("zotero").setup({
+            ft = {
+              org = {
+                insert_key_formatter = function(citekey) return "[cite:@" .. citekey .. "]" end,
+                locate_bib = function()
+                  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+                  for _, line in ipairs(lines) do
+                    local location = line:match("#%+BIBLIOGRAPHY:%s*(.+)")
+                      or line:match("#%+bibliography:%s*(.+)")
+                    if location then return location end
+                  end
+                  return vim.fn.fnamemodify(vim.fn.expand("%"), ":r") .. ".bib"
+                end,
+              },
+              typst = {
+                insert_key_formatter = function(citekey) return "@" .. citekey end,
+                locate_bib = function()
+                  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+                  for _, line in ipairs(lines) do
+                    local location = line:match("^#bibliography%((.+)%)")
+                    if location then return location:sub(2, -2) end
+                  end
+                  return vim.fn.fnamemodify(vim.fn.expand("%"), ":r") .. ".bib"
+                end,
+              },
+            },
+          })
+        end,
+      },
+    },
     cmd = "Telescope",
     event = "VeryLazy",
     keys = {
@@ -112,6 +149,7 @@ return {
       "<leader>zf",
     },
     config = function()
+      require("telescope").load_extension("zotero")
       local action_state = require("telescope.actions.state")
       local actions = require("telescope.actions")
 

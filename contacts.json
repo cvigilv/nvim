@@ -1,0 +1,188 @@
+[
+  {
+    "id": "francois.trottein",
+    "properties": {
+      "nick": "Francois T.",
+      "tags": [
+        "phd",
+        "pasteur",
+        "ciil"
+      ],
+      "name": "Francois Trottein"
+    }
+  },
+  {
+    "id": "leo.alvarez",
+    "properties": {
+      "nick": "Leo",
+      "tags": [
+        "protera",
+        "stepwise"
+      ],
+      "name": "Leonardo Alvarez"
+    }
+  },
+  {
+    "id": "bernard.debaets",
+    "properties": {
+      "nick": "Bernard de Baets",
+      "tags": [
+        "phd",
+        "kermit",
+        "ugent"
+      ],
+      "name": "Bernard de Baets"
+    }
+  },
+  {
+    "id": "angeline.reboul",
+    "properties": {
+      "nick": "Angy",
+      "tags": [
+        "phd",
+        "microplatypus",
+        "pasteur"
+      ],
+      "name": "Angeline Reboul"
+    }
+  },
+  {
+    "id": "damien.devos",
+    "properties": {
+      "nick": "Damien D.",
+      "tags": [
+        "phd",
+        "microplatypus",
+        "pasteur",
+        "ciil"
+      ],
+      "name": "Damien Devos"
+    }
+  },
+  {
+    "id": "victor.nemeth",
+    "properties": {
+      "nick": "Victor N.",
+      "name": "Victor Nemeth",
+      "tags": [
+        "phd",
+        "ughent",
+        "kermit"
+      ]
+    }
+  },
+  {
+    "id": "fena.balmaceda",
+    "properties": {
+      "tags": [
+        "familia"
+      ],
+      "name": "Fernanda Balmaceda López",
+      "nickname": "Piña"
+    }
+  },
+  {
+    "id": "clement.bordas",
+    "properties": {
+      "nick": "Clement B.",
+      "tags": [
+        "phd",
+        "pasteur",
+        "ciil"
+      ],
+      "name": "Clement Bordas"
+    }
+  },
+  {
+    "id": "bram.spanoghe",
+    "properties": {
+      "nick": "Bram S.",
+      "tags": [
+        "phd",
+        "kermit",
+        "ugent"
+      ],
+      "name": "Bram Spanoghe"
+    }
+  },
+  {
+    "id": "ruben.garcia",
+    "properties": {
+      "nick": "Rubén G.",
+      "tags": [
+        "phd",
+        "microplatypus"
+      ],
+      "name": "Rubén García"
+    }
+  },
+  {
+    "id": "david.moyano",
+    "properties": {
+      "nick": "David D.",
+      "tags": [
+        "phd",
+        "microplatypus"
+      ],
+      "name": "David Moyano"
+    }
+  },
+  {
+    "id": "francisco.llull",
+    "properties": {
+      "nick": "Panchito",
+      "tags": [
+        "protera",
+        "phd",
+        "amigos"
+      ],
+      "name": "Francisco Llull"
+    }
+  },
+  {
+    "id": "simon.correa",
+    "properties": {
+      "name": "Simón Correa",
+      "nick": "Simón",
+      "tags": [
+        "protera",
+        "stepwise"
+      ]
+    }
+  },
+  {
+    "id": "michiel.stock",
+    "properties": {
+      "nick": "Michiel S.",
+      "tags": [
+        "phd",
+        "kermit",
+        "ugent"
+      ],
+      "name": "Michiel Stock"
+    }
+  },
+  {
+    "id": "jeppe.vdl",
+    "properties": {
+      "nick": "Jeppe",
+      "tags": [
+        "phd",
+        "kermit",
+        "ugent",
+        "student"
+      ],
+      "name": "Jeppe Van den Langenbergh"
+    }
+  },
+  {
+    "id": "javiera.vasquez",
+    "properties": {
+      "nick": "Mamá",
+      "tags": [
+        "familia"
+      ],
+      "name": "Javiera Vásquez Ugarte"
+    }
+  }
+]
