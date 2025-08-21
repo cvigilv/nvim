@@ -59,8 +59,11 @@ end
 -- Setup concealment of contacts
 ---@param opts Contacto.Configuration User provided configuration table
 M.setup = function(opts)
+  local logger = require("plugin.pkm.contacto.logging").new(opts.logging, true)
+
   -- Auto-apply concealment when entering buffer and after editing
   local augroup = vim.api.nvim_create_augroup("contacto.conceal", { clear = true })
+  logger.info("Created contact concealment augroup")
 
   --- Get contacts
   local contacts = require("plugin.pkm.contacto.utils.json").read(opts.dbpath) --[[@as table]]
@@ -83,6 +86,9 @@ M.setup = function(opts)
       desc = "Conceal contacts",
       callback = function() conceal(opts, mappings) end,
     })
+    logger.info("Created concealment for " .. #mappings .. " contacts")
+  else
+    logger.warn("Failed to find any contacts, skipping concealment.")
   end
 end
 

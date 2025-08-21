@@ -299,7 +299,7 @@ end
 ---@param opts Contacto.Configuration User configuration
 M.setup = function(opts)
   -- Create main command with subcommands
-  local logger = opts.logging
+  local logger = require("plugin.pkm.contacto.logging").new(opts.logging, true)
   logger.info("Creating 'Contacto[!]' user command")
   vim.api.nvim_create_user_command("Contacto", function(cmd_opts)
     local args = cmd_opts.fargs

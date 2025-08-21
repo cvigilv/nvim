@@ -12,10 +12,7 @@ M.setup = function(opts)
   -- Setup plugin behaviours
   require("plugin.pkm.contacto.highlights").setup(opts)
   require("plugin.pkm.contacto.conceal").setup(opts)
-  print("foo")
   require("plugin.pkm.contacto.excmd").setup(opts)
-  print("bar")
 end
-
 
 return M
