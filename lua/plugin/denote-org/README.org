@@ -1,0 +1,15 @@
+* denote-org.nvim
+
+** To Do
+
+- [ ] denote-org-backlinks-for-heading
+- [ ] denote-org-convert-links-to-denote-type
+- [ ] denote-org-convert-links-to-file-type
+- [ ] denote-org-dblock-insert-backlinks
+- [ ] denote-org-dblock-insert-files
+- [ ] denote-org-dblock-insert-files-as-headings
+- [ ] denote-org-dblock-insert-links
+- [ ] denote-org-dblock-insert-missing-links
+- [ ] denote-org-dblock-insert-sequence
+- [ ] denote-org-extract-org-subtree
+- [ ] denote-org-link-to-heading

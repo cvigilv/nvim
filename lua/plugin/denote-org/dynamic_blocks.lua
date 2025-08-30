@@ -42,12 +42,12 @@ local function populate_links_block(bufnr, linerange, params)
 end
 
 local function populate_files_block(bufnr, linerange, params)
-  print("Not implemented...")
+  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, {"Not implemented..."})
   return nil
 end
 
 local function populate_backlinks_block(bufnr, linerange, params)
-  print("Not implemented...")
+  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, {"Not implemented..."})
   return nil
 end
 
