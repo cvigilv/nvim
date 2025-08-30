@@ -7,8 +7,8 @@ return {
     "olimorris/codecompanion.nvim",
     opts = {
       strategies = {
-        chat = { adapter = "anthropic" },
-        inline = { adapter = "anthropic" },
+        chat = { adapter = "copilot" },
+        inline = { adapter = "copilot" },
       },
       display = {
         chat = {
