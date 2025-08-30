@@ -190,7 +190,7 @@ vim.keymap.set(
 )
 
 -- Contacts
-require("plugin.pkm.contacto").setup()
+-- require("plugin.pkm.contacto").setup()
 
 --- Zotero
 require("plugin.zotero").setup({
