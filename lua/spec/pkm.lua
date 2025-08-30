@@ -40,11 +40,11 @@ return {
             },
           })
           vim.cmd([[
-            hi def link DenoteDate      DiagnosticHint
-            hi def link DenoteSignature DiagnosticError
-            hi def link DenoteTitle     DiagnosticOK
-            hi def link DenoteKeywords  DiagnosticWarning
-            hi def link DenoteExtension Comment
+            hi! def link DenoteDate      Number
+            hi! def link DenoteSignature Type
+            hi! def link DenoteTitle     Title
+            hi! def link DenoteKeywords  WarningMsg
+            hi! def link DenoteExtension SpecialComment
           ]])
           vim.keymap.set(
             "n",
