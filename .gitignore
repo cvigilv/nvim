@@ -1,3 +1,4 @@
 undodir/
 .DS_Store
 *.bak
+contacts.json
