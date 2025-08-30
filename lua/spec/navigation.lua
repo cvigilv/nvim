@@ -104,6 +104,7 @@ return {
           { "kkharji/sqlite.lua" },
         },
         config = function()
+          ---@diagnostic disable-next-line: missing-fields
           require("zotero").setup({
             ft = {
               org = {
