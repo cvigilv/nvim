@@ -58,7 +58,7 @@ return {
             ":Denote insert-link<CR>",
             { desc = "Insert link to Denote files" }
           )
-          vim.keymap.set("n", "<leader>zc", ":Denote note<CR>", { desc = "New Denote note" })
+          vim.keymap.set("n", "<leader>zc", ":Denote<CR>", { desc = "New Denote note" })
           vim.keymap.set(
             "n",
             "<leader>zr",
@@ -363,6 +363,13 @@ return {
                 org_agenda_remove_tags = true,
               },
             },
+          },
+        },
+        hyperlinks = {
+          sources = {
+            require("denote.extensions.orgmode"):new({
+              files = _G.denote.config.directory
+            }),
           },
         },
       })
