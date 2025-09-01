@@ -22,19 +22,19 @@ return {
         lookup = {
           -- Denote
           ["denote-title"] = function()
-            local Denote = require("denote.internal")
+            local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, false)
             return "#+TITLE:      " .. (fields.title or "")
           end,
           ["denote-date"] = function()
-            local Denote = require("denote.internal")
+            local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, false)
             return "#+DATE:       " .. (fields.date or "")
           end,
           ["denote-keywords"] = function()
-            local Denote = require("denote.internal")
+            local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, true)
             if fields.keywords ~= nil then
@@ -43,13 +43,13 @@ return {
             return "#+FILETAGS:   "
           end,
           ["denote-signature"] = function()
-            local Denote = require("denote.internal")
+            local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, false)
             return "#+SIGNATURE:  " .. (fields.signature or "")
           end,
           ["denote-identifier"] = function()
-            local Denote = require("denote.internal")
+            local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, false)
             return "#+IDENTIFIER: " .. fields.identifier
