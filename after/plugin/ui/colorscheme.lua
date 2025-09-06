@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("OptionSet", {
   end,
   group = augroup,
 })
-vim.api.nvim_create_autocmd("Colorscheme", {
+vim.api.nvim_create_autocmd("ColorScheme", {
   desc = "Override color scheme",
   pattern = { "zen*", "*bones" },
   callback = function(ev)

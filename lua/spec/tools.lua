@@ -45,10 +45,9 @@ return {
   },
   { -- Formatters and Linters
     "WhoIsSethDaniel/mason-tool-installer.nvim", -- Tool installer
-    event="VeryLazy",
+    event = "VeryLazy",
     dependencies = {
-      "neovim/nvim-lspconfig",
-      "williamboman/mason-lspconfig.nvim",
+      "williamboman/mason.nvim",
       "mfussenegger/nvim-lint", -- Linting
       "stevearc/conform.nvim", -- Formatting
     },
@@ -138,6 +137,6 @@ return {
     ft = "lua",
   },
   {
-    dir = "/Users/carlos/git/jason.nvim/"
-  }
+    dir = "/Users/carlos/git/jason.nvim/",
+  },
 }
