@@ -1,10 +1,10 @@
 -- Plugins
-local cmp = require("cmp")
-cmp.setup.filetype("markdown", {
-  sources = cmp.config.sources({
-    { name = "nvim_lsp", group_index = 1 },
-  }),
-})
+-- local cmp = require("cmp")
+-- cmp.setup.filetype("markdown", {
+--   sources = cmp.config.sources({
+--     { name = "nvim_lsp", group_index = 1 },
+--   }),
+-- })
 
 -- Options
 vim.opt_local.textwidth = 96

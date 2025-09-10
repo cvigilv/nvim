@@ -30,6 +30,7 @@ return {
   {
     "hrsh7th/nvim-cmp",
     event = { "InsertEnter", "CmdlineEnter" },
+    enabled = false,
     dependencies = { -- {{{
       {
         "L3MON4D3/LuaSnip",
@@ -86,12 +87,14 @@ return {
             -- Add icons to completion items
             item.menu = item.kind
               .. " "
-              .. (({
-                nvim_lsp = "[LSP]",
-                luasnip = "[SNIP]",
-                lazydev = "[NVIM]",
-                omni = "[OMNI]",
-              })[entry.source.name] or "[PLUG]")
+              .. (
+                ({
+                  nvim_lsp = "[LSP]",
+                  luasnip = "[SNIP]",
+                  lazydev = "[NVIM]",
+                  omni = "[OMNI]",
+                })[entry.source.name] or "[PLUG]"
+              )
             item.kind = string.format(" %s ", kind_icons[item.kind])
 
             return item

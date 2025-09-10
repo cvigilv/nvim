@@ -22,6 +22,7 @@ return {
           animation = function(s, n) return (1 - math.pow(1 - s / n, 10)) * 10 end,
         },
       })
+      require("mini.completion").setup()
       require("mini.comment").setup()
       require("mini.surround").setup()
       require("mini.splitjoin").setup()
