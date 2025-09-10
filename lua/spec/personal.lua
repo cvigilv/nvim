@@ -38,7 +38,7 @@ return {
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, true)
             if fields.keywords ~= nil then
-              return "#+FILETAGS:   " .. ":" .. table.concat(fields.keywords, ":") .. ":"
+              return "#+FILETAGS:   " .. ":" .. table.concat(fields.keywords or {}, ":") .. ":"
             end
             return "#+FILETAGS:   "
           end,
@@ -52,7 +52,7 @@ return {
             local Denote = require("denote.naming")
             local filename = vim.api.nvim_buf_get_name(0)
             local fields = Denote.parse_filename(filename, false)
-            return "#+IDENTIFIER: " .. fields.identifier
+            return "#+IDENTIFIER: " .. (fields.identifier or "")
           end,
 
           -- GitHub
