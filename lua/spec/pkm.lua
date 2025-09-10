@@ -20,9 +20,10 @@ return {
           "stevearc/oil.nvim",
         },
         keys = {},
-        config = function()
+        init = function()
+          -- Setup Denote
           ---@type Denote.Configuration
-          require("denote").setup({
+          vim.g.denote = {
             filetype = "org",
             directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org",
             prompts = { "title", "signature", "keywords" },
@@ -38,7 +39,12 @@ return {
                 }),
               },
             },
-          })
+          }
+
+          -- Add Telescope pickers
+          require("telescope").load_extension("denote")
+
+          -- Override default highlight groups
           vim.cmd([[
             hi! def link DenoteDate      Number
             hi! def link DenoteSignature Type
@@ -46,16 +52,18 @@ return {
             hi! def link DenoteKeywords  WarningMsg
             hi! def link DenoteExtension SpecialComment
           ]])
+
+          -- Add keymaps
           vim.keymap.set(
             "n",
             "<leader>zf",
-            ":Denote search<CR>",
+            ":Telescope denote search<CR>",
             { desc = "Search Denote files" }
           )
           vim.keymap.set(
             "n",
             "<leader>zl",
-            ":Denote insert-link<CR>",
+            ":Telescope denote insert_link<CR>",
             { desc = "Insert link to Denote files" }
           )
           vim.keymap.set("n", "<leader>zc", ":Denote<CR>", { desc = "New Denote note" })
@@ -368,7 +376,7 @@ return {
         hyperlinks = {
           sources = {
             require("denote.extensions.orgmode"):new({
-              files = _G.denote.config.directory
+              files = vim.g.denote.directory --[[@as OrgFiles]],
             }),
           },
         },
