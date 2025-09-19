@@ -186,7 +186,7 @@ vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 vim.keymap.set(
   "n",
   ",or",
-  function() require("plugin.denote_dev.dynamic_blocks").update_dynamic_blocks() end
+  function() require("plugin.denote-org.dynamic_blocks").update_dynamic_blocks() end
 )
 
 -- Contacts

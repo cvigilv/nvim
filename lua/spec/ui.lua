@@ -75,7 +75,7 @@ return {
   { -- bareline.nvim
     "hernancerm/bareline.nvim",
     event = "VimEnter",
-    opts = {}
+    opts = {},
   },
   { -- zenbones
     "zenbones-theme/zenbones.nvim",
@@ -101,5 +101,9 @@ return {
       vim.g.zenwritten_darken_noncurrent_window = true
       vim.g.zenwritten_colorize_diagnostic_underline_text = true
     end,
+  },
+  { -- dark-notify
+    "cormacrelf/dark-notify",
+    config = function() require("dark_notify").run() end,
   },
 }

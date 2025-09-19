@@ -2,6 +2,32 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
+-- ## Core Dynamic Blocks
+--
+-- ### `#+BEGIN: denote-links`
+-- **Parameters:**
+-- - `:regexp` - Regular expression to filter notes
+-- - `:sort-by-component` - Sort by filename component (date, title, keywords, etc.)
+-- - `:reverse-sort` - Reverse the sorting order
+-- - `:id-only` - Show only note IDs instead of full links
+--
+-- **Description:** Generates a list of links to notes matching specified criteria. Useful for creating dynamic indexes or filtered note listings.
+--
+-- ### `#+BEGIN: denote-backlinks`
+-- **Parameters:**
+-- - `:target` - Specific note ID to find backlinks for
+-- - `:sort-by-component` - Sort backlinks by filename component
+--
+-- **Description:** Creates a list of notes that link to the current note or a specified target note.
+--
+-- ### `#+BEGIN: denote-files`
+-- **Parameters:**
+-- - `:directory` - Specific directory to search in
+-- - `:regexp` - Pattern to match filenames
+-- - `:omit-current` - Exclude the current file from results
+--
+-- **Description:** Lists Denote files based on directory and pattern matching criteria.
+
 local M = {}
 
 local function find_and_filter(path, patterns)
@@ -20,34 +46,67 @@ local function find_and_filter(path, patterns)
       end
     end
 
-    if has_all_patterns then
-      table.insert(matches, filepath)
-    end
+    if has_all_patterns then table.insert(matches, filepath) end
   end
 
   return matches
 end
 
 local function populate_links_block(bufnr, linerange, params)
-  local links =
-    find_and_filter("/Users/carlos/org", vim.split(params.regexp, "*", { trimempty = false }))
+  local links = find_and_filter(
+    vim.g.denote.directory,
+    vim.split(params.regexp, "*", { trimempty = false })
+  )
 
   local formatted_links = {}
   for _, l in ipairs(links) do
-    l = vim.fs.basename(l)
-    table.insert(formatted_links, "- [[file:" .. l .. "][" .. l:sub(1, 15) .. "]]")
+    if require("denote.naming").is_denote(l) and vim.fn.filereadable(l) then
+      l = vim.fs.basename(l)
+      local ft = vim.filetype.match({ filename = l })
+      local fields = vim.tbl_deep_extend(
+        "force",
+        require("denote.naming").parse_filename(l) or {},
+        require("denote.frontmatter").parse_frontmatter(l, ft) or {}
+      )
+      if fields ~= {} then
+        table.insert(
+          formatted_links,
+          "- [[denote:" .. fields.identifier .. "][" .. fields.title .. "]]"
+        )
+      else
+        print("Failed here: " .. l)
+      end
+    end
   end
-  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, formatted_links)
+  vim.api.nvim_buf_set_lines(
+    bufnr,
+    linerange.startl + 1,
+    linerange.startl + 1,
+    false,
+    formatted_links
+  )
   return nil
 end
 
 local function populate_files_block(bufnr, linerange, params)
-  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, {"Not implemented..."})
+  vim.api.nvim_buf_set_lines(
+    bufnr,
+    linerange.startl + 1,
+    linerange.startl + 1,
+    false,
+    { "Not implemented..." }
+  )
   return nil
 end
 
 local function populate_backlinks_block(bufnr, linerange, params)
-  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, {"Not implemented..."})
+  vim.api.nvim_buf_set_lines(
+    bufnr,
+    linerange.startl + 1,
+    linerange.startl + 1,
+    false,
+    { "Not implemented..." }
+  )
   return nil
 end
 
@@ -62,6 +121,7 @@ function M.update_dynamic_blocks(bufnr)
   ]]
   local query = vim.treesitter.query.parse("org", query_string)
   local parser = vim.treesitter.get_parser(bufnr, "org")
+  if not parser then error("[denote-org] Failed to parse dynamic block", 3) end
   local tree = parser:parse()[1]
   local root = tree:root()
 
@@ -72,7 +132,7 @@ function M.update_dynamic_blocks(bufnr)
     local capture_name = query.captures[id]
     local text = vim.treesitter.get_node_text(node, bufnr)
 
-    if capture_name == "block"then
+    if capture_name == "block" then
       local begin_line, _ = node:start()
       local end_line, _ = node:end_()
       linerange = { startl = begin_line, endl = end_line }
@@ -95,7 +155,7 @@ function M.update_dynamic_blocks(bufnr)
         end
 
         -- Clear dynamic block
-        vim.api.nvim_buf_set_lines(bufnr, begin_line+1, end_line-1, true, {})
+        vim.api.nvim_buf_set_lines(bufnr, begin_line + 1, end_line - 1, true, {})
 
         -- Populate dynamic block
         if block.type == "denote-links" then

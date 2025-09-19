@@ -5,100 +5,23 @@
 return {
   { -- orgmode
     "nvim-orgmode/orgmode",
-    dependencies = {
-      "danilshvalov/org-modern.nvim",
-      { -- denote
-        dir = os.getenv("GITDIR") .. "denote.nvim",
-        cmd = "Denote",
-        ft = "org",
-        event = {
-          "BufRead *" .. vim.fs.abspath("~/org/") .. "*",
-          "VeryLazy",
-        },
-        dependencies = {
-          "nvim-telescope/telescope.nvim",
-          "stevearc/oil.nvim",
-        },
-        keys = {},
-        init = function()
-          -- Setup Denote
-          ---@type Denote.Configuration
-          vim.g.denote = {
-            filetype = "org",
-            directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org",
-            prompts = { "title", "signature", "keywords" },
-            integrations = {
-              oil = true,
-              telescope = {
-                enabled = true,
-                opts = require("telescope.themes").get_ivy({
-                  layout_config = { height = 0.30 },
-                  previewer = false,
-                  prompt_prefix = "[Denote] ",
-                  prompt_title = false,
-                }),
-              },
-            },
-          }
-
-          -- Add Telescope pickers
-          require("telescope").load_extension("denote")
-
-          -- Override default highlight groups
-          vim.cmd([[
-            hi! def link DenoteDate      Number
-            hi! def link DenoteSignature Type
-            hi! def link DenoteTitle     Title
-            hi! def link DenoteKeywords  WarningMsg
-            hi! def link DenoteExtension SpecialComment
-          ]])
-
-          -- Add keymaps
-          vim.keymap.set(
-            "n",
-            "<leader>zf",
-            ":Telescope denote search<CR>",
-            { desc = "Search Denote files" }
-          )
-          vim.keymap.set(
-            "n",
-            "<leader>zl",
-            ":Telescope denote insert_link<CR>",
-            { desc = "Insert link to Denote files" }
-          )
-          vim.keymap.set("n", "<leader>zc", ":Denote<CR>", { desc = "New Denote note" })
-          vim.keymap.set(
-            "n",
-            "<leader>zr",
-            ":Denote rename-file<CR>",
-            { desc = "Rename current Denote note" }
-          )
-        end,
-      },
-    },
-    ft = "org",
-    keys = {
-      "<leader>oa",
-      "<leader>oc",
-      { "<leader>oA", ":Org agenda g<CR>", "Open GTD calendar view" },
-      { "<leader>oC", ":Org capture p<CR>", "Capture to PhD journal" },
-    },
-    cmd = "Org",
-    event = "VeryLazy",
     config = function()
-      -- Colors overrides
-      local color_add_fg = "#475946"
-      local color_add_bg = "#d4dbd1"
-      local color_changed_fg = "#375570"
-      local color_changed_bg = "#ced9e1"
-      local color_remove_fg = "#70415e"
-      local color_remove_bg = "#e3d2da"
+      local function hlgroup2org(hlgroup)
+        local normal = require("carlos.helpers.colors").get_hlgroup_table("Normal") --[[@as table]]
+        local hl = require("carlos.helpers.colors").get_hlgroup_table(hlgroup) --[[@as table]]
 
-      -- Extras
-      local Menu = require("org-modern.menu")
+        return ":foreground " .. (hl.fg or normal.fg) .. " :background " .. (hl.bg or normal.bg)
+      end
 
       -- Setup
       require("orgmode").setup({
+        hyperlinks = {
+          sources = {
+            require("denote.extensions.orgmode"):new({
+              files = vim.g.denote.directory --[[@as OrgFiles]],
+            }),
+          },
+        },
         mappings = {
           global = {
             org_agenda = ",oa",
@@ -118,12 +41,12 @@ return {
             org_agenda_goto_date = "gd",
             org_agenda_redo = "r",
             org_agenda_todo = "t",
-            org_agenda_clock_in = "ci",
-            org_agenda_clock_out = "co",
-            org_agenda_clock_cancel = "cc",
-            org_agenda_set_effort = "ce",
-            org_agenda_clock_goto = "gc",
-            org_agenda_clockreport_mode = "cr",
+            org_agenda_clock_in = "xi",
+            org_agenda_clock_out = "xo",
+            org_agenda_clock_cancel = "xc",
+            org_agenda_set_effort = "xe",
+            org_agenda_clock_goto = "xg",
+            org_agenda_clockreport_mode = "xr",
             org_agenda_priority = "p",
             org_agenda_priority_up = false,
             org_agenda_priority_down = false,
@@ -187,46 +110,26 @@ return {
             org_toggle_timestamp_type = "<leader>osT",
             -- org_insert_link = "<leader>oli",
             -- org_store_link = "<leader>ols",
-            org_clock_in = "<leader>oCi",
-            org_clock_out = "<leader>oCo",
-            org_clock_cancel = "<leader>oCc",
-            org_clock_goto = "<leader>oCg",
-            org_set_effort = "<leader>oCe",
+            org_clock_in = "<leader>oxi",
+            org_clock_out = "<leader>oxo",
+            org_clock_cancel = "<leader>oxc",
+            org_clock_goto = "<leader>oxg",
+            org_set_effort = "<leader>oxe",
             org_show_help = "g?",
             -- org_babel_tangle = "",
           },
         },
 
         org_adapt_indentation = false,
-        org_agenda_files = "~/org/.org/**",
+        org_agenda_files = {
+          "~/org/.org/inbox.org",
+          "~/org/.org/projects.org",
+          "~/org/*==logs*.org",
+        },
         org_default_notes_file = "~/org/.org/inbox.org",
         org_archive_location = "~/org/.archive/archive_%s",
-        org_startup_folded = "content",
+        org_startup_folded = "overview",
         org_capture_templates = {
-          c = {
-            description = "Journal - Personal",
-            datetree = true,
-            target = "~/org/" .. os.date("%Y") .. "0101T090000==logs--dailies__personal.org",
-            template = "**** %U\n%?",
-            ---@diagnostic disable-next-line: missing-fields
-            properties = { empty_lines = 1 },
-          },
-          p = {
-            description = "Journal - PhD",
-            datetree = true,
-            target = "~/org/" .. os.date("%Y") .. "0101T090001==logs--dailies__phd.org",
-            template = "**** %U\n%?",
-            ---@diagnostic disable-next-line: missing-fields
-            properties = { empty_lines = 1 },
-          },
-          w = {
-            description = "Journal - Work",
-            datetree = true,
-            target = "~/org/" .. os.date("%Y") .. "0101T090002==logs--dailies__work.org",
-            template = "**** %U\n%?",
-            ---@diagnostic disable-next-line: missing-fields
-            properties = { empty_lines = 1 },
-          },
           ---@diagnostic disable-next-line: assign-type-mismatch
           e = "Event",
           er = {
@@ -245,7 +148,7 @@ return {
 
         org_indent_mode = "noindent",
         org_blank_before_new_entry = { heading = true, plain_list_item = false },
-        org_hide_emphasis_markers = false,
+        org_hide_emphasis_markers = true,
         org_tags_column = 80,
 
         org_log_into_drawer = "LOGBOOK",
@@ -257,19 +160,82 @@ return {
         org_todo_keywords = {
           "NEXT(n)",
           "TODO(t)",
-          "STOP(b)",
+          "PROG(p)",
+          "INTR(i)",
           "|",
           "DONE(d)",
           "CNCL(c)",
         },
         org_todo_keyword_faces = {
-          NEXT = ":foreground " .. color_changed_bg .. " :background " .. color_changed_fg,
-          TODO = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
-          STOP = ":foreground " .. color_remove_bg .. " :background " .. color_remove_fg,
-          DONE = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
-          CNCL = ":foreground " .. color_add_fg .. " :background " .. color_add_bg,
+          TODO = hlgroup2org("DiagnosticVirtualTextError"),
+          NEXT = hlgroup2org("DiagnosticVirtualTextInfo"),
+          PROG = hlgroup2org("DiagnosticVirtualTextWarn"),
+          INTR = hlgroup2org("DiagnosticVirtualTextWarn"),
+          DONE = hlgroup2org("DiagnosticVirtualTextOk"),
+          CNCL = hlgroup2org("DiagnosticVirtualTextOk"),
         },
 
+        -- Agenda
+        org_agenda_block_separator = " ",
+        org_agenda_time_grid = {
+          type = { "daily", "today" },
+          times = { 800, 1000, 1200, 1400, 1600, 1800, 2000 },
+          time_separator = "      ",
+          time_label = string.rep("·", 48),
+        },
+        org_agenda_current_time_string = "· now " .. string.rep("·", 42),
+        org_agenda_custom_commands = {
+          g = {
+            description = "Getting Things Done (GTD)",
+            types = {
+              {
+                type = "agenda",
+                org_agenda_span = "day",
+                org_agenda_todo_ignore_deadlines = "all",
+                org_agenda_remove_tags = true,
+              },
+              {
+                org_agenda_overriding_header = "Interuption",
+                type = "tags_todo",
+                match = "TODO=\"INTR\"",
+              },
+              {
+                org_agenda_overriding_header = "Deadlines",
+                type = "tags_todo",
+                match = "DEADLINE>=\"<2w>\"",
+                org_agenda_remove_tags = true,
+              },
+              {
+                org_agenda_overriding_header = "In progress",
+                type = "tags_todo",
+                match = "TODO=\"PROG\"",
+                org_agenda_todo_ignore_scheduled = "all",
+                org_agenda_remove_tags = true,
+              },
+              {
+                org_agenda_overriding_header = "Tasks",
+                type = "tags_todo",
+                match = "TODO=\"NEXT\"",
+                org_agenda_todo_ignore_deadlines = "all",
+                org_agenda_todo_ignore_scheduled = "all",
+                org_agenda_remove_tags = true,
+              },
+              {
+                org_agenda_overriding_header = "Inbox",
+                type = "tags_todo",
+                match = "TODO=\"TODO\"",
+              },
+              {
+                org_agenda_overriding_header = "Completed today",
+                type = "tags",
+                match = "CLOSED>=\"<today>\"",
+                org_agenda_remove_tags = true,
+              },
+            },
+          },
+        },
+        org_agenda_skip_scheduled_if_done = true,
+        org_agenda_skip_deadline_if_done = true,
         notifications = {
           enabled = true,
           cron_enabled = true,
@@ -303,90 +269,45 @@ return {
             end
           end,
         },
-
-        ui = {
-          menu = {
-            handler = function(data)
-              data.title = " " .. data.title .. " "
-              Menu:new({
-                window = {
-                  margin = { 1, 0, 1, 0 },
-                  padding = { 0, 1, 0, 1 },
-                  title_pos = "center",
-                  border = "single",
-                  zindex = 1000,
-                },
-                icons = {
-                  separator = "->",
-                },
-              }):open(data)
-            end,
-          },
-        },
-
-        -- Agenda
-        org_agenda_skip_scheduled_if_done = true,
-        org_agenda_skip_deadline_if_done = true,
-        org_agenda_block_separator = " ",
-        org_agenda_custom_commands = {
-          g = {
-            description = "Getting Things Done (GTD)",
-            types = {
-              {
-                type = "agenda",
-                org_agenda_span = "day",
-                org_agenda_todo_ignore_deadlines = "all",
-                org_agenda_remove_tags = true,
-              },
-              {
-                org_agenda_overriding_header = "Deadlines",
-                type = "tags_todo",
-                match = "DEADLINE>=\"<today>\"",
-                org_agenda_remove_tags = true,
-              },
-              {
-                org_agenda_overriding_header = "Tasks",
-                type = "tags_todo",
-                match = "TODO=\"NEXT\"",
-                org_agenda_todo_ignore_deadlines = "all",
-                org_agenda_todo_ignore_scheduled = "all",
-                org_agenda_remove_tags = true,
-              },
-              {
-                org_agenda_overriding_header = "From dailies",
-                type = "tags_todo",
-                org_agenda_files = { "~/org/*dailies*.org" },
-              },
-              {
-                org_agenda_overriding_header = "Inbox",
-                type = "tags_todo",
-                match = "TODO=\"TODO\"",
-                org_agenda_files = { "~/org/.org/inbox.org" },
-                org_agenda_remove_tags = true,
-              },
-              {
-                org_agenda_overriding_header = "Completed today",
-                type = "tags",
-                match = "CLOSED>=\"<today>\"",
-                org_agenda_remove_tags = true,
-              },
-            },
-          },
-        },
-        hyperlinks = {
-          sources = {
-            require("denote.extensions.orgmode"):new({
-              files = vim.g.denote.directory --[[@as OrgFiles]],
-            }),
-          },
-        },
       })
     end,
   },
-  {
+  { -- sqlite
     "kkharji/sqlite.lua",
     config = function()
       vim.g.sqlite_clib_path = "/opt/homebrew/Cellar/sqlite/3.49.1/lib/libsqlite3.dylib"
+    end,
+  },
+  { -- denote
+    dir = os.getenv("GITDIR") .. "denote.nvim",
+    event = {
+      "BufRead *" .. vim.fs.abspath("~/org/") .. "*",
+      "VeryLazy",
+    },
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "stevearc/oil.nvim",
+    },
+    init = function()
+      -- Setup Denote
+      ---@type Denote.Configuration
+      vim.g.denote = {
+        filetype = "org",
+        directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org",
+        prompts = { "title", "signature", "keywords" },
+      }
+
+      -- Add Telescope pickers
+      require("telescope").load_extension("denote")
+
+      -- Override default highlight groups
+      vim.cmd([[
+            hi! def link DenoteDate      Number
+            hi! def link DenoteSignature Type
+            hi! def link DenoteTitle     Title
+            hi! def link DenoteKeywords  WarningMsg
+            hi! def link DenoteExtension SpecialComment
+          ]])
     end,
   },
 }

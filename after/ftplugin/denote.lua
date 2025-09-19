@@ -18,9 +18,7 @@ local function find_and_filter(path, patterns)
       end
     end
 
-    if has_all_patterns then
-      table.insert(matches, filepath)
-    end
+    if has_all_patterns then table.insert(matches, filepath) end
   end
 
   return matches
@@ -35,7 +33,13 @@ local function populate_links_block(bufnr, linerange, params)
     l = vim.fs.basename(l)
     table.insert(formatted_links, "- [[file:" .. l .. "][" .. l:sub(1, 15) .. "]]")
   end
-  vim.api.nvim_buf_set_lines(bufnr, linerange.startl+1, linerange.startl+1, false, formatted_links)
+  vim.api.nvim_buf_set_lines(
+    bufnr,
+    linerange.startl + 1,
+    linerange.startl + 1,
+    false,
+    formatted_links
+  )
   return nil
 end
 
@@ -70,7 +74,7 @@ local function parse_dynamic_block(bufnr)
     local capture_name = query.captures[id]
     local text = vim.treesitter.get_node_text(node, bufnr)
 
-    if capture_name == "block"then
+    if capture_name == "block" then
       local begin_line, _ = node:start()
       local end_line, _ = node:end_()
       linerange = { startl = begin_line, endl = end_line }
@@ -94,7 +98,7 @@ local function parse_dynamic_block(bufnr)
         end
 
         -- Clear dynamic block
-        vim.api.nvim_buf_set_lines(bufnr, begin_line+1, end_line-1, true, {})
+        vim.api.nvim_buf_set_lines(bufnr, begin_line + 1, end_line - 1, true, {})
 
         -- Populate dynamic block
         if block.type == "denote-links" then
@@ -111,30 +115,24 @@ local function parse_dynamic_block(bufnr)
   end
 end
 
-vim.keymap.set("n", ",or", parse_dynamic_block)
+-- vim.keymap.set("n", ",or", parse_dynamic_block)
 
--- ## Core Dynamic Blocks
---
--- ### `#+BEGIN: denote-links`
--- **Parameters:**
--- - `:regexp` - Regular expression to filter notes
--- - `:sort-by-component` - Sort by filename component (date, title, keywords, etc.)
--- - `:reverse-sort` - Reverse the sorting order
--- - `:id-only` - Show only note IDs instead of full links
---
--- **Description:** Generates a list of links to notes matching specified criteria. Useful for creating dynamic indexes or filtered note listings.
---
--- ### `#+BEGIN: denote-backlinks`
--- **Parameters:**
--- - `:target` - Specific note ID to find backlinks for
--- - `:sort-by-component` - Sort backlinks by filename component
---
--- **Description:** Creates a list of notes that link to the current note or a specified target note.
---
--- ### `#+BEGIN: denote-files`
--- **Parameters:**
--- - `:directory` - Specific directory to search in
--- - `:regexp` - Pattern to match filenames
--- - `:omit-current` - Exclude the current file from results
---
--- **Description:** Lists Denote files based on directory and pattern matching criteria.
+-- Keymaps
+local function map(desc, lhs, rhs) vim.keymap.set("n", lhs, rhs, { desc = desc, buffer = 0 }) end
+
+-- map("Search Denote silo", ",zf", ":Telescope denote search<CR>")
+map(
+  "Search Denote",
+  ",zf",
+  function()
+    require("telescope").extensions.denote.search({
+      prompt_title = "",
+      prompt_prefix = "[Denote search] ",
+      previewer = false,
+    })
+  end
+)
+map("Link to Denote", ",zl", ":Telescope denote insert_link<CR>")
+map("Current Denote backlinks", ",zb", ":Telescope denote backlinks<CR>")
+map("New Denote", ",zc", ":Denote<CR>")
+map("Rename Denote", ",zr", ":Denote rename-file<CR>")

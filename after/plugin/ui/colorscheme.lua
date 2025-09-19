@@ -21,9 +21,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
     local function modify_colorscheme()
       -- Detect current background for out-of-bounds regions
-      local bg = vim.api.nvim_get_option_value("background", { scope = "global" }) == "dark"
-          and "#000000"
-        or "#ffffff"
+      local is_dark = vim.api.nvim_get_option_value("background", { scope = "global" }) == "dark"
+      local bg = is_dark and "#000000" or "#ffffff"
 
       local specs = lush.parse(
         function()
@@ -42,6 +41,13 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       )
       -- Apply specs using lush tool-chain
       lush.apply(lush.compile(specs))
+
+      vim.cmd("hi! link @org.keyword.face.TODO DiagnosticVirtualTextError")
+      vim.cmd("hi! link @org.keyword.face.NEXT DiagnosticVirtualTextHint")
+      vim.cmd("hi! link @org.keyword.face.PROG DiagnosticVirtualTextWarn")
+      vim.cmd("hi! link @org.keyword.face.DONE DiagnosticVirtualTextOk")
+      vim.cmd("hi! link @org.keyword.face.CNCL DiagnosticVirtualTextOk")
+      vim.cmd("hi! @org.keyword.face.INTR.org ctermbg=0 ctermfg=255 guibg=#000000 guifg=#ffffff" .. (is_dark and " gui=reverse cterm=reverse" or ""))
     end
     modify_colorscheme()
 

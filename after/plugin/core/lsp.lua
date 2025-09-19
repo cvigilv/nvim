@@ -8,6 +8,7 @@ local configured_lsps = {
   "marksman",
   "pyright",
   "tinymist",
+  "fennel_ls",
 }
 vim.lsp.enable(configured_lsps)
 

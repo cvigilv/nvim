@@ -73,8 +73,8 @@ M.counts_plot = function(counts, max_cols, char)
     bars,
     function(a, b)
       local bycount = tonumber(a:match(" (%d+)$")) > tonumber(b:match(" (%d+)$"))
-      -- local byalphabet = a:match("^(%a+) %*") > b:match("^(%a+) %*")
-      return bycount --and byalphabet
+      local byalphabet = a:match("^(%a+) %*") > b:match("^(%a+) %*")
+      return bycount and byalphabet
     end
   )
   return bars
