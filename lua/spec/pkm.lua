@@ -124,6 +124,7 @@ return {
         org_agenda_files = {
           "~/org/.org/inbox.org",
           "~/org/.org/projects.org",
+          "~/org/.org/calendar/*.org",
           "~/org/*==logs*.org",
         },
         org_default_notes_file = "~/org/.org/inbox.org",
@@ -219,6 +220,12 @@ return {
                 org_agenda_todo_ignore_deadlines = "all",
                 org_agenda_todo_ignore_scheduled = "all",
                 org_agenda_remove_tags = true,
+                org_agenda_files = {
+                  "~/org/.org/inbox.org",
+                  "~/org/.org/projects.org",
+                  "~/org/.org/calendar/*.org",
+                  "~/org/*==logs*.org",
+                },
               },
               {
                 org_agenda_overriding_header = "Inbox",
