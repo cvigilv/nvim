@@ -193,10 +193,8 @@ vim.keymap.set(
 -- require("plugin.pkm.contacto").setup()
 
 --- Zotero
-require("plugin.zotero").setup({
+require("plugin.zotero-notes.init").setup({
   denote_silo_path = "/Users/carlos/org",
   zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
   better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
-  default_time = "09:00:00",
-  debug = false,
 })
