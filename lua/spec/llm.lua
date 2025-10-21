@@ -2,31 +2,23 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
-return {
-  {
-    "olimorris/codecompanion.nvim",
-    opts = {
-      strategies = {
-        chat = { adapter = "copilot" },
-        inline = { adapter = "copilot" },
+vim.pack.add({
+  "https://github.com/nvim-lua/plenary.nvim",
+  "https://github.com/nvim-treesitter/nvim-treesitter",
+  "https://github.com/olimorris/codecompanion.nvim",
+})
+
+-- CodeCompanion
+require("codecompanion").setup({
+  strategies = {
+    chat = { adapter = "copilot" },
+    inline = { adapter = "copilot" },
+  },
+  display = {
+    chat = {
+      window = {
+        layout = "buffer",
       },
-      display = {
-        chat = {
-          window = {
-            layout = "buffer",
-          },
-        },
-      },
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    cmd = {
-      "CodeCompanion",
-      "CodeCompanionChat",
-      "CodeCompanionCmd",
-      "CodeCompanionActions",
     },
   },
-}
+})
