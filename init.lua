@@ -49,3 +49,5 @@ require("lazy").setup("spec", {
     },
   },
 })
+
+require("plugin.denote-darwin")
