@@ -4,7 +4,6 @@
 
 local M = {}
 
-
 --- Convert denote silo to cosma compliant nodes
 ---@return table nodes Cosma compliant table with nodes data
 local function denote_to_nodes()

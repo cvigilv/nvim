@@ -29,7 +29,10 @@ end
 local function save_contacts(contacts)
   local file = io.open(vim.g.contacto.config.dbpath, "w")
   if not file then
-    vim.notify("Error opening file for writing: " .. vim.g.contacto.config.dbpath, vim.log.levels.ERROR)
+    vim.notify(
+      "Error opening file for writing: " .. vim.g.contacto.config.dbpath,
+      vim.log.levels.ERROR
+    )
     return false
   end
 

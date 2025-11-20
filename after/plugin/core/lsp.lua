@@ -27,6 +27,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set(mode, keys, func, { buffer = args.buf, desc = desc })
     end
 
+    -- Functionality
     if client:supports_method("textDocument/codeAction") then
       map("<leader>la", vim.lsp.buf.code_action, "Code Action")
       map("gra", vim.lsp.buf.code_action, "Code Action")
@@ -65,6 +66,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client:supports_method("textDocument/workspaceSymbol") then
       map("<leader>lS", vim.lsp.buf.workspace_symbol, "See Workspace Symbols")
     end
+    if client:supports_method("textDocument/hover") then
+      map("K", function()
+        vim.lsp.buf.hover({
+          -- border = { "▛", "▀", "▜", "▐", "▟", "▄", "▙", "▌" },
+          border = { " ", " ", " ", " ", " ", " ", " ", " " },
+        })
+      end, "Hover")
+    end
 
     -- Commands
     vim.api.nvim_create_user_command("LspStop", function(info)
@@ -76,7 +85,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
       if #info.fargs == 0 then
         clients = allclients
       else
-        clients = vim.tbl_filter(function(c) return vim.tbl_contains(info.fargs, c.name) end,  allclients)
+        clients = vim.tbl_filter(
+          function(c) return vim.tbl_contains(info.fargs, c.name) end,
+          allclients
+        )
       end
 
       for _, c in ipairs(clients) do
@@ -87,7 +99,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end, {
       desc = "Manually stops the given language client(s)",
       nargs = "?",
-      complete = function() return configured_lsps end
+      complete = function() return configured_lsps end,
     })
   end,
 })

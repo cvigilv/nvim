@@ -10,8 +10,8 @@
 vim.opt_local.textwidth = 96
 
 -- Keymaps
-vim.keymap.set("n", ",sw", ":Writing<CR>", {desc = "Toggle writing mode"})
-vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", {desc = "Toggle spell checker"})
+vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })
+vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checker" })
 
 -- Extra
 --- Writing mode

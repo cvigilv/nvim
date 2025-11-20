@@ -53,7 +53,7 @@ M.update_config = function(opts)
 
   -- Make opts globally available
   vim.g.contacto = {
-    config = opts
+    config = opts,
   }
 
   return opts

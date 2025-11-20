@@ -15,21 +15,19 @@ vim.api.nvim_create_user_command("AutoDenote", function()
 
   -- Get first header and tags for file
   local f = O.load(filename)
-  local h1 = f:get_closest_headline({1,0})
-  
+  local h1 = f:get_closest_headline({ 1, 0 })
+
   title = h1.title
   local tags = h1.all_tags
 
   -- Extract signature
-  local possible_signatures = {"reference", "moc", "idea", "journal"}
+  local possible_signatures = { "reference", "moc", "idea", "journal" }
 
   for _, tag in ipairs(tags) do
     if vim.tbl_contains(possible_signatures, tag) and signature == nil then
       signature = tag
     else
-      if keywords == nil then
-        keywords = {}
-      end
+      if keywords == nil then keywords = {} end
       table.insert(keywords, tag)
     end
   end
@@ -37,5 +35,4 @@ vim.api.nvim_create_user_command("AutoDenote", function()
   if title and signature and keywords then
     D.rename_file(filename, nil, title, signature, table.concat(keywords, " "), ".org")
   end
-
 end, {})

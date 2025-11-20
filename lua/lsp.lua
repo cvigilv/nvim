@@ -2,7 +2,6 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
-
 -- Refer to https://github.com/neovim/nvim-lspconfig/blob/c8b90ae5cbe21d547b342b05c9266dcb8ca0de8f/plugin/lspconfig.lua#L157-L184
 -- Lsp <- Entry point
 -- Lsp                        -> LspInfo (https://github.com/neovim/nvim-lspconfig/blob/c8b90ae5cbe21d547b342b05c9266dcb8ca0de8f/plugin/lspconfig.lua#L68)

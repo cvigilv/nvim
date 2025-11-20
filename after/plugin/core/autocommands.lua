@@ -87,7 +87,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     local argv = vim.tbl_values(vim.v.argv)
     local is_session = vim.tbl_contains(argv, "-S")
-    if vim.fn.argc() == 0 and not vim.tbl_contains(vim.tbl_values(vim.v.argv), "-c")  and not is_session then
+    if
+      vim.fn.argc() == 0
+      and not vim.tbl_contains(vim.tbl_values(vim.v.argv), "-c")
+      and not is_session
+    then
       vim.cmd("Telescope find_files layout_config={height=0.5}")
     end
   end,

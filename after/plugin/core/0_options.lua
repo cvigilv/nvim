@@ -3,6 +3,7 @@ vim.opt.autochdir = false -- Don't change current working directory to wherever 
 vim.opt.autoread = true -- Update files that change by external processes
 vim.opt.backup = false -- Don't create backup files
 vim.opt.background = "light" -- Use light background by default
+-- vim.opt.border = { " ", " ", " ", " ", " ", " ", " ", " " }
 vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
 vim.opt.completeopt = "menu,menuone,noselect,fuzzy" -- Improve completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters

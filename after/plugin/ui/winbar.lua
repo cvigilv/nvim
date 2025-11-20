@@ -1,1 +1,1 @@
-_G.carlos.winbar=function() return "" end
+_G.carlos.winbar = function() return "" end

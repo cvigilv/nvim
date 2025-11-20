@@ -167,12 +167,13 @@ local function capture_to_denote()
     opts = {
       template = {
         "#+title:      %<%Y/%m/%d>" .. (topic ~= nil and (" - " .. topic) or ""),
-        "#+date:       %<%Y-%m-%d %a> 09:00:00",
+        "#+date:       %<%Y-%m-%d %a %H:%M:%S>",
         "#+identifier: " .. timestamp,
         "#+filetags:   " .. (topic ~= nil and ":" .. topic:lower() .. ":" or ""),
         "#+signature:  logs",
         "",
         "* %<%Y/%m/%d>" .. (topic ~= nil and (" - " .. topic) or ""),
+        "",
       },
     }
   end

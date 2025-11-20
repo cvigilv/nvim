@@ -13,90 +13,11 @@ vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checke
 vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", { desc = "Find Zotero" })
 
 -- Extra
---- Status column
---- NOTE: the objective of this custom status line is so we can partially conceal the headings stars, such
---- that the stars are placed in the status column, making them stay aligned with the rest of the text.
-local C = require("carlos.helpers.colors")
-local S = require("carlos.helpers.string")
-local max_stc_width = 12
-
-local function asterisk_count(line_number, maxstars)
-  maxstars = maxstars or max_stc_width
-  -- Get the content of the specific line
-  local line = vim.api.nvim_buf_get_lines(0, line_number - 1, line_number, false)[1]
-
-  if line then
-    local asterisk_pattern = "^%*+ "
-    local asterisks = line:match(asterisk_pattern)
-
-    if asterisks then
-      local count = #asterisks - 1
-      return "%#@org.headline.level"
-        .. count
-        .. "#"
-        .. S.lpad(string.rep("*", count --[[@as number]]), maxstars, " ")
-        .. "%*"
-    end
-  end
-
-  return string.rep(" ", max_stc_width)
-end
-
----- Define status column custom highlight group
-local normal = C.get_hlgroup_table("Normal") or { bg = "#ffffff" }
-local comment = C.get_hlgroup_table("Comment") or { bg = "#000000" }
-vim.cmd("hi! OrgStc guibg=" .. normal.bg .. " guifg=" .. comment.fg .. " gui=italic")
-
----- Set status column
-_G.carlos.org.statuscolumn = function()
-  local components = {
-    " ",
-    -- "%#OrgStc#",
-    asterisk_count(vim.v.lnum, max_stc_width - 2),
-    " ",
-  }
-
-  return table.concat(components, "")
-end
-vim.api.nvim_set_option_value(
-  "statuscolumn",
-  "%{%v:lua.carlos.org.statuscolumn()%}",
-  { scope = "local" }
-)
-
----- Conceal heading stars
-local function conceal_heading_stars()
-  local ns_id = vim.api.nvim_create_namespace("carlos::org::conceal_heading_stars")
-
-  -- Clear existing syntax for this namespace
-  vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
-
-  -- Function to add conceal
-  local function add_conceal(bufnr)
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    for i, line in ipairs(lines) do
-      local start, end_col = line:find("^%*+ ")
-      if start then
-        vim.api.nvim_buf_set_extmark(bufnr, ns_id, i - 1, start - 1, {
-          end_col = end_col,
-          conceal = "",
-        })
-      end
-    end
-  end
-
-  -- Initial conceal
-  add_conceal(0)
-
-  -- Update conceal on buffer change
-  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-    buffer = 0,
-    callback = function() add_conceal(0) end,
-  })
-end
-conceal_heading_stars()
+--- Statuscolumn
+require("plugin.headercolumn").setup(12)
 
 --- Writing mode
+local max_stc_width = 12
 vim.b.carlos_writing_mode_enabled = false
 local function center_window()
   -- Get the current window and buffer
@@ -193,7 +114,7 @@ vim.keymap.set(
 -- require("plugin.pkm.contacto").setup()
 
 --- Zotero
-require("plugin.zotero-notes.init").setup({
+require("plugin.zotero-notes").setup({
   denote_silo_path = "/Users/carlos/org",
   zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
   better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",

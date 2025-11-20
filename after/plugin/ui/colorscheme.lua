@@ -21,7 +21,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
     local function modify_colorscheme()
       -- Detect current background for out-of-bounds regions
-      local is_dark = vim.api.nvim_get_option_value("background", { scope = "global" }) == "dark"
+      local is_dark = vim.api.nvim_get_option_value("background", { scope = "global" })
+        == "dark"
       local bg = is_dark and "#000000" or "#ffffff"
 
       local specs = lush.parse(
@@ -32,7 +33,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
             MsgArea({ bg = bg }),
             ModeArea({ bg = bg }),
             TabLineFill({ bg = bg }),
-            NormalFloat({ base.Normal }),
+            NormalFloat({ bg = base.NormalNC.bg }),
+            FloatBorder({ fg = base.Normal.bg, bg = base.NormalNC.bg }),
             NormalNC({ base.Normal }),
             StatusLine({ base.StatusLine, bold = true }),
             StatusLineNC({ base.StatusLineNC, italic = true }),
@@ -47,7 +49,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       vim.cmd("hi! link @org.keyword.face.PROG DiagnosticVirtualTextWarn")
       vim.cmd("hi! link @org.keyword.face.DONE DiagnosticVirtualTextOk")
       vim.cmd("hi! link @org.keyword.face.CNCL DiagnosticVirtualTextOk")
-      vim.cmd("hi! @org.keyword.face.INTR.org ctermbg=0 ctermfg=255 guibg=#000000 guifg=#ffffff" .. (is_dark and " gui=reverse cterm=reverse" or ""))
+      vim.cmd(
+        "hi! @org.keyword.face.INTR.org ctermbg=0 ctermfg=255 guibg=#000000 guifg=#ffffff"
+          .. (is_dark and " gui=reverse cterm=reverse" or "")
+      )
     end
     modify_colorscheme()
 

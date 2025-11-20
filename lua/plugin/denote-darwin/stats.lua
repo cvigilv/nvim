@@ -69,14 +69,11 @@ M.counts_plot = function(counts, max_cols, char)
   end
 
   -- Sort lines by counts in decreasing order
-  table.sort(
-    bars,
-    function(a, b)
-      local bycount = tonumber(a:match(" (%d+)$")) > tonumber(b:match(" (%d+)$"))
-      local byalphabet = a:match("^(%a+) %*") > b:match("^(%a+) %*")
-      return bycount and byalphabet
-    end
-  )
+  table.sort(bars, function(a, b)
+    local bycount = tonumber(a:match(" (%d+)$")) > tonumber(b:match(" (%d+)$"))
+    local byalphabet = a:match("^(%a+) %*") > b:match("^(%a+) %*")
+    return bycount and byalphabet
+  end)
   return bars
 end
 

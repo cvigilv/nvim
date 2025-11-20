@@ -11,7 +11,7 @@
 -- - `:reverse-sort` - Reverse the sorting order
 -- - `:id-only` - Show only note IDs instead of full links
 --
--- **Description:** Generates a list of links to notes matching specified criteria. Useful for creating 
+-- **Description:** Generates a list of links to notes matching specified criteria. Useful for creating
 -- dynamic indexes or filtered note listings.
 --
 -- ### `#+BEGIN: denote-backlinks`

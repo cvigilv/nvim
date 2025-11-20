@@ -100,33 +100,33 @@ end
 ---@param t string
 ---@return integer dist
 M.levenshtein = function(s, t)
-    local m, n = #s, #t
-    if m == 0 then return n end
-    if n == 0 then return m end
+  local m, n = #s, #t
+  if m == 0 then return n end
+  if n == 0 then return m end
 
-    -- Initialize matrix
-    local matrix = {}
-    for i = 0, m do
-        matrix[i] = {}
-        matrix[i][0] = i
-    end
-    for j = 0, n do
-        matrix[0][j] = j
-    end
+  -- Initialize matrix
+  local matrix = {}
+  for i = 0, m do
+    matrix[i] = {}
+    matrix[i][0] = i
+  end
+  for j = 0, n do
+    matrix[0][j] = j
+  end
 
-    -- Compute distances
-    for i = 1, m do
-        for j = 1, n do
-            local cost = (s:sub(i, i) == t:sub(j, j)) and 0 or 1
-            matrix[i][j] = math.min(
-                matrix[i-1][j] + 1,      -- deletion
-                matrix[i][j-1] + 1,      -- insertion
-                matrix[i-1][j-1] + cost  -- substitution
-            )
-        end
+  -- Compute distances
+  for i = 1, m do
+    for j = 1, n do
+      local cost = (s:sub(i, i) == t:sub(j, j)) and 0 or 1
+      matrix[i][j] = math.min(
+        matrix[i - 1][j] + 1, -- deletion
+        matrix[i][j - 1] + 1, -- insertion
+        matrix[i - 1][j - 1] + cost -- substitution
+      )
     end
+  end
 
-    return matrix[m][n]
+  return matrix[m][n]
 end
 
 return M

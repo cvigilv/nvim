@@ -1,5 +1,5 @@
 -- Keymaps
-vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", {desc = "Find Zotero"})
+vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", { desc = "Find Zotero" })
 
 -- Writing mode
 vim.b.carlos_writing_mode_enabled = false

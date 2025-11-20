@@ -199,9 +199,7 @@ local function slide_right(width)
 
     for i = 1, steps do
       vim.defer_fn(function()
-        if not vim.api.nvim_win_is_valid(sliding_win) then
-          return
-        end
+        if not vim.api.nvim_win_is_valid(sliding_win) then return end
         current_width = current_width + step_width
         vim.api.nvim_win_set_config(sliding_win, {
           relative = "win",
@@ -257,7 +255,7 @@ local function slide_left(width)
     win = current_win,
     border = { "┌", "─", "─", "", "─", "─", "└", "│" },
     focusable = true,
-    col = win_width-4,
+    col = win_width - 4,
     row = 1,
     height = height,
     width = min_width,
@@ -279,9 +277,7 @@ local function slide_left(width)
 
     for i = 1, steps do
       vim.defer_fn(function()
-        if not vim.api.nvim_win_is_valid(sliding_win) then
-          return
-        end
+        if not vim.api.nvim_win_is_valid(sliding_win) then return end
         current_width = current_width + step_width
         vim.api.nvim_win_set_config(sliding_win, {
           relative = "win",
@@ -289,7 +285,7 @@ local function slide_left(width)
           height = height,
           width = math.floor(current_width),
           row = 1,
-          col = win_width-math.floor(current_width),
+          col = win_width - math.floor(current_width),
         })
       end, i * step_ms)
     end
