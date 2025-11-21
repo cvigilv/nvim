@@ -16,16 +16,15 @@
 local function lsp_info()
   vim.cmd("checkhealth lsp")
   vim.keymap.set("n", "q", function() vim.api.nvim_win_close(0, true) end, { buffer = true })
-  vim.notify("[lsp] Press 'q' to quit.", vim.log.levels.INFO)
 end
 
 local function lsp_start(name)
   -- Attempt to start server from available configs
   local ok, _ = pcall(vim.lsp.start, vim.lsp.config[name])
   if ok then
-    vim.notify("[lsp] LSP server '" .. name .. "' started.", vim.log.levels.INFO)
+    vim.notify("LSP server '" .. name .. "' started.", vim.log.levels.INFO)
   else
-    vim.notify("[lsp] Failed to start LSP server '" .. name .. "'.", vim.log.levels.ERROR)
+    vim.notify("Failed to start LSP server '" .. name .. "'.", vim.log.levels.ERROR)
   end
 end
 
@@ -37,7 +36,6 @@ local function lsp_stop(name)
   local allclients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
   if name == nil then
     clients = allclients
-    vim.notify("[lsp] No server name provided, stopping all LSP servers", vim.log.levels.WARN)
   else
     clients = vim.tbl_filter(function(c) return name == c.name end, allclients)
   end
@@ -46,55 +44,55 @@ local function lsp_stop(name)
   for _, c in ipairs(clients) do
     ---@diagnostic disable-next-line: param-type-mismatch
     c.stop(force)
-    vim.notify("[lsp] Stopped '" .. c.name .. "'", vim.log.levels.INFO)
   end
 end
 
+-- TODO: implement
 local function lsp_restart(name)
-  local clients = {}
-
-  -- Default to restarting all active servers
-  if name == nil then
-    clients = vim
-      .iter(vim.lsp.get_clients())
-      :map(function(client) return client.name end)
-      :totable()
-    vim.notify("[lsp] No server name provided, restarting all LSP servers", vim.log.levels.WARN)
+  if not name or name == "" then
+    for _, client in ipairs(vim.lsp.get_active_clients()) do
+      client.stop()
+      local config = server_configs[client.name]
+      if config then vim.lsp.start(config) end
+    end
+    vim.notify("All LSP servers restarted.", vim.log.levels.INFO)
   else
-    clients = { name }
-  end
-
-  --
-  for _, name in ipairs(clients) do
-    if vim.lsp.config[name] == nil then
-      vim.notify(("[lsp] Invalid server name '%s'"):format(name))
-    else
-      vim.lsp.enable(name, false)
+    for _, client in ipairs(vim.lsp.get_active_clients()) do
+      if client.name == name then
+        client.stop()
+        local config = server_configs[name]
+        if config then
+          vim.lsp.start(config)
+          vim.notify("LSP server '" .. name .. "' restarted.", vim.log.levels.INFO)
+        else
+          vim.notify("No config found for server '" .. name .. "'.", vim.log.levels.ERROR)
+        end
+        return
+      end
     end
+    vim.notify("LSP server '" .. name .. "' not running.", vim.log.levels.WARN)
   end
-
-  local timer = assert(vim.uv.new_timer())
-  timer:start(500, 0, function()
-    for _, name in ipairs(clients) do
-      vim.schedule_wrap(function(x)
-        vim.lsp.enable(x)
-        vim.notify(("[lsp] Restarted server '%s'"):format(name))
-      end)(name)
-    end
-  end)
 end
 
+-- TODO: implement
 local function lsp_toggle(name)
   local running = false
-  for _, client in ipairs(vim.lsp.get_clients()) do
+  for _, client in ipairs(vim.lsp.get_active_clients()) do
     if client.name == name then
       running = true
-      lsp_stop(name)
+      client.stop()
+      vim.notify("LSP server '" .. name .. "' stopped.", vim.log.levels.INFO)
       return
     end
   end
   if not running then
-    lsp_start(name)
+    local config = server_configs[name]
+    if config then
+      vim.lsp.start(config)
+      vim.notify("LSP server '" .. name .. "' started.", vim.log.levels.INFO)
+    else
+      vim.notify("No config found for server '" .. name .. "'.", vim.log.levels.ERROR)
+    end
   end
 end
 
@@ -102,8 +100,6 @@ local function lsp_log()
   local log_path = vim.lsp.get_log_path()
   vim.cmd.tabnew(log_path)
   vim.cmd.normal("G")
-  vim.keymap.set("n", "q", function() vim.api.nvim_win_close(0, true) end, { buffer = true })
-  vim.notify("[lsp] Press 'q' to quit.", vim.log.levels.INFO)
 end
 
 -- TODO: maybe make this function accept a table of subcommands and functions to push them into the subcommands
@@ -112,7 +108,9 @@ local function lsp_cmd(opts)
   local subcmd = args[1]
   local name = args[2]
 
-  if subcmd == "" or subcmd == "info" then
+  if subcmd == nil then
+    lsp_info()
+  elseif subcmd == "info" then
     lsp_info()
   elseif subcmd == "start" and name then
     lsp_start(name)
@@ -125,7 +123,7 @@ local function lsp_cmd(opts)
   elseif subcmd == "log" then
     lsp_log()
   else
-    vim.notify("[lsp] Unknown Lsp subcommand: " .. tostring(subcmd), vim.log.levels.ERROR)
+    vim.notify("Unknown Lsp subcommand: " .. tostring(subcmd), vim.log.levels.ERROR)
   end
 end
 
@@ -137,16 +135,7 @@ vim.api.nvim_create_user_command("Lsp", lsp_cmd, {
     if #split == 2 then
       return subcommands
     elseif #split == 3 then
-      -- Scan lsp/ dir to see what configs are available
-      local lsp_folder = vim.fs.joinpath(vim.fn.stdpath("config"), "lsp")
-      local scandir = vim.uv.fs_scandir(lsp_folder)
-      local lsps = {}
-      while true do
-        local name, t = vim.uv.fs_scandir_next(scandir)
-        if not name then break end
-        table.insert(lsps, vim.fn.fnamemodify(name, ":t:r"))
-      end
-      return lsps
+      return vim.tbl_keys(server_configs)
     end
     return {}
   end,

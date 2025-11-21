@@ -2,13 +2,10 @@
 local configured_lsps = {
   "bashls",
   "harper_ls",
-  "jsonls",
   "julials",
   "lua_ls",
-  "marksman",
   "pyright",
   "tinymist",
-  "fennel_ls",
 }
 vim.lsp.enable(configured_lsps)
 
@@ -69,37 +66,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client:supports_method("textDocument/hover") then
       map("K", function()
         vim.lsp.buf.hover({
-          -- border = { "▛", "▀", "▜", "▐", "▟", "▄", "▙", "▌" },
-          border = { " ", " ", " ", " ", " ", " ", " ", " " },
+          border = { "▛", "▀", "▜", "▐", "▟", "▄", "▙", "▌" },
+          -- border = { " ", " ", " ", " ", " ", " ", " ", " " },
         })
       end, "Hover")
     end
 
-    -- Commands
-    vim.api.nvim_create_user_command("LspStop", function(info)
-      local force = true
-      local clients = {}
-
-      -- default to stopping all servers on current buffer
-      local allclients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
-      if #info.fargs == 0 then
-        clients = allclients
-      else
-        clients = vim.tbl_filter(
-          function(c) return vim.tbl_contains(info.fargs, c.name) end,
-          allclients
-        )
-      end
-
-      for _, c in ipairs(clients) do
-        -- Can remove diagnostic disabling when changing to client:stop(force) in nvim 0.11+
-        --- @diagnostic disable: param-type-mismatch
-        c.stop(force)
-      end
-    end, {
-      desc = "Manually stops the given language client(s)",
-      nargs = "?",
-      complete = function() return configured_lsps end,
-    })
+    require("plugin.lsp")
   end,
 })
