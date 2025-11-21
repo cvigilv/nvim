@@ -3,10 +3,10 @@ vim.b.miniindentscope_disable = true
 
 -- Options
 vim.opt_local.textwidth = 96
-vim.api.nvim_set_option_value("cc", "", { scope = "local" })
-vim.api.nvim_set_option_value("statuscolumn", "%#Normal#   ", { scope = "local" })
-vim.api.nvim_set_option_value("conceallevel", 3, { scope = "local" })
-vim.api.nvim_set_option_value("concealcursor", "nvc", { scope = "local" })
+vim.opt_local.cc = ""
+vim.opt_local.statuscolumn = "%#Normal#   "
+vim.opt_local.conceallevel = 3
+vim.opt_local.concealcursor = "nvc"
 
 -- Contacts
 -- require("plugin.pkm.contacto").setup()

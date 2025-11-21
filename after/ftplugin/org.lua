@@ -4,8 +4,8 @@ vim.b.minihipatterns_disable = true
 
 -- Options
 _G.carlos.org = {}
-vim.api.nvim_set_option_value("textwidth", 96, { scope = "local" })
-vim.api.nvim_set_option_value("conceallevel", 2, { scope = "local" })
+vim.opt_local.textwidth = 96
+vim.opt_local.conceallevel = 2
 
 -- Keymaps
 vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })

@@ -12,7 +12,7 @@ vim.opt_local.winhighlight = "Normal:OutOfBounds"
 vim.api.nvim_buf_set_keymap(
   0,
   "t",
-  "<Leader><Esc>",
+  "<Esc><Esc>",
   "<C-\\><C-n>",
   { noremap = true, silent = true }
 )
