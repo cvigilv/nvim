@@ -1,0 +1,3 @@
+---@module 'lib.statuscolumn.modifiers'
+---@author Carlos Vigil-Vásquez
+---@license MIT
