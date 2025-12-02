@@ -1,4 +1,4 @@
----@module "plugin.pkm.contacto.logging"
+---@module "plugin.contacto.logging"
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 --

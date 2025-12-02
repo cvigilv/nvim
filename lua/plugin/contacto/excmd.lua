@@ -1,4 +1,4 @@
----@module "plugin.pkm.contacto.excmd"
+---@module "plugin.contacto.excmd"
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
@@ -302,7 +302,7 @@ end
 ---@param opts Contacto.Configuration User configuration
 M.setup = function(opts)
   -- Create main command with subcommands
-  local logger = require("plugin.pkm.contacto.logging").new(opts.logging, true)
+  local logger = require("plugin.contacto.logging").new(opts.logging, true)
   logger.info("Creating 'Contacto[!]' user command")
   vim.api.nvim_create_user_command("Contacto", function(cmd_opts)
     local args = cmd_opts.fargs

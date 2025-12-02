@@ -1,4 +1,4 @@
----@module "plugin.pkm.contacto.highlights"
+---@module "plugin.contacto.highlights"
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
@@ -18,7 +18,7 @@ end
 
 ---@param opts Contacto.Configuration User provided configuration table
 M.setup = function(opts)
-  local logger = require("plugin.pkm.contacto.logging").new(opts.logging, true)
+  local logger = require("plugin.contacto.logging").new(opts.logging, true)
 
   logger.info("Setting contact highlight group as " .. opts.hlgroup)
   vim.fn.matchadd("@contacto.contact", [[@[a-zA-Z0-9][a-zA-Z0-9_.-]*]])

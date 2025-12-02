@@ -1,4 +1,4 @@
----@module "plugin.pkm.contacts.utils.json"
+---@module "plugin.contacto.utils.json"
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2025
 
