@@ -10,7 +10,6 @@ return {
   },
   { -- esqueleto
     dir = os.getenv("GITDIR") .. "/esqueleto.nvim",
-    enabled = true,
     opts = {
       autouse = false,
       directories = { --[[ @as table ]]

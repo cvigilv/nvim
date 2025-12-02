@@ -1,6 +1,4 @@
----@module "after.ftplugin.denote"
----@author Carlos Vigil-Vásquez
----@license MIT 2025
+vim.notify("[ftplugin] Activated denote-mode")
 
 local function find_and_filter(path, patterns)
   local files = vim.fn.glob(path .. "/*", false, true)

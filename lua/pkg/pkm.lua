@@ -65,7 +65,7 @@ return {
             org_note_kill = "<C-x>",
           },
           org = {
-            org_refile = false,
+            org_refile = "<leader>or",
             org_timestamp_up_day = false,
             org_timestamp_down_day = false,
             org_timestamp_up = "<C-a>",
@@ -277,12 +277,6 @@ return {
           end,
         },
       })
-    end,
-  },
-  { -- sqlite
-    "kkharji/sqlite.lua",
-    config = function()
-      vim.g.sqlite_clib_path = "/opt/homebrew/Cellar/sqlite/3.49.1/lib/libsqlite3.dylib"
     end,
   },
   { -- denote

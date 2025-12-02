@@ -1,3 +1,5 @@
+vim.notify("[ftplugin] Activated terminal-mode")
+
 -- Plugins
 vim.b.miniindentscope_disable = true
 

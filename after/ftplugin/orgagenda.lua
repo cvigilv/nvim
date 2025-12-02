@@ -1,3 +1,5 @@
+vim.notify("[ftplugin] Activated orgagenda-mode")
+
 -- Plugins
 vim.b.miniindentscope_disable = true
 

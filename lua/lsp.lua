@@ -93,9 +93,7 @@ local function lsp_toggle(name)
       return
     end
   end
-  if not running then
-    lsp_start(name)
-  end
+  if not running then lsp_start(name) end
 end
 
 local function lsp_log()

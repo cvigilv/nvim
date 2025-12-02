@@ -11,7 +11,7 @@ vim.opt.completeopt = "menu,menuone,noselect,fuzzy" -- Improve completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.diffopt = "internal,filler,closeoff,linematch:60" -- Improve diff UX
-vim.opt.expandtab=true -- Use spaces instead of tabs
+vim.opt.expandtab = true -- Use spaces instead of tabs
 vim.opt.fileencoding = "UTF-8" -- Character encoding for the file in the buffer
 vim.opt.fillchars = { -- Characters used for UI things
   -- Window splitting

@@ -51,7 +51,6 @@ return {
       "mfussenegger/nvim-lint", -- Linting
       "stevearc/conform.nvim", -- Formatting
     },
-    enabled = true,
     config = function()
       local conform = require("conform")
       local lint = require("lint")
@@ -132,12 +131,13 @@ return {
       )
     end,
   },
-  { -- luapad: REPL for lua development
-    "rafcamlet/nvim-luapad",
-    keys = { "<leader>R" },
-    ft = "lua",
-  },
   { -- jason: JSON CRUD
     dir = "/Users/carlos/git/jason.nvim/",
+  },
+  { -- sqlite: SQL CRUD
+    "kkharji/sqlite.lua",
+    config = function()
+      vim.g.sqlite_clib_path = "/opt/homebrew/Cellar/sqlite/3.49.1/lib/libsqlite3.dylib"
+    end,
   },
 }

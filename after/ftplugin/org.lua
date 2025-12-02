@@ -1,3 +1,5 @@
+vim.notify("[ftplugin] Activated org-mode")
+
 -- Plugins
 vim.b.miniindentscope_disable = true
 vim.b.minihipatterns_disable = true
@@ -11,6 +13,7 @@ vim.opt_local.conceallevel = 2
 vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })
 vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checker" })
 vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", { desc = "Find Zotero" })
+vim.keymap.set('n', '<leader>or', require('telescope').extensions.orgmode.refile_heading)
 
 -- Extra
 --- Statuscolumn
@@ -104,11 +107,11 @@ end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 
 --- Denote
-vim.keymap.set(
-  "n",
-  ",or",
-  function() require("plugin.denote-org.dynamic_blocks").update_dynamic_blocks() end
-)
+-- vim.keymap.set(
+--   "n",
+--   ",oR",
+--   function() require("plugin.denote-org.dynamic_blocks").update_dynamic_blocks() end
+-- )
 
 -- Contacts
 -- require("plugin.pkm.contacto").setup()
@@ -119,3 +122,4 @@ require("plugin.zotero-notes").setup({
   zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
   better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
 })
+

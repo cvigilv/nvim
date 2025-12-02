@@ -23,10 +23,6 @@ return {
         },
       })
       require("mini.completion").setup()
-      require("mini.comment").setup()
-      require("mini.diff").setup()
-      require("mini.git").setup()
-      require("mini.surround").setup()
       require("mini.splitjoin").setup()
       require("mini.hipatterns").setup({
         highlighters = {

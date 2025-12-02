@@ -36,7 +36,7 @@ vim.keymap.set(
 vim.keymap.set(
   "n",
   "<leader><CR>",
-  function() require("oil").open(nil, { preview = {} }) end,
+  function() require("oil").open() end,
   { desc = "File browser", noremap = true, silent = true }
 )
 

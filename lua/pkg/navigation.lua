@@ -51,14 +51,6 @@ return {
         function() return swm.l() or require("Navigator").right() end,
         { noremap = true, silent = true }
       )
-
-      -- Misc
-      vim.keymap.set(
-        { "t", "n" },
-        "<C-p>",
-        require("Navigator").previous,
-        { noremap = true, silent = true }
-      )
     end,
   },
   { -- oil
@@ -70,7 +62,12 @@ return {
       view_options = {
         show_hidden = true,
       },
-      columns = { "icon" },
+      columns = {
+        { "permissions", highlight = "Structure"},
+        { "size", highlight = "Number" },
+        { "mtime", highlight = "Comment" },
+        "icon",
+      },
       default_file_explorer = true,
       restore_win_options = true,
       skip_confirm_for_simple_edits = false,
@@ -98,6 +95,7 @@ return {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "nvim-orgmode/telescope-orgmode.nvim",
       {
         dir = "/Users/carlos/git/telescope-zotero.nvim",
         dependencies = {
