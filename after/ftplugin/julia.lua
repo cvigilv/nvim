@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated julia-mode")
-
 -- Options
 vim.opt_local.expandtab = true
 vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"

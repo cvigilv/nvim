@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated quickfix-mode")
-
 -- Plugins
 vim.cmd.packadd("cfilter")
 vim.b.miniindentscope_disable = true

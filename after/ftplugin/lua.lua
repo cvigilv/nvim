@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated lua-mode")
-
 -- Options
 vim.opt_local.softtabstop = 2
 vim.opt_local.shiftwidth = 2

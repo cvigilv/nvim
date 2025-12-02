@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated markdown-mode")
-
 -- Options
 vim.opt_local.textwidth = 96
 

@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated orgagenda-mode")
-
 -- Plugins
 vim.b.miniindentscope_disable = true
 
@@ -11,4 +9,4 @@ vim.opt_local.conceallevel = 3
 vim.opt_local.concealcursor = "nvc"
 
 -- Contacts
--- require("plugin.pkm.contacto").setup()
+require("plugin.contacto").setup()

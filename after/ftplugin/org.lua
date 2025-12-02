@@ -1,5 +1,3 @@
-vim.notify("[ftplugin] Activated org-mode")
-
 -- Plugins
 vim.b.miniindentscope_disable = true
 vim.b.minihipatterns_disable = true
@@ -114,7 +112,7 @@ vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
 -- )
 
 -- Contacts
--- require("plugin.pkm.contacto").setup()
+require("plugin.contacto").setup()
 
 --- Zotero
 require("plugin.zotero-notes").setup({
