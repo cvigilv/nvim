@@ -64,12 +64,12 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     -- Defaults
     local bg = "light"
-    local colorscheme = "zenbones"
+    local colorscheme = "claro"
 
     -- Synchronize color scheme with system
     local theme = vim.fn.system("defaults read -g AppleInterfaceStyle"):gsub("\n", "")
     if theme == "Dark" then
-      colorscheme = "neobones"
+      colorscheme = "oscuro"
       bg = "dark"
     end
 
