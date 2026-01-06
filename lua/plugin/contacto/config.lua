@@ -23,8 +23,8 @@ local defaults = {
     enabled = true,
     level = "trace",
     highlights = true,
-    use_console = true,
-    use_file = false,
+    use_console = false,
+    use_file = true,
     use_quickfix = false,
   },
 }
