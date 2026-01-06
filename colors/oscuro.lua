@@ -98,7 +98,7 @@ local theme = lush(function(injected_functions)
     TabLineSel({ Normal, gui = "bold" }), -- TabLineSel     xxx gui=bold
     TabLineFill({ bg = "black" }), -- TabLineSel     xxx gui=bold
     CursorColumn({ bg = "nvimdarkgrey3" }), -- CursorColumn   xxx guibg=NvimDarkGrey3
-    CursorLine({ bg = "nvimdarkgrey3" }), -- CursorLine     xxx guibg=NvimDarkGrey3
+    CursorLine({ bg = "#101b22" }), -- CursorLine     xxx guibg=NvimDarkGrey3
     ColorColumn({ bg = "nvimdarkgrey4" }), -- ColorColumn    xxx cterm=reverse guibg=NvimDarkGrey4
     QuickFixLine({ fg = "nvimlightcyan" }), -- QuickFixLine   xxx ctermfg=14 guifg=NvimLightCyan
     NormalFloat({ OutOfBounds }), -- NormalFloat    xxx guibg=NvimDarkGrey1
