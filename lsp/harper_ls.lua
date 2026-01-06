@@ -26,7 +26,7 @@ local writing_filetypes = {
 }
 
 local is_writing_ft = function()
-  local ft = vim.api.nvim_get_option_value("filetype", { buf = vim.api.nvim_get_current_buf() })
+  local ft = vim.bo.filetype
   return vim.tbl_contains(writing_filetypes, ft)
 end
 

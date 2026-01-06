@@ -35,8 +35,8 @@ local function slide_up(height)
   -- Set winhighlight without overriding previous settings
   vim.api.nvim_set_option_value(
     "winhighlight",
-    vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) ~= ""
-        and vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) .. ",FloatBorder:SlidingBorder"
+    vim.wo[sliding_win].winhighlight ~= ""
+        and vim.wo[sliding_win].winhighlight .. ",FloatBorder:SlidingBorder"
       or "FloatBorder:SlidingBorder",
     { win = sliding_win }
   )
@@ -114,8 +114,8 @@ local function slide_down(height)
 
   vim.api.nvim_set_option_value(
     "winhighlight",
-    vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) ~= ""
-        and vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) .. ",FloatBorder:SlidingBorder"
+    vim.wo[sliding_win].winhighlight ~= ""
+        and vim.wo[sliding_win].winhighlight .. ",FloatBorder:SlidingBorder"
       or "FloatBorder:SlidingBorder",
     { win = sliding_win }
   )
@@ -191,8 +191,8 @@ local function slide_right(width)
 
   vim.api.nvim_set_option_value(
     "winhighlight",
-    vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) ~= ""
-        and vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) .. ",FloatBorder:SlidingBorder"
+    vim.wo[sliding_win].winhighlight ~= ""
+        and vim.wo[sliding_win].winhighlight .. ",FloatBorder:SlidingBorder"
       or "FloatBorder:SlidingBorder",
     { win = sliding_win }
   )
@@ -270,8 +270,8 @@ local function slide_left(width)
 
   vim.api.nvim_set_option_value(
     "winhighlight",
-    vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) ~= ""
-        and vim.api.nvim_get_option_value("winhighlight", { win = sliding_win }) .. ",FloatBorder:SlidingBorder"
+    vim.wo[sliding_win].winhighlight ~= ""
+        and vim.wo[sliding_win].winhighlight .. ",FloatBorder:SlidingBorder"
       or "FloatBorder:SlidingBorder",
     { win = sliding_win }
   )

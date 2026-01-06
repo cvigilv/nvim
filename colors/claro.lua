@@ -9,7 +9,7 @@ local base = require("zenbones")
 local lush = require("lush")
 
 -- Define base colors
-local is_dark = vim.api.nvim_get_option_value("background", { scope = "global" }) == "dark"
+local is_dark = vim.o.background == "dark"
 local bg = is_dark and "#000000" or "#ffffff"
 local accent = lush.hsluv("#008ec4")
 local counter = lush.hsluv("#c18401").mix(accent, 25)
@@ -28,7 +28,7 @@ local specs = lush.extends({ base }).with(function(injected_functions)
     NormalNC({ base.Normal }),
     StatusLine({ base.StatusLine, bold = true }),
     StatusLineNC({ base.StatusLineNC, italic = true }),
-    String({ fg = accent.saturation(100), italic=true }),
+    String({ fg = accent.saturation(100), italic = true }),
     Number({ fg = accent.saturation(100) }),
     sym("Function")({ fg = counter.saturation(100) }),
     sym("Special")({ fg = counter.saturation(100) }),

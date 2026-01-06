@@ -43,20 +43,39 @@ vim.api.nvim_create_autocmd({ "TermOpen", "BufEnter" }, {
 })
 
 -- Automatically open quick-fix
-vim.cmd([[autocmd QuickFixCmdPost [^l]* cwindow]])
-vim.cmd([[autocmd QuickFixCmdPost    l* lwindow]])
-vim.cmd([[autocmd VimEnter            * cwindow]])
+-- Auto-open quickfix/location list windows
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+  pattern = "[^l]*",
+  command = "cwindow",
+  desc = "Auto-open quickfix window",
+})
+
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+  pattern = "l*",
+  command = "lwindow",
+  desc = "Auto-open location list window",
+})
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  pattern = "*",
+  command = "cwindow",
+  desc = "Auto-open quickfix window on startup",
+})
 
 -- Activate cursor line only for focused window
-vim.cmd([[
-augroup FocusHighlight
-    au!
-    au VimEnter * setlocal cursorline
-    au WinEnter * setlocal cursorline
-    au BufWinEnter * setlocal cursorline
-    au WinLeave * setlocal nocursorline
-augroup END
-]])
+local focus_group = vim.api.nvim_create_augroup("FocusHighlight", { clear = true })
+
+vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
+  group = focus_group,
+  callback = function() vim.opt_local.cursorline = true end,
+  desc = "Enable cursorline for focused window",
+})
+
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = focus_group,
+  callback = function() vim.opt_local.cursorline = false end,
+  desc = "Disable cursorline for unfocused window",
+})
 
 -- `help` and `man` open to the right (if possible)
 vim.api.nvim_create_autocmd("FileType", {

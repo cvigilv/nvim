@@ -44,12 +44,7 @@ vim.api.nvim_create_autocmd("OptionSet", {
 vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,
   callback = function()
-    if
-      vim.tbl_contains(
-        ignored_buftypes,
-        vim.api.nvim_get_option_value("buftype", { scope = "local" })
-      )
-    then
+    if vim.tbl_contains(ignored_buftypes, vim.bo.buftype) then
       vim.api.nvim_set_option_value("stc", "    ", { scope = "local" })
     end
   end,
@@ -63,12 +58,7 @@ vim.api.nvim_create_autocmd(
 vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,
   callback = function()
-    if
-      vim.tbl_contains(
-        ignored_filetypes,
-        vim.api.nvim_get_option_value("filetype", { scope = "local" })
-      )
-    then
+    if vim.tbl_contains(ignored_filetypes, vim.bo.filetype) then
       vim.api.nvim_set_option_value("stc", "    ", { scope = "local" })
     end
   end,

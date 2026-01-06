@@ -50,14 +50,14 @@ end
 -- TODO: implement
 local function lsp_restart(name)
   if not name or name == "" then
-    for _, client in ipairs(vim.lsp.get_active_clients()) do
+    for _, client in ipairs(vim.lsp.get_clients()) do
       client.stop()
       local config = server_configs[client.name]
       if config then vim.lsp.start(config) end
     end
     vim.notify("All LSP servers restarted.", vim.log.levels.INFO)
   else
-    for _, client in ipairs(vim.lsp.get_active_clients()) do
+    for _, client in ipairs(vim.lsp.get_clients()) do
       if client.name == name then
         client.stop()
         local config = server_configs[name]
@@ -77,7 +77,7 @@ end
 -- TODO: implement
 local function lsp_toggle(name)
   local running = false
-  for _, client in ipairs(vim.lsp.get_active_clients()) do
+  for _, client in ipairs(vim.lsp.get_clients()) do
     if client.name == name then
       running = true
       client.stop()

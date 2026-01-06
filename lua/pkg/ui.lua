@@ -114,8 +114,7 @@ return {
 
           local function modify_colorscheme()
             -- Detect current background for out-of-bounds regions
-            local is_dark = vim.api.nvim_get_option_value("background", { scope = "global" })
-              == "dark"
+            local is_dark = vim.o.background == "dark"
             local bg = is_dark and "#000000" or "#ffffff"
 
             local specs = lush.parse(

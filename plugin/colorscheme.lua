@@ -26,10 +26,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     "*_Luapad.lua",
   },
   callback = function(ev)
-    local current_winhighlight = vim.api.nvim_get_option_value(
-      "winhighlight",
-      { scope = "local", win = vim.api.nvim_get_current_win() }
-    )
+    local current_winhighlight = vim.wo.winhighlight
 
     if current_winhighlight ~= "" then
       vim.api.nvim_set_option_value(

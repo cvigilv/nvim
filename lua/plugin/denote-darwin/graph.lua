@@ -46,7 +46,7 @@ local function denote_to_links(nodes)
 
   local valid_identifiers = vim.iter(nodes):map(function(e) return e.id end):totable()
   local dir = vim.g.denote.directory --[[@as string]]
-  local uv = vim.loop
+  local uv = vim.uv
   uv.fs_scandir(dir, function(err, req)
     if err or not req then
       vim.schedule(
@@ -142,7 +142,7 @@ function M.modelize_silo()
   -- Get current denote file
   local indenote = ""
   local filename = vim.api.nvim_buf_get_name(0)
-  if string.find(filename, vim.loop.fs_realpath(vim.g.denote.directory), 1, true) ~= nil then
+  if string.find(filename, vim.uv.fs_realpath(vim.g.denote.directory), 1, true) ~= nil then
     print("Inside of note!")
     print(vim.fs.basename(filename):sub(1, 15))
     print("?focus=2#" .. vim.fs.basename(filename):sub(1, 15):lower())

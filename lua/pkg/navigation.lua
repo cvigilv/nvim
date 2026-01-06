@@ -63,7 +63,7 @@ return {
         show_hidden = true,
       },
       columns = {
-        { "permissions", highlight = "Structure"},
+        { "permissions", highlight = "Structure" },
         { "size", highlight = "Number" },
         { "mtime", highlight = "Comment" },
         "icon",
