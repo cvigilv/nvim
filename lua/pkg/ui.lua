@@ -159,9 +159,4 @@ return {
       })
     end,
   },
-  { -- dark-notify
-    "cormacrelf/dark-notify",
-    enabled = false,
-    config = function() require("dark_notify").run() end,
-  },
 }
