@@ -3,7 +3,8 @@
 ---@license MIT 2026
 
 vim.cmd("highlight clear")
-vim.g.color_name = "duobones"
+vim.o.background="light"
+vim.g.color_name = "claro"
 
 local base = require("zenbones")
 local lush = require("lush")
