@@ -3,6 +3,7 @@
 ---@license MIT 2026
 
 vim.cmd("highlight clear")
+vim.o.background = "dark"
 vim.g.color_name = "oscuro"
 
 local lush = require("lush")
