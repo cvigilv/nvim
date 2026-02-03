@@ -175,6 +175,7 @@ local function capture_to_denote()
         "#+identifier: " .. timestamp,
         "#+filetags:   " .. (topic ~= nil and ":" .. topic:lower() .. ":" or ""),
         "#+signature:  logs",
+        "#+category:   logs/" .. topic:gsub(" ", "-"):lower(),
         "",
         "* %<%Y/%m/%d>" .. (topic ~= nil and (" - " .. topic) or ""),
         "",
