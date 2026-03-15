@@ -34,6 +34,7 @@ vim.opt.fillchars = { -- Characters used for UI things
   eob = " ",
 }
 vim.opt.foldmethod = "marker" -- Automatically fold text in marker
+vim.opt.foldlevel = 99 -- Open all folds by default
 vim.opt.laststatus = 2 -- Per-window statusline
 vim.opt.list = true -- See whitespaces in current buffer
 vim.opt.listchars = "trail:∘,nbsp:‼,tab:╎ ,multispace: ,extends:…"

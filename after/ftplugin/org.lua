@@ -6,6 +6,7 @@ vim.b.minihipatterns_disable = true
 _G.carlos.org = {}
 vim.opt_local.textwidth = 96
 vim.opt_local.conceallevel = 2
+vim.opt_local.foldlevel = 99
 
 -- Keymaps
 vim.keymap.set("n", ",sw", ":Writing<CR>", { desc = "Toggle writing mode" })
@@ -103,13 +104,6 @@ local function toggle_writing_mode(bufnr)
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
-
---- Denote
--- vim.keymap.set(
---   "n",
---   ",oR",
---   function() require("plugin.denote-org.dynamic_blocks").update_dynamic_blocks() end
--- )
 
 -- Contacts
 require("plugin.contacto").setup()
