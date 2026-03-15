@@ -26,7 +26,7 @@ local function asterisk_count(line_number, maxwidth)
       return "%#@org.headline.level"
         .. count
         .. "#"
-        .. lpad(string.rep("*", count --[[@as number]]), maxwidth, " ")
+        .. lpad(string.rep("*", count --[[@as number]]), maxwidth - 1, " ")
         .. "%*"
     end
   end
@@ -59,6 +59,7 @@ function M.setup(width)
     callback = function() add_conceal(0) end,
   })
 
+  -- Set statuscolumn
   _G.headercolumn_stc = function()
     local components = {
       " ",
@@ -68,6 +69,7 @@ function M.setup(width)
 
     return table.concat(components, "")
   end
+
   vim.api.nvim_set_option_value(
     "statuscolumn",
     "%{%v:lua.headercolumn_stc()%}",
