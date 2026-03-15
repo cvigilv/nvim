@@ -309,6 +309,20 @@ return {
             hi! def link DenoteKeywords  WarningMsg
             hi! def link DenoteExtension SpecialComment
           ]])
+
+      vim.keymap.set(
+        "n",
+        ",zf",
+        "<CMD>Telescope denote search<CR>",
+        { silent = true, noremap = true, desc = "Denote search" }
+      )
+
+      vim.keymap.set(
+        "n",
+        ",zl",
+        "<CMD>Telescope denote insert_link<CR>",
+        { silent = true, noremap = true, desc = "Denote link" }
+      )
     end,
   },
 }
