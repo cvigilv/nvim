@@ -1,8 +1,0 @@
-${denote-title}
-${denote-date}
-${denote-keywords}
-${denote-signature}
-${denote-identifier}
-
-${cursor}
-
