@@ -325,4 +325,14 @@ return {
       )
     end,
   },
+  {
+    "obsidian-nvim/cosma.nvim",
+    setup = function()
+      require("cosma").setup({
+        custom = {
+          export_target = "new_export",
+        },
+      })
+    end,
+  },
 }

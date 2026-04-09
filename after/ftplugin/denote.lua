@@ -132,3 +132,8 @@ map("Link to Denote", ",zl", ":Telescope denote insert_link<CR>")
 map("Current Denote backlinks", ",zb", ":Telescope denote backlinks<CR>")
 map("New Denote", ",zc", ":Denote<CR>")
 map("Rename Denote", ",zr", ":Denote rename-file<CR>")
+
+vim.o.wrap = true
+vim.o.linebreak = true
+vim.o.breakindent = true
+vim.o.showbreak = "  "
