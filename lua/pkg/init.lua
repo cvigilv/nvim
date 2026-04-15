@@ -19,6 +19,7 @@ vim.pack.add({
   gh("stevearc/oil.nvim"),
   gh("nvim-tree/nvim-web-devicons"),
   gh("nvim-telescope/telescope.nvim"),
+  gh("juniorsundar/refer.nvim"),
   gh("nvim-lua/plenary.nvim"),
 
   -- UI (ui.lua)
@@ -58,6 +59,14 @@ vim.pack.add({
   gh("olimorris/codecompanion.nvim"),
 })
 
+-- Add commands for vim.pack
+vim.api.nvim_buf_create_user_command(
+  0,
+  "PackUpdate",
+  "lua vim.pack.update()",
+  { desc = "Update packages" }
+)
+
 -- Configure packages
 local plugin_dir = vim.fn.stdpath("config") .. "/lua/pkg"
 for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
@@ -67,9 +76,3 @@ for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
   end
 end
 
-vim.api.nvim_buf_create_user_command(
-  0,
-  "PackUpdate",
-  "lua vim.pack.update()",
-  { desc = "Update packages" }
-)

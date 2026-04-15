@@ -92,6 +92,10 @@
       "rev": "063cc44da1eef8681bbd653b29d3bc961780886a",
       "src": "https://github.com/stevearc/quicker.nvim"
     },
+    "refer.nvim": {
+      "rev": "3078de13b739b1119c4b2e5cafc89e3fbcb0c47d",
+      "src": "https://github.com/juniorsundar/refer.nvim"
+    },
     "scrollEOF.nvim": {
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"
