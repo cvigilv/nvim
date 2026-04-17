@@ -33,6 +33,61 @@ require("refer").setup({
   },
 })
 
+vim.keymap.set(
+  "n",
+  ",ff",
+  "<CMD>Refer Files<CR>",
+  { silent = true, noremap = true, desc = "Find files" }
+)
+vim.keymap.set(
+  "n",
+  ",fs",
+  "<CMD>Refer Grep<CR>",
+  { silent = true, noremap = true, desc = "Find string with Grep" }
+)
+vim.keymap.set(
+  "n",
+  ",fw",
+  "<CMD>Refer Selection<CR>",
+  { silent = true, noremap = true, desc = "Find word under cursor/selection" }
+)
+-- vim.keymap.set(
+--   "n",
+--   ",ft",
+--   function() telescope_builtin.grep_string({ search = " TODO: " }) end,
+--   { silent = true, noremap = true, desc = "Find TODO comments" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   ",fr",
+--   function() telescope_builtin.resume() end,
+--   { silent = true, noremap = true, desc = "Open last search result" }
+-- )
+vim.keymap.set(
+  "n",
+  ",fb",
+  "<CMD>Refer Buffers<CR>",
+  { silent = true, noremap = true, desc = "Buffers" }
+)
+-- vim.keymap.set(
+--   "n",
+--   ",fh",
+--   "<CMD>Telescope help_tags<CR>",
+--   { silent = true, noremap = true, desc = "Help tags" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   ",fd",
+--   "<CMD>Telescope diagnostics<CR>",
+--   { silent = true, noremap = true, desc = "LSP diagnostics" }
+-- )
+vim.keymap.set(
+  "n",
+  ",f?",
+  "<CMD>Refer Commands<CR>",
+  { silent = true, noremap = true, desc = "Pickers" }
+)
+
 require("refer").setup_ui_select()
 
 -- Window management
@@ -70,9 +125,7 @@ vim.keymap.set(
 
 -- Oil
 require("oil").setup({
-  view_options = {
-    show_hidden = true,
-  },
+  view_options = { show_hidden = true },
   columns = {
     { "permissions", highlight = "Structure" },
     { "size", highlight = "Number" },
@@ -89,8 +142,6 @@ require("oil").setup({
     ["<CR>"] = "actions.select",
     ["|"] = "actions.select_vsplit",
     ["-"] = "actions.select_split",
-    ["<C-v>"] = "actions.select_vsplit",
-    ["<C-h>"] = "actions.select_split",
     ["<C-t>"] = "actions.select_tab",
     ["<C-p>"] = "actions.preview",
     ["<C-c>"] = "actions.close",
