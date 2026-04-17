@@ -6,14 +6,25 @@ local function hlgroup2org(hlgroup)
   return ":foreground " .. (hl.fg or normal.fg) .. " :background " .. (hl.bg or normal.bg)
 end
 
+-- Denote
+vim.g.denote = {
+  filetype = "org",
+  directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org/",
+  prompts = { "title", "signature", "keywords" },
+}
+
+vim.cmd([[
+hi! def link DenoteDate      Number
+hi! def link DenoteSignature Type
+hi! def link DenoteTitle     Title
+hi! def link DenoteKeywords  WarningMsg
+hi! def link DenoteExtension SpecialComment
+]])
+
 -- Orgmode
 require("orgmode").setup({
   hyperlinks = {
-    sources = {
-      require("denote.extensions.orgmode"):new({
-        files = vim.g.denote.directory --[[@as OrgFiles]],
-      }),
-    },
+    sources = { require("denote.extensions.orgmode"):new({ files = vim.g.denote.directory }) },
   },
   mappings = {
     global = {
@@ -109,7 +120,7 @@ require("orgmode").setup({
       org_clock_goto = "<leader>oxg",
       org_set_effort = "<leader>oxe",
       org_show_help = "g?",
-      -- org_babel_tangle = "",
+      org_babel_tangle = "<leader>obt>",
     },
   },
 
@@ -122,9 +133,8 @@ require("orgmode").setup({
   },
   org_default_notes_file = "~/org/.org/inbox.org",
   org_archive_location = "~/org/.archive/archive_%s",
-  org_startup_folded = "overview",
+  org_startup_folded = "content",
   org_capture_templates = {
-    ---@diagnostic disable-next-line: assign-type-mismatch
     e = "Event",
     er = {
       description = "Recurring",
@@ -146,7 +156,7 @@ require("orgmode").setup({
   org_tags_column = 80,
 
   org_log_into_drawer = "LOGBOOK",
-  org_log_done = "note",
+  org_log_done = false,
   org_log_repeat = "time",
 
   org_agenda_min_height = 24,
@@ -266,18 +276,3 @@ require("orgmode").setup({
     end,
   },
 })
-
--- Denote
-vim.g.denote = {
-  filetype = "org",
-  directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org",
-  prompts = { "title", "signature", "keywords" },
-}
-
-vim.cmd([[
-hi! def link DenoteDate      Number
-hi! def link DenoteSignature Type
-hi! def link DenoteTitle     Title
-hi! def link DenoteKeywords  WarningMsg
-hi! def link DenoteExtension SpecialComment
-]])
