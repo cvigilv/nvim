@@ -20,12 +20,12 @@ local specs = lush.extends({ base }).with(function(injected_functions)
   local sym = injected_functions.sym
   return {
     Folded({}),
-    OutOfBounds({ bg = base.NormalNC.bg }),
+    OutOfBounds({ bg = base.Normal.bg.darken(3).desaturate(20) }),
     MsgArea({ bg = bg }),
     ModeArea({ bg = bg }),
     TabLineFill({ bg = bg }),
-    NormalFloat({ bg = base.NormalNC.bg }),
-    FloatBorder({ fg = base.Normal.bg, bg = base.NormalNC.bg }),
+    NormalFloat({ bg = base.Normal.bg.darken(3).desaturate(20) }),
+    FloatBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(3).desaturate(20) }),
     NormalNC({ base.Normal }),
     StatusLine({ base.StatusLine, bold = true }),
     StatusLineNC({ base.StatusLineNC, italic = true }),
