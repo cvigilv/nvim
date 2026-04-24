@@ -111,6 +111,6 @@ require("plugin.contacto").setup()
 --- Zotero
 require("plugin.zotero-notes").setup({
   denote_silo_path = "/Users/carlos/org",
-  zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
-  better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
+  -- zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
+  -- better_bibtex_db_path = "/Users/carlos/Zotero/better-bibtex.sqlite",
 })
