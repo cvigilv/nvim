@@ -19,7 +19,8 @@ vim.pack.add({
   gh("stevearc/oil.nvim"),
   gh("nvim-tree/nvim-web-devicons"),
   gh("nvim-telescope/telescope.nvim"),
-  gh("juniorsundar/refer.nvim"),
+  -- gh("juniorsundar/refer.nvim"),
+  cvv("refer.nvim"),
   gh("nvim-lua/plenary.nvim"),
 
   -- UI (ui.lua)
