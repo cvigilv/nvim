@@ -74,8 +74,51 @@ return {
   },
   { -- bareline.nvim
     "hernancerm/bareline.nvim",
+    -- enabled=false,
     event = "VimEnter",
-    opts = {},
+    config = function()
+      local bareline = require("bareline")
+      bareline.setup({
+        statusline = {
+          value = "%{BlIs(1)}"
+            .. "%{BlInahide(get(b:,'bl_vim_mode',''))}"
+            .. "%{BlIs(1)}"
+            .. "%<"
+            .. "%{BlPad(get(b:,'bl_filepath',''))}"
+            .. "%{%BlPad(get(b:,'bl_mhr',''))%}"
+            .. "%{BlPad(get(b:,'bl_lsp_servers',''))}"
+            .. "%="
+            .. "%{BlPad(get(b:,'bl_diagnostics',''))}"
+            .. "%{BlPad(get(b:,'bl_indent_style',''))}"
+            .. "%{BlInarm(BlPad(BlWrap(get(b:,'gitsigns_head',''),'(',')')))}"
+            .. "%{BlPad(get(b:,'bl_current_working_dir',''))}"
+            .. "%{BlIs(1)}"
+            .. "%Y"
+            .. "%{BlIs(1)}",
+          items = {
+            bareline.items.vim_mode,
+            bareline.items.filepath,
+            bareline.items.lsp_servers,
+            bareline.items.mhr,
+            bareline.items.diagnostics,
+            bareline.items.indent_style,
+            bareline.items.current_working_dir,
+          },
+        },
+        alt_statuslines = {
+          bareline.alt_statuslines.plugin,
+        },
+        items = {
+          mhr = {
+            display_modified = true,
+          },
+        },
+        logging = {
+          enabled = false,
+          level = vim.log.levels.INFO,
+        },
+      })
+    end,
   },
   { -- zenbones
     "zenbones-theme/zenbones.nvim",
