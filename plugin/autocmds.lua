@@ -115,7 +115,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
       and not vim.tbl_contains(vim.tbl_values(vim.v.argv), "-c")
       and not is_session
     then
-      vim.cmd("Telescope find_files layout_config={height=0.5}")
+      vim.cmd("Refer Files")
     end
   end,
 })
