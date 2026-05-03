@@ -3,15 +3,15 @@ local lint = require("lint")
 
 -- Tools per language
 local languages = {
-  ["*"]    = { formatter = { "trim_whitespace", "trim_newlines" }, linter = nil },
-  bib      = { formatter = { "bibtex-tidy" }, linter = nil },
-  json     = { formatter = { "jq" }, linter = nil },
-  julia    = { formatter = { "runic" }, linter = nil },
-  lua      = { formatter = { "stylua" }, linter = { "luacheck" } },
+  ["*"] = { formatter = { "trim_whitespace", "trim_newlines" }, linter = nil },
+  bib = { formatter = { "bibtex-tidy" }, linter = nil },
+  json = { formatter = { "jq" }, linter = nil },
+  julia = { formatter = { "runic" }, linter = nil },
+  lua = { formatter = { "stylua" }, linter = { "luacheck" } },
   markdown = { formatter = { "injected" }, linter = nil },
-  python   = { formatter = { "ruff" }, linter = { "mypy" } },
-  sh       = { formatter = { "shfmt" }, linter = { "shellcheck" } },
-  typst    = { formatter = { "typstyle" }, linter = nil },
+  python = { formatter = { "ruff" }, linter = { "mypy" } },
+  sh = { formatter = { "shfmt" }, linter = { "shellcheck" } },
+  typst = { formatter = { "typstyle" }, linter = nil },
 }
 
 -- Custom formatters
@@ -25,25 +25,6 @@ conform.formatters = {
     args = { "-i" },
   },
 }
-
--- Ensure tools are installed
-require("mason-tool-installer").setup({
-  automatic_installation = true,
-  ensure_installed = vim
-    .iter(vim.tbl_values(languages))
-    :map(function(kv) return vim.tbl_values(kv) end)
-    :flatten(math.huge)
-    :filter(function(v)
-      local ignore = {
-        "injected",
-        "trim_whitespace",
-        "trim_newlines",
-      }
-      return not vim.tbl_contains(ignore, v)
-        and not vim.tbl_contains(vim.tbl_keys(conform.formatters), v)
-    end)
-    :totable(),
-})
 
 -- Tool configuration
 lint.linters_by_ft = {}
@@ -75,3 +56,76 @@ vim.keymap.set(
   function() require("conform").format({ async = true }) end,
   { desc = "Format buffer" }
 )
+
+-- Completion
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(ev)
+    local name, kind = ev.data.spec.name, ev.data.kind
+    if name == "blink.cmp" and (kind == "install" or kind == "update") then
+      vim.notify("[pkg] Rebuilding blink.cmp", vim.log.levels.INFO)
+      require("blink.cmp").build():wait(60000)
+    end
+  end,
+})
+
+require("blink.cmp").setup({
+  keymap = {
+    preset = "default",
+    ["<C-x><C-o>"] = { "show", "fallback" },
+    ["<C-x><C-n>"] = {
+      function(cmp) return cmp.show({ providers = { "buffer" } }) end,
+      "fallback",
+    },
+    ["<C-x><C-f>"] = {
+      function(cmp) return cmp.show({ providers = { "path" } }) end,
+      "fallback",
+    },
+  },
+  completion = {
+    documentation = {
+      auto_show = true,
+      window = {
+        min_width = 64,
+        max_width = 64,
+        max_height = 32,
+        border = { "🬕", "🬂", "🬨", "▐", "🬷", "🬭", "🬲", "▌" },
+      },
+    },
+    menu = {
+      auto_show_delay_ms = 500,
+      border = { "🬕", "🬂", "🬨", "▐", "🬷", "🬭", "🬲", "▌" },
+      draw = {
+        columns = {
+          { "label", "label_description", gap = 1 },
+          { "kind" },
+        },
+      },
+    },
+  },
+  sources = {
+    default = { "lazydev", "lsp", "snippets", "omni" },
+    providers = {
+      lazydev = {
+        name = "LazyDev",
+        module = "lazydev.integrations.blink",
+        score_offset = 100,
+      },
+    },
+  },
+  fuzzy = {
+    sorts = {
+      "exact",
+      "score",
+      "sort_text",
+    },
+  },
+})
+
+-- TODO: check https://github.com/disrupted/blink-cmp-conventional-commits
+
+-- TODO: See how i could imlpement something like this
+-- local cmp = require("blink.cmp")
+-- if cmp.windows and cmp.windows.autocomplete then
+--   cmp.on_open(vim.cmd("Copilot disable"))
+--   cmp.on_close(vim.cmd("Copilot enable"))
+-- end

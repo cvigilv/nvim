@@ -51,9 +51,11 @@ vim.pack.add({
   gh("WhoIsSethDaniel/mason-tool-installer.nvim"),
   gh("mfussenegger/nvim-lint"),
   gh("stevearc/conform.nvim"),
+  gh("saghen/blink.lib"),
+  gh("saghen/blink.cmp"),
 
   -- mini (mini.lua)
-  gh("echasnovski/mini.nvim"),
+  -- gh("echasnovski/mini.nvim"),
 
   -- LLM (llm.lua)
   gh("github/copilot.vim"),
