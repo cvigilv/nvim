@@ -18,9 +18,7 @@ vim.pack.add({
   gh("numToStr/Navigator.nvim"),
   gh("stevearc/oil.nvim"),
   gh("nvim-tree/nvim-web-devicons"),
-  gh("nvim-telescope/telescope.nvim"),
-  -- gh("juniorsundar/refer.nvim"),
-  cvv("refer.nvim"),
+  gh("juniorsundar/refer.nvim"),
   gh("nvim-lua/plenary.nvim"),
 
   -- UI (ui.lua)
@@ -31,8 +29,8 @@ vim.pack.add({
   gh("zenbones-theme/zenbones.nvim"),
 
   -- PKM (pkm.lua)
-  gh("nvim-orgmode/telescope-orgmode.nvim"),
-  cvv("telescope-zotero.nvim"),
+  -- gh("nvim-orgmode/telescope-orgmode.nvim"),
+  -- cvv("telescope-zotero.nvim"),
   gh("nvim-orgmode/orgmode"),
   cvv("denote.nvim"),
 
