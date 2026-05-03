@@ -61,19 +61,55 @@ vim.pack.add({
 })
 
 -- Add commands for vim.pack
-vim.api.nvim_buf_create_user_command(
-  0,
-  "PackUpdate",
-  "lua vim.pack.update()",
-  { desc = "Update packages" }
-)
+vim.api.nvim_create_user_command("Pack", function(opts)
+  -- Core
+  local cmd = opts.fargs
+  if #cmd == 0 then
+    error("[pack] No operation specified")
+  elseif cmd[1] == "add" then
+    vim.pack.add(require("lib.tables").tbl_slice(cmd, 2))
+  elseif cmd[1] == "delete" then
+    vim.pack.del(require("lib.tables").tbl_slice(cmd, 2))
+  elseif cmd[1] == "update" then
+    vim.pack.update()
+  elseif cmd[1] == "sync" then
+    vim.pack.update(nil, { target = "lockfile" })
+  elseif cmd[1] == "clean" then
+    local toclean = vim
+      .iter(vim.pack.get())
+      :filter(function(x) return not x.active end)
+      :map(function(x) return x.spec.name end)
+      :totable()
+    if #toclean == 0 then
+      print("No packages to clean")
+    else
+      print("Cleaning packages: " .. table.concat(toclean, ", "))
+      vim.pack.del(toclean)
+    end
+  else
+    error("[pack] Unsupported operation " .. opts.fargs[1])
+  end
+end, {
+  desc = "Pack user commands",
+  nargs = "*",
+  complete = function()
+    -- Builtin
+    local subcommands = {
+      "add",
+      "update",
+      "delete",
+      "clean",
+      "sync",
+    }
+    return subcommands
+  end,
+})
 
 -- Configure packages
 local plugin_dir = vim.fn.stdpath("config") .. "/lua/pkg"
 for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
   if file:match("%.lua$") and file ~= "init.lua" then
     local ok, _ = pcall(require, "pkg." .. file:gsub("%.lua$", ""))
-    if not ok then error("Error loading plugin config: " .. file) end
+    if not ok then error("[pack] Error loading plugin config: " .. file) end
   end
 end
-
