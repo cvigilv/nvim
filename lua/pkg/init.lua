@@ -40,13 +40,10 @@ vim.pack.add({
 
   -- Syntax (syntax.lua)
   gh("nvim-treesitter/nvim-treesitter"),
-  gh("kaarmu/typst.vim"),
 
   -- Tooling (tooling.lua)
   gh("folke/lazydev.nvim"),
   gh("danymat/neogen"),
-  gh("williamboman/mason.nvim"),
-  gh("WhoIsSethDaniel/mason-tool-installer.nvim"),
   gh("mfussenegger/nvim-lint"),
   gh("stevearc/conform.nvim"),
   gh("saghen/blink.lib"),
