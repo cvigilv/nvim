@@ -20,6 +20,8 @@ vim.pack.add({
   gh("nvim-tree/nvim-web-devicons"),
   gh("juniorsundar/refer.nvim"),
   gh("nvim-lua/plenary.nvim"),
+  gh("nvim-telescope/telescope.nvim"),
+  gh("jmbuhr/telescope-zotero.nvim"),
 
   -- UI (ui.lua)
   gh("Aasim-A/scrollEOF.nvim"),
@@ -40,6 +42,7 @@ vim.pack.add({
 
   -- Syntax (syntax.lua)
   gh("nvim-treesitter/nvim-treesitter"),
+  gh("kaarmu/typst.vim"),
 
   -- Tooling (tooling.lua)
   gh("folke/lazydev.nvim"),

@@ -29,7 +29,7 @@
       "src": "https://github.com/github/copilot.vim"
     },
     "denote.nvim": {
-      "rev": "174cb96e4eee4b957827ea6f9f1f38280443c4db",
+      "rev": "ed6161ab0150ac806449667cb9127f4f555f8529",
       "src": "file:///Users/carlos/git/denote.nvim"
     },
     "diferente.nvim": {
@@ -99,6 +99,18 @@
     "sqlite.lua": {
       "rev": "50092d60feb242602d7578398c6eb53b4a8ffe7b",
       "src": "https://github.com/kkharji/sqlite.lua"
+    },
+    "telescope-zotero.nvim": {
+      "rev": "d682dbc430cbe1a3f7b28d26b97ec27f0f14df9f",
+      "src": "https://github.com/jmbuhr/telescope-zotero.nvim"
+    },
+    "telescope.nvim": {
+      "rev": "f04ab730b8f9c6bf3f54a206d0dcddfd70c52d59",
+      "src": "https://github.com/nvim-telescope/telescope.nvim"
+    },
+    "typst.vim": {
+      "rev": "1d5436c0f55490893892441c0eca55e6cdf4916c",
+      "src": "https://github.com/kaarmu/typst.vim"
     },
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
