@@ -58,7 +58,6 @@ local function get_attachment_options(item)
     table.insert(options, {
       type = "pdf",
       path = item.attachment.path,
-      link_mode = item.attachment.link_mode,
     })
   end
   -- DOI...
@@ -98,30 +97,13 @@ end
 
 ---Opens attachments for a Zotero bibliography item
 ---@param item table The Zotero bibliography item containing attachment information
----@param opts ZoteroNotes.Configuration Plugin configuration
-local function open_attachment(item, opts)
+local function open_attachment(item)
   local options = get_attachment_options(item)
 
   local function execute_option(choice)
     if choice.type == "pdf" then
       local file_path = choice.path
-      if choice.link_mode == 1 then -- 1 typically means stored file
-        local zotero_storage = vim.fn.expand(opts.zotero_storage_path)
-        -- Remove the ':storage' prefix from the path
-        file_path = file_path:gsub("^storage:", "")
-        -- Use a wildcard to search for the PDF file in subdirectories
-        local search_path = zotero_storage .. "/*/" .. file_path
-        local matches = vim.fn.glob(search_path, true, true) -- Returns a list of matching files
-        if #matches > 0 then
-          file_path = matches[1] -- Use the first match
-        else
-          vim.notify("[zotero] File not found: " .. search_path, vim.log.levels.ERROR)
-          return
-        end
-      end
-      -- Debug: Print the full path
-      vim.notify("[zotero] Attempting to open PDF: " .. file_path, vim.log.levels.INFO)
-      if file_path ~= 0 then
+      if vim.fn.filereadable(file_path) == 1 then
         open_url(file_path, "pdf")
       else
         vim.notify("[zotero] File not found: " .. file_path, vim.log.levels.ERROR)
@@ -254,6 +236,11 @@ local function create_note(entry, opts)
   vim.fn.writefile(frontmatter, vim.fs.joinpath(opts.denote_silo_path, filename))
   vim.cmd("e " .. vim.fs.joinpath(opts.denote_silo_path, filename))
   vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
+
+  -- Open PDF in Sioyek if available
+  if entry.value.attachment and entry.value.attachment.path then
+    vim.fn.jobstart({ "sioyek", entry.value.attachment.path }, { detach = true })
+  end
 end
 
 ---Processes selected Zotero bibliography item
@@ -276,18 +263,13 @@ end
 
 --- Create or open note associated to Zotero entry
 function M.picker(opts)
-  -- Connect to databases
-  if
-    not database.connect({
-      zotero_db_path = opts.zotero_db_path,
-      better_bibtex_db_path = opts.better_bibtex_db_path,
-    })
-  then
-    error("Failed to connect to Zotero databases")
+  -- Load library JSON
+  if not database.load(opts.library_json_path) then
+    error("Failed to load Zotero library from " .. opts.library_json_path)
     return
   end
 
-  -- Get items from database
+  -- Get items from library
   local items = database.get_items()
   if not items or #items == 0 then
     error("No items found in database")
@@ -315,11 +297,11 @@ function M.picker(opts)
         -- o/<C-o>: Open item
         map("i", "<C-o>", function()
           local entry = action_state.get_selected_entry()
-          open_attachment(entry.value, opts)
+          open_attachment(entry.value)
         end)
         map("n", "o", function()
           local entry = action_state.get_selected_entry()
-          open_attachment(entry.value, opts)
+          open_attachment(entry.value)
         end)
         return true
       end,
