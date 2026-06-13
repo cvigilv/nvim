@@ -33,6 +33,14 @@ local specs = lush.extends({ base }).with(function(injected_functions)
     Number({ fg = accent.saturation(100) }),
     sym("Function")({ fg = counter.saturation(100) }),
     sym("Special")({ fg = counter.saturation(100) }),
+
+    -- TODO: Replace the default menu highlight groups (Pmenu & co.) with this values
+    BlinkCmpMenuBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpMenu({ fg = base.Pmenu.fg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpMenuSelection({ bg = base.Visual.bg, bold = true }),
+    BlinkCmpKind({ fg = base.Comment.fg, bg = base.Normal.bg.darken(5), italic = true }),
+    BlinkCmpDocBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpDoc({ fg = base.Pmenu.fg, bg = base.Normal.bg.darken(5) }),
   }
 end)
 lush.apply(lush.compile(specs))
