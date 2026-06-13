@@ -8,14 +8,6 @@
       "rev": "b8ec59291dc4499cccd2b235a5c09369935f6fb2",
       "src": "https://github.com/hernancerm/bareline.nvim"
     },
-    "blink.cmp": {
-      "rev": "82efc953a6121822fda1974241a4d1af74c6c026",
-      "src": "https://github.com/saghen/blink.cmp"
-    },
-    "blink.lib": {
-      "rev": "f29d8bac6549bc1e7d699c83f680823d7def98bd",
-      "src": "https://github.com/saghen/blink.lib"
-    },
     "codecompanion.nvim": {
       "rev": "b1cbe52ecd71e7b0ed43ac1dc6eb3aab4099db00",
       "src": "https://github.com/olimorris/codecompanion.nvim"
@@ -87,10 +79,6 @@
     "quicker.nvim": {
       "rev": "4a6883cb13fe097a20a046eb55f6dffd239276e3",
       "src": "https://github.com/stevearc/quicker.nvim"
-    },
-    "refer.nvim": {
-      "rev": "d12dd85202bcf7e275881b220cb40a81d7a4c2da",
-      "src": "https://github.com/juniorsundar/refer.nvim"
     },
     "scrollEOF.nvim": {
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",

@@ -49,8 +49,6 @@ vim.pack.add({
   gh("danymat/neogen"),
   gh("mfussenegger/nvim-lint"),
   gh("stevearc/conform.nvim"),
-  gh("saghen/blink.lib"),
-  gh("saghen/blink.cmp"),
 
   -- mini (mini.lua)
   -- gh("echasnovski/mini.nvim"),
@@ -109,9 +107,6 @@ end, {
     return subcommands
   end,
 })
-
--- Ensure personal plugins are updated at startup
-
 
 -- Ensure libraries are setup before anything else
 vim.g.sqlite_clib_path = "/opt/homebrew/Cellar/sqlite/3.49.1/lib/libsqlite3.dylib"
