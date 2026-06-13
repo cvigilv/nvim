@@ -74,11 +74,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       map("<leader>lS", vim.lsp.buf.workspace_symbol, "See Workspace Symbols")
     end
     if client:supports_method("textDocument/hover") then
-      map("K", function()
-        vim.lsp.buf.hover({
-          border = { "▛", "▀", "▜", "▐", "▟", "▄", "▙", "▌" },
-        })
-      end, "Hover")
+      map("K", vim.lsp.buf.hover, "Hover")
     end
 
     require("lsp")

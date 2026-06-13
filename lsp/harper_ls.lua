@@ -44,28 +44,30 @@ return {
   },
   root_markers = { ".git" },
   settings = {
-    userDictPath = "",
-    fileDictPath = "",
-    linters = {
-      SpellCheck = is_writing_ft(),
-      SpelledNumbers = false,
-      AnA = true,
-      SentenceCapitalization = is_writing_ft(),
-      UnclosedQuotes = true,
-      WrongQuotes = false,
-      LongSentences = is_writing_ft(),
-      RepeatedWords = true,
-      Spaces = true,
-      Matcher = true,
-      CorrectNumberSuffix = true,
+    ["harper-ls"] = {
+      userDictPath = "/Users/carlos/.config/harperls/dict/global",
+      fileDictPath = "",
+      linters = {
+        SpellChecker = false,
+        SpelledNumbers = true,
+        AnA = true,
+        SentenceCapitalization = is_writing_ft(),
+        UnclosedQuotes = true,
+        WrongQuotes = false,
+        LongSentences = is_writing_ft(),
+        RepeatedWords = true,
+        Spaces = true,
+        CorrectNumberSuffix = true,
+        BoringWords = true,
+      },
+      codeActions = {
+        ForceStable = false,
+      },
+      markdown = {
+        IgnoreLinkTitle = false,
+      },
+      diagnosticSeverity = "hint",
+      isolateEnglish = false,
     },
-    codeActions = {
-      ForceStable = false,
-    },
-    markdown = {
-      IgnoreLinkTitle = false,
-    },
-    diagnosticSeverity = "hint",
-    isolateEnglish = true,
   },
 }

@@ -1,6 +1,3 @@
--- Plugins
-vim.b.miniindentscope_disable = true
-
 -- Options
 vim.opt_local.textwidth = 96
 vim.opt_local.cc = ""

@@ -1,9 +1,9 @@
 -- Picker
 ---@diagnostic disable-next-line: missing-fields
 require("zotero").setup({
-  zotero="~/Zotero/zotero.sqlite",
-  better_bibtex_db_path=nil,
-  pdf_opener="sioyek",
+  zotero = "~/Zotero/zotero.sqlite",
+  better_bibtex_db_path = nil,
+  pdf_opener = "sioyek",
   ft = {
     org = {
       insert_key_formatter = function(citekey) return "[cite:@" .. citekey .. "]" end,
@@ -117,7 +117,13 @@ require("telescope").setup({
     live_grep = { prompt_title = false, prompt_prefix = "[Live Grep] " },
     builtin = { prompt_title = false, prompt_prefix = "[Pickers] ", previewer = false },
   },
+  extensions = {
+    ["ui-select"] = {
+      require("telescope.themes").get_dropdown(),
+    },
+  },
 })
+require("telescope").load_extension("ui-select")
 
 local telescope_builtin = require("telescope.builtin")
 vim.keymap.set(

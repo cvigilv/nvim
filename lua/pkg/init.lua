@@ -22,6 +22,7 @@ vim.pack.add({
   gh("nvim-telescope/telescope.nvim"),
   gh("nvim-orgmode/telescope-orgmode.nvim"),
   gh("jmbuhr/telescope-zotero.nvim"),
+  gh("nvim-telescope/telescope-ui-select.nvim"),
 
   -- UI (ui.lua)
   gh("Aasim-A/scrollEOF.nvim"),
@@ -31,8 +32,6 @@ vim.pack.add({
   gh("zenbones-theme/zenbones.nvim"),
 
   -- PKM (pkm.lua)
-  -- gh("nvim-orgmode/telescope-orgmode.nvim"),
-  -- cvv("telescope-zotero.nvim"),
   gh("nvim-orgmode/orgmode"),
   cvv("denote.nvim"),
 
@@ -71,9 +70,7 @@ vim.api.nvim_create_user_command("Pack", function(opts)
     vim.pack.del(_tbl.tbl_slice(cmd, 2))
   elseif cmd[1] == "update" then
     local pkgs = nil
-    if #cmd > 1 then
-      pkgs = _tbl.tbl_slice(cmd, 2)
-    end
+    if #cmd > 1 then pkgs = _tbl.tbl_slice(cmd, 2) end
     vim.pack.update(pkgs)
   elseif cmd[1] == "sync" then
     vim.pack.update(nil, { target = "lockfile" })
@@ -119,5 +116,3 @@ for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
     if not ok then error("[pack] Error loading plugin config: " .. file) end
   end
 end
-
-
