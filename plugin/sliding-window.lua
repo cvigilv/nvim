@@ -14,7 +14,7 @@ local config = {
   --   "close"   -> close the sliding window too
   --   "replace" -> promote the sliding window's buffer into the parent's spot
   --   "prompt"  -> ask which of the two to do
-  on_parent_close = "close",
+  on_parent_close = "prompt",
 }
 
 -- Registry of live sliding windows: [sliding_win] = { parent = <win> }
@@ -59,6 +59,15 @@ local function open_edge(border, edge)
   end
   return b
 end
+
+-- Border highlight group for sliding windows. Links to `FloatBorder` by default
+-- (so a colorscheme can override `SlidingBorder` to taste) and is re-applied on
+-- ColorScheme, since `:highlight clear` in the colorschemes drops it otherwise.
+local function set_highlights()
+  vim.api.nvim_set_hl(0, "SlidingBorder", { link = "FloatBorder", default = true })
+end
+set_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", { group = augroup, callback = set_highlights })
 
 --- Merge `FloatBorder:SlidingBorder` into a window's winhighlight without
 --- clobbering existing settings.
@@ -116,26 +125,29 @@ local function animate(win, from, to, ctx, step_fn)
   local step_ms = math.floor(config.animation_ms / steps)
   local delta = (to - from) / steps
   local value, i = from, 0
-  local timer = (vim.uv or vim.loop).new_timer()
+  local timer = assert((vim.uv or vim.loop).new_timer())
+
+  -- Stop and close exactly once: `schedule_wrap` can queue several callbacks
+  -- before any runs, so guard against closing an already-closing handle.
+  local function finish()
+    if not timer:is_closing() then
+      timer:stop()
+      timer:close()
+    end
+  end
 
   timer:start(
     step_ms,
     step_ms,
     vim.schedule_wrap(function()
+      if timer:is_closing() then return end
       i = i + 1
-      if not vim.api.nvim_win_is_valid(win) then
-        timer:stop()
-        timer:close()
-        return
-      end
+      if not vim.api.nvim_win_is_valid(win) then return finish() end
       value = value + delta
       local cfg = step_fn(ctx, math.floor(value))
       cfg.relative, cfg.win = "win", ctx.win
       vim.api.nvim_win_set_config(win, cfg)
-      if i >= steps then
-        timer:stop()
-        timer:close()
-      end
+      if i >= steps then finish() end
     end)
   )
 end
@@ -209,7 +221,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
       if info.parent == closed then affected[#affected + 1] = win end
     end
     for _, win in ipairs(affected) do
-      handle_parent_close(win, closed)
+      handle_parent_close(win, closed --[[@as integer]])
     end
   end,
 })
