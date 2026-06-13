@@ -186,6 +186,28 @@ local function handle_parent_close(win, parent)
   end
 end
 
+--- Collect the sliding windows attached to a given parent. Returns a list so the
+--- caller can iterate while handlers mutate the registry.
+---@param parent integer The parent window handle
+---@return integer[] wins
+local function children_of(parent)
+  local wins = {}
+  for win, info in pairs(sliding) do
+    if info.parent == parent then wins[#wins + 1] = win end
+  end
+  return wins
+end
+
+--- Count normal (non-floating) windows in the current tabpage.
+---@return integer
+local function normal_win_count()
+  local n = 0
+  for _, w in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_config(w).relative == "" then n = n + 1 end
+  end
+  return n
+end
+
 -- Expand a sliding window on enter, shrink it on leave. One autocmd each, driven
 -- by the registry, instead of a fresh pair per `slide()` call.
 vim.api.nvim_create_autocmd("WinEnter", {
@@ -215,13 +237,28 @@ vim.api.nvim_create_autocmd("WinClosed", {
       sliding[closed] = nil
       return
     end
-    -- A parent closed: collect first (handlers mutate `sliding`), then react.
-    local affected = {}
-    for win, info in pairs(sliding) do
-      if info.parent == closed then affected[#affected + 1] = win end
-    end
-    for _, win in ipairs(affected) do
+    -- A parent closed (and other windows remain): react per direction.
+    for _, win in
+      ipairs(children_of(closed --[[@as integer]]))
+    do
       handle_parent_close(win, closed --[[@as integer]])
+    end
+  end,
+})
+
+-- Closing the *last* normal window quits nvim before WinClosed can react, so it
+-- never reaches the parent-close logic. Intercept that case here: if the window
+-- being quit is a sliding window's parent and the only normal window left, run
+-- the same handling. A "replace" then keeps nvim alive by adding a real window.
+vim.api.nvim_create_autocmd("QuitPre", {
+  group = augroup,
+  callback = function()
+    local parent = vim.api.nvim_get_current_win()
+    local children = children_of(parent)
+    -- Multi-window closes are handled by WinClosed; only step in for the last one.
+    if #children == 0 or normal_win_count() > 1 then return end
+    for _, win in ipairs(children) do
+      handle_parent_close(win, parent)
     end
   end,
 })
