@@ -18,9 +18,9 @@ vim.pack.add({
   gh("numToStr/Navigator.nvim"),
   gh("stevearc/oil.nvim"),
   gh("nvim-tree/nvim-web-devicons"),
-  gh("juniorsundar/refer.nvim"),
   gh("nvim-lua/plenary.nvim"),
   gh("nvim-telescope/telescope.nvim"),
+  gh("nvim-orgmode/telescope-orgmode.nvim"),
   gh("jmbuhr/telescope-zotero.nvim"),
 
   -- UI (ui.lua)
@@ -63,15 +63,20 @@ vim.pack.add({
 -- Add commands for vim.pack
 vim.api.nvim_create_user_command("Pack", function(opts)
   -- Core
+  local _tbl = require("lib.tables")
   local cmd = opts.fargs
   if #cmd == 0 then
     error("[pack] No operation specified")
   elseif cmd[1] == "add" then
-    vim.pack.add(require("lib.tables").tbl_slice(cmd, 2))
+    vim.pack.add(_tbl.tbl_slice(cmd, 2))
   elseif cmd[1] == "delete" then
-    vim.pack.del(require("lib.tables").tbl_slice(cmd, 2))
+    vim.pack.del(_tbl.tbl_slice(cmd, 2))
   elseif cmd[1] == "update" then
-    vim.pack.update()
+    local pkgs = nil
+    if #cmd > 1 then
+      pkgs = _tbl.tbl_slice(cmd, 2)
+    end
+    vim.pack.update(pkgs)
   elseif cmd[1] == "sync" then
     vim.pack.update(nil, { target = "lockfile" })
   elseif cmd[1] == "clean" then
@@ -105,6 +110,12 @@ end, {
   end,
 })
 
+-- Ensure personal plugins are updated at startup
+
+
+-- Ensure libraries are setup before anything else
+vim.g.sqlite_clib_path = "/opt/homebrew/Cellar/sqlite/3.49.1/lib/libsqlite3.dylib"
+
 -- Configure packages
 local plugin_dir = vim.fn.stdpath("config") .. "/lua/pkg"
 for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
@@ -113,3 +124,5 @@ for _, file in ipairs(vim.fn.readdir(plugin_dir)) do
     if not ok then error("[pack] Error loading plugin config: " .. file) end
   end
 end
+
+

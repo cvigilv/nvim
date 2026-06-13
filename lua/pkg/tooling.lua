@@ -20,10 +20,6 @@ conform.formatters = {
     command = "julia",
     args = { "--project=@runic", "-e", "using Runic; exit(Runic.main(ARGS))" },
   },
-  typstyle = {
-    command = "typstyle",
-    args = { "-i" },
-  },
 }
 
 -- Tool configuration
@@ -92,7 +88,7 @@ require("blink.cmp").setup({
       },
     },
     menu = {
-      auto_show_delay_ms = 500,
+      auto_show_delay_ms = 0,
       border = { "🬕", "🬂", "🬨", "▐", "🬷", "🬭", "🬲", "▌" },
       draw = {
         columns = {
