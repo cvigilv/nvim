@@ -64,12 +64,11 @@ local function lsp_restart(name)
     clients = { name }
   end
 
-  --
-  for _, name in ipairs(clients) do
-    if vim.lsp.config[name] == nil then
-      vim.notify(("[lsp] Invalid server name '%s'"):format(name))
+  for _, n in ipairs(clients) do
+    if vim.lsp.config[n] == nil then
+      vim.notify(("[lsp] Invalid server name '%s'"):format(n))
     else
-      vim.lsp.enable(name, false)
+      vim.lsp.enable(n, false)
     end
   end
 
@@ -97,7 +96,7 @@ local function lsp_toggle(name)
 end
 
 local function lsp_log()
-  local log_path = vim.lsp.get_log_path()
+  local log_path = vim.lsp.log.get_filename()
   vim.cmd.tabnew(log_path)
   vim.cmd.normal("G")
   vim.keymap.set("n", "q", function() vim.api.nvim_win_close(0, true) end, { buffer = true })
@@ -144,6 +143,7 @@ vim.api.nvim_create_user_command("Lsp", lsp_cmd, {
         if not name then break end
         table.insert(lsps, vim.fn.fnamemodify(name, ":t:r"))
       end
+      vim.print(lsps)
       return lsps
     end
     return {}

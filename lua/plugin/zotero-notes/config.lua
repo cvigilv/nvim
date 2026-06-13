@@ -4,14 +4,12 @@
 
 ---@class ZoteroNotes.Configuration
 ---@field denote_silo_path string
----@field bibtex_library_path string
----@field zotero_db_path string
+---@field library_json_path string
 
 ---@type ZoteroNotes.Configuration
 local defaults = {
   denote_silo_path = "~/denote",
-  bibtex_library_path = "~/Zotero/better-bibtex/library.json",
-  zotero_db_path = "~/Zotero/zotero.sqlite",
+  library_json_path = "~/Zotero/better-bibtex/library.json",
 }
 
 local M = {}
@@ -27,14 +25,12 @@ M.update_config = function(opts)
   vim.validate({
     -- Options
     ["denote_silo_path"] = { opts.denote_silo_path, "string" },
-    ["bibtex_library_path"] = { opts.bibtex_library_path, "string" },
-    ["zotero_db_path"] = { opts.zotero_db_path, "string" },
+    ["library_json_path"] = { opts.library_json_path, "string" },
   })
 
   -- Process some options
-  opts.bibtex_library_path = vim.fn.expand(opts.bibtex_library_path)
+  opts.library_json_path = vim.fn.expand(opts.library_json_path)
   opts.denote_silo_path = vim.fn.expand(opts.denote_silo_path)
-  opts.zotero_db_path = vim.fn.expand(opts.zotero_db_path)
 
   if vim.fn.isdirectory(opts.denote_silo_path) == 0 then
     vim.fn.mkdir(opts.denote_silo_path, "p")

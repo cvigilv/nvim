@@ -1,204 +1,114 @@
----@module "spec.ui"
----@author Carlos Vigil-Vásquez
----@license MIT 2025
+-- Zenbones and friends
+vim.g.zenbones_lightness = "bright"
+vim.g.zenbones_darkness = "stark"
+vim.g.zenbones_lighten_noncurrent_window = true
+vim.g.zenbones_darken_noncurrent_window = true
+vim.g.zenbones_colorize_diagnostic_underline_text = true
 
-return {
-  { -- quicker.nvim
-    "stevearc/quicker.nvim",
-    filetype = "qf",
-    opts = {
-      buflisted = false,
-      colorcolumn = "",
-      number = true,
-      relativenumber = false,
-      signcolumn = "auto",
-      winfixheight = true,
-      wrap = false,
-      winfixbuf = true,
+vim.g.neobones_lightness = "bright"
+vim.g.neobones_darkness = "stark"
+vim.g.neobones_lighten_noncurrent_window = true
+vim.g.neobones_darken_noncurrent_window = true
+vim.g.neobones_colorize_diagnostic_underline_text = true
+
+vim.g.zenwritten_lightness = "bright"
+vim.g.zenwritten_darkness = "stark"
+vim.g.zenwritten_lighten_noncurrent_window = true
+vim.g.zenwritten_darken_noncurrent_window = true
+vim.g.zenwritten_colorize_diagnostic_underline_text = true
+
+-- Customizations
+local augroup = vim.api.nvim_create_augroup("zenbones", { clear = true })
+vim.api.nvim_create_autocmd("ColorScheme", {
+  desc = "Override color scheme",
+  pattern = { "zen*", "*bones" },
+  callback = function(ev)
+    local lush = require("lush")
+    local base = require(ev.match)
+
+    local function modify_colorscheme()
+      -- Detect current background for out-of-bounds regions
+      local is_dark = vim.o.background == "dark"
+      local bg = is_dark and "#000000" or "#ffffff"
+
+      local specs = lush.parse(
+        function()
+          return {
+            OutOfBounds({ bg = base.NormalNC.bg }),
+            Folded({}),
+            MsgArea({ bg = bg }),
+            ModeArea({ bg = bg }),
+            TabLineFill({ bg = bg }),
+            NormalFloat({ bg = base.NormalNC.bg }),
+            FloatBorder({ fg = base.Normal.bg, bg = base.NormalNC.bg }),
+            NormalNC({ base.Normal }),
+            StatusLine({ base.StatusLine, bold = true }),
+            StatusLineNC({ base.StatusLineNC, italic = true }),
+          }
+        end
+      )
+      -- Apply specs using lush tool-chain
+      lush.apply(lush.compile(specs))
+
+      vim.cmd("hi! link @org.keyword.face.TODO DiagnosticVirtualTextError")
+      vim.cmd("hi! link @org.keyword.face.NEXT DiagnosticVirtualTextHint")
+      vim.cmd("hi! link @org.keyword.face.PROG DiagnosticVirtualTextWarn")
+      vim.cmd("hi! link @org.keyword.face.DONE DiagnosticVirtualTextOk")
+      vim.cmd("hi! link @org.keyword.face.CNCL DiagnosticVirtualTextOk")
+      vim.cmd(
+        "hi! @org.keyword.face.INTR.org ctermbg=0 ctermfg=255 guibg=#000000 guifg=#ffffff"
+          .. (is_dark and " gui=reverse cterm=reverse" or "")
+      )
+    end
+    modify_colorscheme()
+
+    vim.api.nvim_create_autocmd("OptionSet", {
+      pattern = "background",
+      callback = modify_colorscheme,
+      group = augroup,
+    })
+  end,
+  group = augroup,
+})
+
+local bareline = require("bareline")
+bareline.setup({
+  statusline = {
+    value = "%{BlIs(1)}"
+      .. "%{BlInahide(get(b:,'bl_vim_mode',''))}"
+      .. "%{BlIs(1)}"
+      .. "%<"
+      .. "%{BlPad(get(b:,'bl_filepath',''))}"
+      .. "%{%BlPad(get(b:,'bl_mhr',''))%}"
+      .. "%{BlPad(get(b:,'bl_lsp_servers',''))}"
+      .. "%="
+      .. "%{BlPad(get(b:,'bl_diagnostics',''))}"
+      .. "%{BlPad(get(b:,'bl_indent_style',''))}"
+      .. "%{BlInarm(BlPad(BlWrap(get(b:,'gitsigns_head',''),'(',')')))}"
+      .. "%{BlPad(get(b:,'bl_current_working_dir',''))}"
+      .. "%{BlIs(1)}"
+      .. "%Y"
+      .. "%{BlIs(1)}",
+    items = {
+      bareline.items.vim_mode,
+      bareline.items.filepath,
+      bareline.items.lsp_servers,
+      bareline.items.mhr,
+      bareline.items.diagnostics,
+      bareline.items.indent_style,
+      bareline.items.current_working_dir,
     },
   },
-  { -- which-key
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    config = function()
-      local wk = require("which-key")
-      wk.setup({
-        preset = "helix",
-        delay = 150,
-        filter = function(mapping) return mapping.desc and mapping.desc ~= "" end,
-        spec = {},
-        notify = true,
-        plugins = {
-          marks = false,
-          registers = true,
-          spelling = { suggestions = 16 },
-          presets = {
-            operators = true,
-            motions = true,
-            text_objects = true,
-            windows = true,
-            nav = true,
-            z = true,
-            g = true,
-          },
-        },
-        win = {
-          border = { " ", " ", " ", " ", " ", " ", " ", " " },
-          title_pos = "center",
-          wo = { winblend = 10, anchor = "NE" },
-        },
-        layout = {
-          width = { max = 16 },
-        },
-        icons = {
-          breadcrumb = "->",
-          separator = "   ",
-          mappings = false,
-        },
-        disable = {
-          ft = { "TelescopePrompt", "Lazy" },
-          bt = {},
-        },
-      })
-      -- Keymap groupings
-      wk.add({
-        { "<leader>", icon = "", group = "+leader" },
-        { "<leader>f", icon = "", group = "+finder" },
-        { "<leader>g", icon = "", group = "+git" },
-        { "<leader>z", icon = "", group = "+zettelkasten" },
-        { "<leader>l", icon = "", group = "+lsp" },
-        { "<leader>d", icon = "", group = "+diagnostics" },
-        { "<leader>s", icon = "", group = "+snippets" },
-      })
-    end,
+  alt_statuslines = {
+    bareline.alt_statuslines.plugin,
   },
-  { -- bareline.nvim
-    "hernancerm/bareline.nvim",
-    -- enabled=false,
-    event = "VimEnter",
-    config = function()
-      local bareline = require("bareline")
-      bareline.setup({
-        statusline = {
-          value = "%{BlIs(1)}"
-            .. "%{BlInahide(get(b:,'bl_vim_mode',''))}"
-            .. "%{BlIs(1)}"
-            .. "%<"
-            .. "%{BlPad(get(b:,'bl_filepath',''))}"
-            .. "%{%BlPad(get(b:,'bl_mhr',''))%}"
-            .. "%{BlPad(get(b:,'bl_lsp_servers',''))}"
-            .. "%="
-            .. "%{BlPad(get(b:,'bl_diagnostics',''))}"
-            .. "%{BlPad(get(b:,'bl_indent_style',''))}"
-            .. "%{BlInarm(BlPad(BlWrap(get(b:,'gitsigns_head',''),'(',')')))}"
-            .. "%{BlPad(get(b:,'bl_current_working_dir',''))}"
-            .. "%{BlIs(1)}"
-            .. "%Y"
-            .. "%{BlIs(1)}",
-          items = {
-            bareline.items.vim_mode,
-            bareline.items.filepath,
-            bareline.items.lsp_servers,
-            bareline.items.mhr,
-            bareline.items.diagnostics,
-            bareline.items.indent_style,
-            bareline.items.current_working_dir,
-          },
-        },
-        alt_statuslines = {
-          bareline.alt_statuslines.plugin,
-        },
-        items = {
-          mhr = {
-            display_modified = true,
-          },
-        },
-        logging = {
-          enabled = false,
-          level = vim.log.levels.INFO,
-        },
-      })
-    end,
+  items = {
+    mhr = {
+      display_modified = true,
+    },
   },
-  { -- zenbones
-    "zenbones-theme/zenbones.nvim",
-    dependencies = "rktjmp/lush.nvim",
-    lazy = false,
-    priority = 1000,
-    init = function()
-      -- TODO Move to custom zenbones
-      -- Setup
-      vim.g.zenbones_lightness = "bright"
-      vim.g.zenbones_darkness = "stark"
-      vim.g.zenbones_lighten_noncurrent_window = true
-      vim.g.zenbones_darken_noncurrent_window = true
-      vim.g.zenbones_colorize_diagnostic_underline_text = true
-
-      vim.g.neobones_lightness = "bright"
-      vim.g.neobones_darkness = "stark"
-      vim.g.neobones_lighten_noncurrent_window = true
-      vim.g.neobones_darken_noncurrent_window = true
-      vim.g.neobones_colorize_diagnostic_underline_text = true
-
-      vim.g.zenwritten_lightness = "bright"
-      vim.g.zenwritten_darkness = "stark"
-      vim.g.zenwritten_lighten_noncurrent_window = true
-      vim.g.zenwritten_darken_noncurrent_window = true
-      vim.g.zenwritten_colorize_diagnostic_underline_text = true
-
-      -- Customizations
-      local augroup = vim.api.nvim_create_augroup("zenbones", { clear = true })
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        desc = "Override color scheme",
-        pattern = { "zen*", "*bones" },
-        callback = function(ev)
-          local lush = require("lush")
-          local base = require(ev.match)
-
-          local function modify_colorscheme()
-            -- Detect current background for out-of-bounds regions
-            local is_dark = vim.o.background == "dark"
-            local bg = is_dark and "#000000" or "#ffffff"
-
-            local specs = lush.parse(
-              function()
-                return {
-                  OutOfBounds({ bg = base.NormalNC.bg }),
-                  Folded({}),
-                  MsgArea({ bg = bg }),
-                  ModeArea({ bg = bg }),
-                  TabLineFill({ bg = bg }),
-                  NormalFloat({ bg = base.NormalNC.bg }),
-                  FloatBorder({ fg = base.Normal.bg, bg = base.NormalNC.bg }),
-                  NormalNC({ base.Normal }),
-                  StatusLine({ base.StatusLine, bold = true }),
-                  StatusLineNC({ base.StatusLineNC, italic = true }),
-                }
-              end
-            )
-            -- Apply specs using lush tool-chain
-            lush.apply(lush.compile(specs))
-
-            vim.cmd("hi! link @org.keyword.face.TODO DiagnosticVirtualTextError")
-            vim.cmd("hi! link @org.keyword.face.NEXT DiagnosticVirtualTextHint")
-            vim.cmd("hi! link @org.keyword.face.PROG DiagnosticVirtualTextWarn")
-            vim.cmd("hi! link @org.keyword.face.DONE DiagnosticVirtualTextOk")
-            vim.cmd("hi! link @org.keyword.face.CNCL DiagnosticVirtualTextOk")
-            vim.cmd(
-              "hi! @org.keyword.face.INTR.org ctermbg=0 ctermfg=255 guibg=#000000 guifg=#ffffff"
-                .. (is_dark and " gui=reverse cterm=reverse" or "")
-            )
-          end
-          modify_colorscheme()
-
-          vim.api.nvim_create_autocmd("OptionSet", {
-            pattern = "background",
-            callback = modify_colorscheme,
-            group = augroup,
-          })
-        end,
-        group = augroup,
-      })
-    end,
+  logging = {
+    enabled = false,
+    level = vim.log.levels.INFO,
   },
-}
+})

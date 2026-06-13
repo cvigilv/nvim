@@ -46,21 +46,27 @@ end
 return {
   cmd = { "tinymist" },
   filetypes = { "typst" },
+  settings = {
+    formatterMode = "typstyle",
+    formatterProseWrap = true,
+    formatterPrintWidth = 96,
+    formatterIndentSize = 2,
+    exportPdf = "onSave",
+    lint = { enabled = true, when = "onSave" },
+  },
   root_markers = { ".git" },
   on_attach = function(client, bufnr)
+    vim.api.nvim_echo({
+      { "[tinymist] Attached to current buffer (bufnr=" .. bufnr .. ")", "DiagnosticInfo" },
+    }, true, {})
+
+
     for _, command in ipairs({
       "tinymist.exportSvg",
       "tinymist.exportPng",
       "tinymist.exportPdf",
       "tinymist.exportHtml",
       "tinymist.exportMarkdown",
-      "tinymist.exportText",
-      "tinymist.exportQuery",
-      "tinymist.exportAnsiHighlight",
-      "tinymist.getServerInfo",
-      "tinymist.getDocumentTrace",
-      "tinymist.getWorkspaceLabels",
-      "tinymist.getDocumentMetrics",
     }) do
       local cmd_func, cmd_name, cmd_desc = create_tinymist_command(command, client, bufnr)
       vim.api.nvim_buf_create_user_command(

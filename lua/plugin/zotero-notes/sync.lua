@@ -58,7 +58,6 @@ local function get_attachment_options(item)
     table.insert(options, {
       type = "pdf",
       path = item.attachment.path,
-      link_mode = item.attachment.link_mode,
     })
   end
   -- DOI...
@@ -98,47 +97,17 @@ end
 
 ---Opens attachments for a Zotero bibliography item
 ---@param item table The Zotero bibliography item containing attachment information
----@param opts ZoteroNotes.Configuration Plugin configuration
-local function open_attachment(item, opts)
+local function open_attachment(item)
   local options = get_attachment_options(item)
 
   local function execute_option(choice)
     if choice.type == "pdf" then
       local file_path = choice.path
-      
-      -- Handle storage: prefixed paths (legacy support)
-      if file_path:match("^storage:") then
-        local zotero_storage = vim.fn.expand("~/.Zotero/storage")
-        -- Remove the 'storage:' prefix
-        file_path = file_path:gsub("^storage:", "")
-        -- Use wildcard search for the PDF file in subdirectories
-        local search_path = zotero_storage .. "/*/" .. file_path
-        local matches = vim.fn.glob(search_path, true, true)
-        if #matches > 0 then
-          file_path = matches[1]
-        else
-          vim.notify("[zotero] File not found: " .. search_path, vim.log.levels.ERROR)
-          return
-        end
+      if vim.fn.filereadable(file_path) == 1 then
+        open_url(file_path, "pdf")
+      else
+        vim.notify("[zotero] File not found: " .. file_path, vim.log.levels.ERROR)
       end
-      
-      -- For full paths from JSON, use wildcard search to find the file
-      if not vim.fn.filereadable(file_path) then
-        -- Extract filename from path and search using wildcard
-        local filename = file_path:match("([^/]+)$") or file_path
-        local zotero_storage = vim.fn.expand("~/.Zotero/storage")
-        local search_path = zotero_storage .. "/*/" .. filename
-        local matches = vim.fn.glob(search_path, true, true)
-        if #matches > 0 then
-          file_path = matches[1]
-        else
-          vim.notify("[zotero] File not found: " .. search_path, vim.log.levels.ERROR)
-          return
-        end
-      end
-      
-      vim.notify("[zotero] Opening PDF: " .. file_path, vim.log.levels.INFO)
-      open_url(file_path, "pdf")
     elseif choice.type == "doi" then
       vim.ui.open(choice.url)
     elseif choice.type == "zotero" then
@@ -224,35 +193,6 @@ local function make_entry(pre_entry)
   }
 end
 
---- Helper function to get best available annotation link key
----@param annotation table Annotation object with keys
----@return string key Best available key for linking
-local function get_annotation_link(annotation)
-  if annotation.annotationKey then
-    return annotation.annotationKey
-  elseif annotation.pdfKey then
-    return annotation.pdfKey
-  else
-    return annotation.parentKey
-  end
-end
-
---- Strip HTML tags from text
----@param html string HTML text
----@return string plain Plain text without HTML tags
-local function strip_html(html)
-  if not html then return "" end
-  -- Remove HTML tags
-  local plain = html:gsub("<[^>]+>", "")
-  -- Decode common HTML entities
-  plain = plain:gsub("&nbsp;", " ")
-  plain = plain:gsub("&lt;", "<")
-  plain = plain:gsub("&gt;", ">")
-  plain = plain:gsub("&amp;", "&")
-  plain = plain:gsub("&quot;", '"')
-  return plain
-end
-
 ---Creates new note based on selected Zotero bibliography item
 ---@param entry table Zotero bibliography item
 local function create_note(entry, opts)
@@ -260,7 +200,6 @@ local function create_note(entry, opts)
   local year = entry.value.year
   local author = entry.value.creators[1].lastName
   local title = author .. ", " .. year .. " - " .. entry.value.title
-  local item_key = entry.value.key
 
   -- Generate denote compliant filename
   local timestamp = require("denote.naming").generate_timestamp()
@@ -277,108 +216,31 @@ local function create_note(entry, opts)
   }
   local filename = require("denote.naming").generate_filename(components)
 
-  -- Create file content array
-  local content = vim.split(
+  -- Create file and populate frontmatter with relevant data
+  local frontmatter = vim.split(
     require("denote.frontmatter").generate_org_frontmatter(components),
     "\n",
     { trimempty = true }
   )
-  
-  -- Add DOI and citation
-  table.insert(content, "#+doi:        " .. (entry.value.DOI or ""))
-  table.insert(content, "#+citation:   " .. entry.value.citekey)
-  table.insert(content, "")
-  table.insert(content, "* " .. title)
-  table.insert(content, "")
+  table.insert(frontmatter, "#+doi:        " .. entry.value.DOI)
+  table.insert(frontmatter, "#+citation:   " .. entry.value.citekey)
+  table.insert(frontmatter, "")
+  table.insert(frontmatter, "* " .. title)
+  table.insert(frontmatter, "")
+  table.insert(
+    frontmatter,
+    "_Open in Zotero:_ zotero://select/library/items/" .. entry.value.key
+  )
+  table.insert(frontmatter, "")
 
-  -- SECTION 1: Abstract (JSON -> SQLite -> empty)
-  table.insert(content, "** Abstract")
-  local abstract = entry.value.abstractNote
-  if not abstract then
-    -- Fallback to SQLite
-    local ok, sqlite_abstract = pcall(database.get_abstract_from_sqlite, item_key)
-    if ok and sqlite_abstract then
-      abstract = sqlite_abstract
-    end
-  end
-  if abstract then
-    table.insert(content, abstract)
-  end
-  table.insert(content, "")
-
-  -- SECTION 2: Summary
-  table.insert(content, "** Summary")
-  table.insert(content, "")
-  table.insert(content, "# here go your notes...")
-  table.insert(content, "")
-
-  -- SECTION 3: Annotations
-  table.insert(content, "** Annotations")
-  table.insert(content, "")
-  
-  -- Get annotations from SQLite
-  local ok_annotations, annotations = pcall(database.get_annotations_from_sqlite, item_key)
-  if not ok_annotations then
-    vim.api.nvim_echo({
-      { "[zotero] Warning: Failed to retrieve annotations", "WarningMsg" }
-    }, false, {})
-    annotations = {}
-  end
-  
-  -- Get item notes from SQLite
-  local ok_notes, item_notes = pcall(database.get_notes_from_sqlite, item_key)
-  if not ok_notes then
-    vim.api.nvim_echo({
-      { "[zotero] Warning: Failed to retrieve item notes", "WarningMsg" }
-    }, false, {})
-    item_notes = {}
-  end
-  
-  -- Combine and process annotations
-  if annotations and #annotations > 0 then
-    for _, annot in ipairs(annotations) do
-      -- Add highlight in quote block
-      if annot.text and annot.text ~= "" then
-        table.insert(content, "#+BEGIN_QUOTE")
-        table.insert(content, annot.text)
-        table.insert(content, "#+END_QUOTE")
-        table.insert(content, "")
-      end
-      
-      -- Add comment/note as raw text
-      if annot.comment and annot.comment ~= "" then
-        table.insert(content, annot.comment)
-        table.insert(content, "")
-      end
-      
-      -- Add link
-      local link_key = get_annotation_link(annot)
-      table.insert(content, "[[zotero://select/library/items/" .. link_key .. "]]")
-      table.insert(content, "")
-    end
-  end
-  
-  -- Add item notes
-  if item_notes and #item_notes > 0 then
-    for _, note in ipairs(item_notes) do
-      local note_text = strip_html(note.text)
-      if note_text and note_text ~= "" then
-        table.insert(content, note_text)
-        table.insert(content, "")
-        table.insert(content, "[[zotero://select/library/items/" .. note.parentKey .. "]]")
-        table.insert(content, "")
-      end
-    end
-  end
-
-  -- SECTION 4: Zotero link at bottom
-  table.insert(content, "[[zotero://select/library/items/" .. entry.value.key .. "]]")
-  table.insert(content, "")
-
-  -- Write file and open
-  vim.fn.writefile(content, vim.fs.joinpath(opts.denote_silo_path, filename))
+  vim.fn.writefile(frontmatter, vim.fs.joinpath(opts.denote_silo_path, filename))
   vim.cmd("e " .. vim.fs.joinpath(opts.denote_silo_path, filename))
   vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
+
+  -- Open PDF in Sioyek if available
+  if entry.value.attachment and entry.value.attachment.path then
+    vim.fn.jobstart({ "sioyek", entry.value.attachment.path }, { detach = true })
+  end
 end
 
 ---Processes selected Zotero bibliography item
@@ -401,20 +263,11 @@ end
 
 --- Create or open note associated to Zotero entry
 function M.picker(opts)
-  -- Connect to library
-  if
-    not database.connect({
-      bibtex_library_path = opts.bibtex_library_path,
-    })
-  then
-    error("Failed to connect to Zotero library")
+  -- Load library JSON
+  if not database.load(opts.library_json_path) then
+    error("Failed to load Zotero library from " .. opts.library_json_path)
     return
   end
-
-  -- Connect to SQLite database (optional, continue if fails)
-  database.connect_sqlite({
-    zotero_db_path = opts.zotero_db_path,
-  })
 
   -- Get items from library
   local items = database.get_items()
@@ -444,11 +297,11 @@ function M.picker(opts)
         -- o/<C-o>: Open item
         map("i", "<C-o>", function()
           local entry = action_state.get_selected_entry()
-          open_attachment(entry.value, opts)
+          open_attachment(entry.value)
         end)
         map("n", "o", function()
           local entry = action_state.get_selected_entry()
-          open_attachment(entry.value, opts)
+          open_attachment(entry.value)
         end)
         return true
       end,

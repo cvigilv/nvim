@@ -1,35 +1,8 @@
----@module "spec.syntax"
+---@module "pkg.syntax"
 ---@author Carlos Vigil-Vásquez
----@license MIT 2025
+---@license MIT 2026
 
-return {
-  { -- Tree-sitter
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "julia",
-        "python",
-        "bash",
-        "lua",
-        "markdown",
-        "markdown_inline",
-        "vimdoc",
-      },
-      auto_install = true,
-      sync_install = true,
-      ignore_install = {},
-      modules = {},
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = { "markdown" },
-      },
-      incremental_selection = { enable = false },
-      indent = { enable = false },
-      textobjects = { enable = false },
-    },
-  },
-  { -- Typst
-    "kaarmu/typst.vim",
-    ft = "typst",
-  },
-}
+-- Typst
+vim.g.typst_syntax_highlight = 0
+vim.g.typst_pdf_viewer = "sioyek"
+vim.g.typst_auto_close_toc = 1

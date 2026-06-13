@@ -1032,6 +1032,15 @@ local theme = lush(function(injected_functions)
     sym("@org.keyword.face.CNCL")({ DiagnosticVirtualTextOk, bold = true }),
     sym("@org.keyword.face.INTR")({ bg = "white", fg = "black", bold = true }),
     sym("@org.hyperlink")({ fg = "nvimlightblue", underline = true }),
+
+    -- TODO: Replace the default menu hihglight groups (Pmenu & co.) with this values
+    BlinkCmpMenuBorder({ fg = "#091217", bg = "#0f191f" }),
+    BlinkCmpMenu({ fg = "white", bg = "#0f191f" }),
+    BlinkCmpMenuSelection({ bg = "white", fg = "#0f191f" }),
+    BlinkCmpKind({ fg = "#4d6472", bg = "#0f191f", italic=true }),
+
+    BlinkCmpDocBorder({ fg = "#091217", bg = "#0f191f" }),
+    BlinkCmpDoc({ bg = "#0f191f" }),
   }
 end)
 lush(theme)

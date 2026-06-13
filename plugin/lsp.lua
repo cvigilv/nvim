@@ -10,6 +10,7 @@ local configured_lsps = {
   "lua_ls",
   "pyright",
   "tinymist",
+  "denote-ls"
 }
 vim.lsp.enable(configured_lsps)
 
@@ -71,11 +72,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
       map("K", function()
         vim.lsp.buf.hover({
           border = { "▛", "▀", "▜", "▐", "▟", "▄", "▙", "▌" },
-          -- border = { " ", " ", " ", " ", " ", " ", " ", " " },
         })
       end, "Hover")
     end
 
-    require("plugin.lsp")
+    require("lsp")
   end,
 })

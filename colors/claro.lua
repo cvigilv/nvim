@@ -20,12 +20,12 @@ local specs = lush.extends({ base }).with(function(injected_functions)
   local sym = injected_functions.sym
   return {
     Folded({}),
-    OutOfBounds({ bg = base.NormalNC.bg }),
+    OutOfBounds({ bg = base.Normal.bg.darken(3).desaturate(20) }),
     MsgArea({ bg = bg }),
     ModeArea({ bg = bg }),
     TabLineFill({ bg = bg }),
-    NormalFloat({ bg = base.NormalNC.bg }),
-    FloatBorder({ fg = base.Normal.bg, bg = base.NormalNC.bg }),
+    NormalFloat({ bg = base.Normal.bg.darken(3).desaturate(20) }),
+    FloatBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(3).desaturate(20) }),
     NormalNC({ base.Normal }),
     StatusLine({ base.StatusLine, bold = true }),
     StatusLineNC({ base.StatusLineNC, italic = true }),
@@ -33,6 +33,14 @@ local specs = lush.extends({ base }).with(function(injected_functions)
     Number({ fg = accent.saturation(100) }),
     sym("Function")({ fg = counter.saturation(100) }),
     sym("Special")({ fg = counter.saturation(100) }),
+
+    -- TODO: Replace the default menu highlight groups (Pmenu & co.) with this values
+    BlinkCmpMenuBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpMenu({ fg = base.Pmenu.fg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpMenuSelection({ bg = base.Visual.bg, bold = true }),
+    BlinkCmpKind({ fg = base.Comment.fg, bg = base.Normal.bg.darken(5), italic = true }),
+    BlinkCmpDocBorder({ fg = base.Normal.bg, bg = base.Normal.bg.darken(5) }),
+    BlinkCmpDoc({ fg = base.Pmenu.fg, bg = base.Normal.bg.darken(5) }),
   }
 end)
 lush.apply(lush.compile(specs))

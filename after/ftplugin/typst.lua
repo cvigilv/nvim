@@ -66,12 +66,6 @@ local function disable_writing_mode(bufnr)
   vim.api.nvim_set_option_value("relativenumber", true, { scope = "local" })
   vim.api.nvim_set_option_value("showtabline", 2, { scope = "local" })
   vim.api.nvim_set_option_value("laststatus", 2, { scope = "local" })
-  -- vim.api.nvim_set_option_value("winbar", "%{%v:lua.carlos.winbar()%}", { scope = "global" })
-  -- vim.api.nvim_set_option_value(
-  --   "statusline",
-  --   "%{%v:lua.carlos.statusline()%}",
-  --   { scope = "global" }
-  -- )
 end
 local function toggle_writing_mode(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
@@ -86,3 +80,10 @@ local function toggle_writing_mode(bufnr)
   vim.b.carlos_writing_mode_enabled = not vim.b.carlos_writing_mode_enabled
 end
 vim.api.nvim_buf_create_user_command(0, "Writing", toggle_writing_mode, {})
+
+-- Try to open PDF if exists
+local pdf = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":r") .. ".pdf"
+if vim.loop.fs_stat(pdf) ~= nil then
+  local handle = vim.loop.spawn("sioyek", { args = { pdf }, detached = true }, function() end)
+  if handle then handle:close() end
+end
