@@ -1,6 +1,9 @@
 -- Keymaps
 vim.keymap.set("n", ",fz", ":Telescope zotero<CR>", { desc = "Find Zotero" })
 
+-- Statuscolumn
+require("plugin.headercolumn").setup(12)
+
 -- Writing mode
 require("plugin.escritura").setup(12)
 
