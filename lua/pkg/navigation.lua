@@ -271,3 +271,6 @@ require("oil").setup({
   },
   use_default_keymaps = false,
 })
+
+-- Jumping
+vim.keymap.set({ "n", "x", "o" }, "/", require("jump").start, {})

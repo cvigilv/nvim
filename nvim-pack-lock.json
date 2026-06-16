@@ -48,6 +48,10 @@
       "rev": "23e7e9f883d01289ebd90e98025acc860ea26366",
       "src": "https://github.com/danymat/neogen"
     },
+    "nvim-jump": {
+      "rev": "f58eb5a36c414c19965e1c4d5dfb74d5a1f21ede",
+      "src": "https://github.com/yorickpeterse/nvim-jump"
+    },
     "nvim-lint": {
       "rev": "d48f3a76189d03b2239f6df1b2f7e3fa8353743b",
       "src": "https://github.com/mfussenegger/nvim-lint"
