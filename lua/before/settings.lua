@@ -4,12 +4,9 @@
 
 vim.opt.autochdir = false -- Don't change current working directory to wherever is the file
 vim.opt.autoread = true -- Update files that change by external processes
-vim.opt.autocomplete = true
-vim.opt.autocompletedelay = 250
 vim.opt.backup = false -- Don't create backup files
 vim.opt.background = "light" -- Use light background by default
 vim.opt.clipboard = "unnamedplus" -- Copy paste between vim and everything else
-vim.opt.completeopt = "menu,menuone,noselect,popup,fuzzy" -- Improve completion UX
 vim.opt.conceallevel = 0 -- Don't hide formatting characters
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.diffopt = "internal,filler,closeoff,linematch:60" -- Improve diff UX
@@ -45,8 +42,8 @@ vim.opt.number = true -- Add line numbering
 vim.opt.relativenumber = true -- Add relative numbering, this is a must in my opinion
 vim.opt.scrolloff = 8 -- Leave some lines in the top and end of the file to have context
 vim.opt.shiftwidth = 4 -- If tab character is found, show as indent of size equal to 4 spaces
-vim.opt.shortmess = vim.opt.shortmess + "c" -- Avoid showing message when using completion
-vim.opt.showmode = false -- Don't show the standard vim mode indicator at the end of the file
+-- vim.opt.shortmess = vim.opt.shortmess + "c" -- Avoid showing message when using completion
+vim.opt.showmode = true -- Don't show the standard vim mode indicator at the end of the file
 vim.opt.showtabline = 2 -- Always show tabline
 vim.opt.signcolumn = "no" -- Never add the sign column, handled by statuscolumn
 vim.opt.smartcase = true -- Smart case sensitivity for easier searching
@@ -61,9 +58,14 @@ vim.opt.textwidth = 0 -- Infinite text width by default
 vim.opt.timeoutlen = 250 -- Amount of time to wait for mapped sequence to complete
 vim.opt.undodir = os.getenv("HOME") .. "/.config/nvim/extras/undodir" -- Store undo files here
 vim.opt.undofile = true -- Create undo files for undo-tree
-vim.opt.winborder = "🬕,🬂,🬨,▐,🬷,🬭,🬲,▌" -- Default border for floating windows (breathing room)
+vim.opt.winborder = { "🬕", "🬂", "🬨", "▐", "🬷", "🬭", "🬲", "▌" } -- Default border for floating windows (breathing room)
 vim.opt.wildmode = "longest,list,full" -- Completion mode used to showcase options
 vim.opt.wrap = false -- Don't wrap text
+
+-- Completion
+vim.opt.autocomplete = true
+vim.opt.autocompletedelay = 0
+vim.opt.completeopt = "menu,noinsert,fuzzy,preview" -- Improve completion UX
 
 -- Disable some in built plugins completely
 vim.g.loaded_netrw = 1
