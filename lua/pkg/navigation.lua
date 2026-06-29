@@ -36,6 +36,9 @@ local action_state = require("telescope.actions.state")
 local actions = require("telescope.actions")
 
 -- Helpers
+-- Checks if the given file path has a media file extension.
+---@param path string The file path to check.
+---@return boolean is_media true if the file has a media extension, false otherwise.
 local function ismedia(path)
   local media_extensions = {
     "png",
@@ -59,6 +62,8 @@ local function ismedia(path)
 end
 
 -- Custom actions
+-- Opens the selected media file using the system's default application.
+---@param prompt_bufnr number The Telescope prompt buffer number
 local function open_media(prompt_bufnr)
   local selection = action_state.get_selected_entry()
   local path = selection.path or selection.value
@@ -87,6 +92,7 @@ end
 
 require("telescope").setup({
   defaults = require("telescope.themes").get_ivy({
+    borderchars = { "", "", "", "", "", "", "", "" },
     prompt_prefix = "? ",
     selection_prefix = "  ",
     multi_icon = "!",
@@ -98,7 +104,7 @@ require("telescope").setup({
   pickers = {
     find_files = {
       prompt_title = false,
-      prompt_prefix = "[Find files] ",
+      prompt_prefix = " Files >> ",
       previewer = false,
       mappings = {
         i = { ["<CR>"] = open_media },
@@ -107,20 +113,21 @@ require("telescope").setup({
     },
     git_files = {
       prompt_title = false,
-      prompt_prefix = "[Git files] ",
+      prompt_prefix = " Git >> ",
       previewer = false,
       mappings = {
         i = { ["<CR>"] = open_media },
         n = { ["<CR>"] = open_media },
       },
     },
-    live_grep = { prompt_title = false, prompt_prefix = "[Live Grep] " },
-    builtin = { prompt_title = false, prompt_prefix = "[Pickers] ", previewer = false },
+    live_grep = { prompt_title = false, prompt_prefix = " Grep >> " },
+    builtin = { prompt_title = false, prompt_prefix = " Pickers >> ", previewer = false },
+    buffers = { prompt_title = false, prompt_prefix = " Buffers >> ", previewer = false },
+    diagnostics = { prompt_title = false, prompt_prefix = " Diagnostics >> ", previewer = false },
   },
   extensions = {
-    ["ui-select"] = {
-      require("telescope.themes").get_dropdown(),
-    },
+    ["ui-select"] = { require("telescope.themes").get_ivy() },
+    zotero = { prompt_title = false, prompt_prefix = " Zotero >> ", previewer = false },
   },
 })
 require("telescope").load_extension("ui-select")
@@ -137,18 +144,6 @@ vim.keymap.set(
   ",fs",
   "<CMD>Telescope live_grep<CR>",
   { silent = true, noremap = true, desc = "Find string with Grep" }
-)
-vim.keymap.set(
-  "n",
-  ",fw",
-  function() telescope_builtin.grep_string({ search = vim.fn.expand("<cword>") }) end,
-  { silent = true, noremap = true, desc = "Find word under cursor" }
-)
-vim.keymap.set(
-  "n",
-  ",fW",
-  function() telescope_builtin.grep_string({ search = vim.fn.expand("<cWORD>") }) end,
-  { silent = true, noremap = true, desc = "Find WORD under cursor" }
 )
 vim.keymap.set(
   "n",
@@ -271,6 +266,3 @@ require("oil").setup({
   },
   use_default_keymaps = false,
 })
-
--- Jumping
-vim.keymap.set({ "n", "x", "o" }, "/", require("jump").start, {})
