@@ -25,6 +25,7 @@ require("plugin.escritura").setup(12)
 require("plugin.contacto").setup()
 
 --- Zotero
+---@diagnostic disable-next-line: missing-fields
 require("plugin.zotero-notes").setup({
   denote_silo_path = "/Users/carlos/org",
   -- zotero_db_path = "/Users/carlos/Zotero/zotero.sqlite",
