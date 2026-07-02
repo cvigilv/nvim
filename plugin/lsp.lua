@@ -6,7 +6,7 @@
 local configured_lsps = {
   "bashls",
   "harper_ls",
-  "julials",
+  "jetls",
   "lua_ls",
   "pyright",
   "tinymist",
