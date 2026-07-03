@@ -50,9 +50,6 @@ vim.pack.add({
   gh("mfussenegger/nvim-lint"),
   gh("stevearc/conform.nvim"),
 
-  -- mini (mini.lua)
-  -- gh("echasnovski/mini.nvim"),
-
   -- LLM (llm.lua)
   gh("github/copilot.vim"),
   gh("olimorris/codecompanion.nvim"),

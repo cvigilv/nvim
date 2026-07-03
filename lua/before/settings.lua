@@ -63,9 +63,10 @@ vim.opt.wildmode = "longest,list,full" -- Completion mode used to showcase optio
 vim.opt.wrap = false -- Don't wrap text
 
 -- Completion
-vim.opt.autocomplete = true
-vim.opt.autocompletedelay = 0
-vim.opt.completeopt = "menu,noinsert,fuzzy,preview" -- Improve completion UX
+vim.opt.autocomplete = true -- Use autocomplete (a little buggy, but gets the job done)
+vim.opt.autocompletedelay = 0 -- Instantaneosly open completion menu
+vim.opt.completeopt = "menu,noinsert,fuzzy" -- Improve completion UX
+vim.opt.complete = "o" -- Autocompletion is only for omnicomplete items (i.e. LSP)
 
 -- Disable some in built plugins completely
 vim.g.loaded_netrw = 1
