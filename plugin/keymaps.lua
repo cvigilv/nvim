@@ -105,7 +105,7 @@ local function capture_to_denote()
     ["?"] = "Custom",
   }
   vim
-    .iter(vim.fn.glob(vim.g.denote.directory .. date .. "*==logs*.org", false, true, true))
+    .iter(vim.fn.glob(vim.g.orgmode.directory .. date .. "*==logs*.org", false, true, true))
     :fold({}, function(acc, v)
       local title = require("denote.frontmatter").parse_org_frontmatter(v).title
         or require("denote.naming").parse_filename(v, false).title
@@ -144,7 +144,7 @@ local function capture_to_denote()
 
   -- Get the target file path first
   local target_file = vim.fn.expand(
-    vim.g.denote.directory
+    vim.g.orgmode.directory
       .. date
       .. "*"
       .. "==logs"

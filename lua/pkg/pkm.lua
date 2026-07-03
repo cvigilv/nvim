@@ -8,8 +8,8 @@ end
 
 -- Denote
 vim.g.denote = {
-  filetype = "org",
-  directory = "/Users/carlos/Insync/itmightbecarlos@gmail.com/Google_Drive/org/",
+  filetype = "markdown-yaml",
+  directory = "/Users/carlos/the-system/The System/",
   prompts = { "title", "signature", "keywords" },
 }
 
@@ -24,7 +24,7 @@ hi! def link DenoteExtension SpecialComment
 -- Orgmode
 require("orgmode").setup({
   hyperlinks = {
-    sources = { require("denote.extensions.orgmode"):new({ files = vim.g.denote.directory }) },
+    sources = { require("denote.extensions.orgmode"):new({ files = vim.g.orgmode.directory }) },
   },
   mappings = {
     global = {
