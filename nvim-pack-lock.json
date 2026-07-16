@@ -84,6 +84,10 @@
       "rev": "4a6883cb13fe097a20a046eb55f6dffd239276e3",
       "src": "https://github.com/stevearc/quicker.nvim"
     },
+    "resolve.nvim": {
+      "rev": "1ed8bcc9ce7d43a0e8e05d0001c9cadb822d95a8",
+      "src": "https://github.com/spacedentist/resolve.nvim"
+    },
     "scrollEOF.nvim": {
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"

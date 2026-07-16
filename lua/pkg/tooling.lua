@@ -52,3 +52,6 @@ vim.keymap.set(
   function() require("conform").format({ async = true }) end,
   { desc = "Format buffer" }
 )
+
+-- Git
+require("resolve").setup()

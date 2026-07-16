@@ -49,6 +49,7 @@ vim.pack.add({
   gh("danymat/neogen"),
   gh("mfussenegger/nvim-lint"),
   gh("stevearc/conform.nvim"),
+  gh("spacedentist/resolve.nvim"),
 
   -- LLM (llm.lua)
   gh("github/copilot.vim"),
