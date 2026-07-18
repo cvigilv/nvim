@@ -83,4 +83,34 @@ M.list_accounts = function(on_done)
   cli.run_json(build_argv({ "account", "list" }), on_done)
 end
 
+-- Headers shown at the top of a read message, in display order
+local READ_HEADERS = { "From", "To", "Cc", "Subject", "Date" }
+
+--- Read the rendered plain-text version of a message
+---@param opts { account?: string, folder?: string, id: string, preview?: boolean }
+---@param on_done fun(content: string|nil, err: string|nil) Callback with the message text
+M.read_message = function(opts, on_done)
+  -- `--preview` reads without applying the "Seen" flag to the envelope
+  local _extra = opts.preview and { "--preview" } or {}
+  for _, _header in ipairs(READ_HEADERS) do
+    vim.list_extend(_extra, { "--header", _header })
+  end
+  table.insert(_extra, opts.id)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "message", "read" }, _ctx, _extra), on_done)
+end
+
+--- Add or remove flags on envelopes
+---@param action "add"|"remove" Whether to add or remove the flags
+---@param opts { account?: string, folder?: string, ids: string[], flags: string[] }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.change_flags = function(action, opts, on_done)
+  -- Himalaya parses integers as ids and everything else as flags
+  local _extra = {}
+  vim.list_extend(_extra, opts.ids)
+  vim.list_extend(_extra, opts.flags)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "flag", action }, _ctx, _extra), on_done)
+end
+
 return M

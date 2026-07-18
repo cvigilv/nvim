@@ -21,6 +21,9 @@
 
 ---@class Correo.Keymaps.Configuration
 ---@field refresh string Keymap to refresh the mailbox buffer
+---@field open string Keymap to open the message under the cursor
+---@field toggle_seen string Keymap to toggle the "Seen" flag (mailbox and message buffers)
+---@field quit string Keymap to return from a message buffer to its mailbox
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
@@ -47,6 +50,9 @@ local defaults = {
   },
   keymaps = {
     refresh = "R",
+    open = "<CR>",
+    toggle_seen = "gs",
+    quit = "q",
   },
   logging = {
     enabled = true,
@@ -82,6 +88,9 @@ M.updateconfig = function(opts)
 
     -- Keymaps
     ["keymaps.refresh"] = { opts.keymaps.refresh, "string" },
+    ["keymaps.open"] = { opts.keymaps.open, "string" },
+    ["keymaps.toggle_seen"] = { opts.keymaps.toggle_seen, "string" },
+    ["keymaps.quit"] = { opts.keymaps.quit, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },
