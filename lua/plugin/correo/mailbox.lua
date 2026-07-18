@@ -494,13 +494,32 @@ M.get_context = function(bufnr)
 end
 
 --- Get the envelope rendered on a given line of a mailbox buffer
+---
+--- Identity is resolved through the line's identity extmark, never by line
+--- number: after edits (e.g. `dd`) lines shift but extmarks follow their
+--- content. Invalid marks (from deleted lines) are skipped, so a just-deleted
+--- envelope can never be resolved from the line that took its place.
 ---@param bufnr integer Buffer handle of the mailbox
 ---@param lnum integer 1-indexed line number
 ---@return Correo.Himalaya.Envelope|nil envelope Envelope on that line, if any
 M.get_envelope_at = function(bufnr, lnum)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _state = State[bufnr]
-  return _state and _state.envelopes[lnum] or nil
+  if _state == nil then return nil end
+
+  -- Find the valid identity mark on this line (highlight-span marks share the
+  -- namespace but are filtered out by the `_state.marks` lookup)
+  local _marks =
+    vim.api.nvim_buf_get_extmarks(bufnr, NS, { lnum - 1, 0 }, { lnum - 1, -1 }, { details = true })
+  for _, _mark in ipairs(_marks) do
+    local _envelope_id = _state.marks[_mark[1]]
+    if _envelope_id ~= nil and not (_mark[4] and _mark[4].invalid) then
+      for _, _envelope in ipairs(_state.envelopes) do
+        if _envelope.id == _envelope_id then return _envelope end
+      end
+    end
+  end
+  return nil
 end
 
 return M
