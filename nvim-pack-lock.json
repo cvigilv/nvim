@@ -32,6 +32,14 @@
       "rev": "d495d8aecf6d8cc87b8f9b82276cd88393ce014b",
       "src": "file:///Users/carlos/git/esqueleto.nvim"
     },
+    "himalaya-nvim": {
+      "rev": "576102bd3e1db2285ca3f40b99f3536c254d34db",
+      "src": "https://github.com/xav-ie/himalaya-nvim"
+    },
+    "himalaya-vim": {
+      "rev": "978f2b463c4ece28f5e1457029d399638e439704",
+      "src": "https://github.com/pimalaya/himalaya-vim"
+    },
     "jason.nvim": {
       "rev": "37c912a37e0df48031fbe5b389ae264ff28bb1de",
       "src": "file:///Users/carlos/git/jason.nvim"

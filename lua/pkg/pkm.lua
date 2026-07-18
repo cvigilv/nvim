@@ -276,3 +276,5 @@ require("orgmode").setup({
     end,
   },
 })
+
+require('himalaya').setup({})
