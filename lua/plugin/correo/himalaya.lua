@@ -100,6 +100,24 @@ M.read_message = function(opts, on_done)
   cli.run_json(build_argv({ "message", "read" }, _ctx, _extra), on_done)
 end
 
+--- Mark messages as deleted (moved to trash or expunged, per backend behaviour)
+---@param opts { account?: string, folder?: string, ids: string[] }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.delete_messages = function(opts, on_done)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "message", "delete" }, _ctx, opts.ids), on_done)
+end
+
+--- Move messages to a target folder
+---@param opts { account?: string, folder?: string, target: string, ids: string[] }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.move_messages = function(opts, on_done)
+  local _extra = { opts.target }
+  vim.list_extend(_extra, opts.ids)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "message", "move" }, _ctx, _extra), on_done)
+end
+
 --- Add or remove flags on envelopes
 ---@param action "add"|"remove" Whether to add or remove the flags
 ---@param opts { account?: string, folder?: string, ids: string[], flags: string[] }

@@ -19,6 +19,7 @@ M.setup = function(opts)
     CorreoFrom = { link = "Identifier" },
     CorreoSubject = { link = "Normal" },
     CorreoSubjectUnread = { link = "Title" },
+    CorreoStaged = { link = "DiagnosticWarn" },
   }
   for _name, _def in pairs(_groups) do
     vim.api.nvim_set_hl(0, _name, vim.tbl_extend("keep", _def, { default = true }))

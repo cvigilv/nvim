@@ -12,6 +12,13 @@ local log = require("plugin.correo.log")
 
 -- Namespace for both identity extmarks and highlight spans
 local NS = vim.api.nvim_create_namespace("correo.mailbox")
+-- Namespace for staged-operation virtual text
+local STAGE_NS = vim.api.nvim_create_namespace("correo.mailbox.stage")
+
+---@class Correo.Mailbox.StagedOp
+---@field op "archive"|"move" Kind of staged operation
+---@field target string Folder the envelope will be moved to
+---@field mark integer Extmark id of the staged-op virtual text
 
 ---@class Correo.Mailbox.State
 ---@field account string|nil Account of this mailbox (nil → Himalaya's default)
@@ -19,6 +26,7 @@ local NS = vim.api.nvim_create_namespace("correo.mailbox")
 ---@field page integer Current page of the envelope listing
 ---@field envelopes Correo.Himalaya.Envelope[] Envelopes currently rendered
 ---@field marks table<integer, string> Identity extmark id → envelope id
+---@field staged table<string, Correo.Mailbox.StagedOp> Staged ops, keyed by envelope id
 
 -- Per-buffer state, keyed by buffer number
 ---@type table<integer, Correo.Mailbox.State>
@@ -43,19 +51,26 @@ end
 ---@param bufnr integer Buffer handle
 ---@param keymaps Correo.Keymaps.Configuration Keymap configuration
 local configure_buffer = function(bufnr, keymaps)
-  vim.bo[bufnr].buftype = "nofile"
+  -- `acwrite` routes `:w` to our BufWriteCmd, which commits staged operations
+  vim.bo[bufnr].buftype = "acwrite"
   vim.bo[bufnr].swapfile = false
   vim.bo[bufnr].bufhidden = "hide"
-  vim.bo[bufnr].modifiable = false
   vim.bo[bufnr].filetype = "correo"
 
   local _map = function(lhs, rhs, desc)
     vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = "correo: " .. desc })
   end
-  _map(keymaps.refresh, function() M.refresh(bufnr) end, "refresh mailbox")
+  _map(keymaps.refresh, function() M.reload(bufnr) end, "refresh mailbox")
   _map(keymaps.open, function() M.open_message_at_cursor(bufnr) end, "open message")
   _map(keymaps.toggle_seen, function() M.toggle_seen_at_cursor(bufnr) end, "toggle seen flag")
   _map(keymaps.mark_unseen, function() M.mark_unseen_at_cursor(bufnr) end, "mark as unseen")
+  _map(keymaps.archive, function() M.stage_archive_at_cursor(bufnr) end, "stage archive")
+  _map(keymaps.move, function() M.stage_move_at_cursor(bufnr) end, "stage move to folder")
+
+  vim.api.nvim_create_autocmd("BufWriteCmd", {
+    buffer = bufnr,
+    callback = function() M.commit(bufnr) end,
+  })
 
   -- Drop per-buffer state when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -75,13 +90,18 @@ local draw = function(bufnr, envelopes)
   end
   if #_lines == 0 then _lines = { { text = "-- empty folder --", spans = {} } } end
 
-  -- Swap in the new lines (buffer is kept non-modifiable for the user)
-  vim.bo[bufnr].modifiable = true
+  -- Render with undo disabled so `u` can never revert past a draw (which
+  -- would invalidate every identity mark and read as "delete everything")
+  local _undolevels = vim.bo[bufnr].undolevels
+  vim.bo[bufnr].undolevels = -1
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.tbl_map(function(l) return l.text end, _lines))
-  vim.bo[bufnr].modifiable = false
+  vim.bo[bufnr].undolevels = _undolevels
 
-  -- Reset namespace: highlight spans plus one identity extmark per line
+  -- Reset namespaces: highlight spans plus one identity extmark per line.
+  -- Identity marks use `invalidate` so deleting a line (dd) marks its
+  -- envelope for deletion; undo restores the mark's validity.
   vim.api.nvim_buf_clear_namespace(bufnr, NS, 0, -1)
+  vim.api.nvim_buf_clear_namespace(bufnr, STAGE_NS, 0, -1)
   local _marks = {}
   for _lnum, _line in ipairs(_lines) do
     for _, _span in ipairs(_line.spans) do
@@ -92,19 +112,45 @@ local draw = function(bufnr, envelopes)
     end
     local _envelope = envelopes[_lnum]
     if _envelope then
-      local _id = vim.api.nvim_buf_set_extmark(bufnr, NS, _lnum - 1, 0, {})
+      local _id = vim.api.nvim_buf_set_extmark(bufnr, NS, _lnum - 1, 0, {
+        invalidate = true,
+        undo_restore = true,
+        right_gravity = false,
+      })
       _marks[_id] = _envelope.id
     end
   end
   State[bufnr].marks = _marks
+  State[bufnr].staged = {}
+  -- A freshly drawn mailbox has no pending operations
+  vim.bo[bufnr].modified = false
+end
+
+--- Check whether a mailbox has pending (uncommitted) operations
+---@param bufnr integer Buffer handle of the mailbox
+---@return boolean pending True if deletes or moves are staged
+M.has_pending_changes = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  if State[bufnr] == nil then return false end
+  local _ops = M.gather_operations(bufnr)
+  return #_ops.deletes > 0 or next(_ops.moves) ~= nil
 end
 
 --- Fetch envelopes for a mailbox buffer and redraw it
+---
+--- A redraw would wipe staged operations, so refreshes are "soft" by default:
+--- they are skipped while the buffer has pending changes. Pass `force` from
+--- flows where losing the staging is intended (commit, explicit reload).
 ---@param bufnr integer Buffer handle of the mailbox
-M.refresh = function(bufnr)
+---@param force boolean|nil Redraw even if operations are staged
+M.refresh = function(bufnr, force)
   local _state = State[bufnr]
   if _state == nil then
     log.warn("refresh called on a non-mailbox buffer: " .. bufnr)
+    return
+  end
+  if not force and M.has_pending_changes(bufnr) then
+    log.debug("refresh skipped: mailbox has pending operations")
     return
   end
 
@@ -138,18 +184,32 @@ M.open = function(opts)
   local _name = ("correo://%s/%s"):format(_account or "default", _folder)
   local _bufnr, _is_new = ensure_buffer(_name)
   if _is_new then
-    State[_bufnr] = { account = _account, folder = _folder, page = 1, envelopes = {}, marks = {} }
+    State[_bufnr] =
+      { account = _account, folder = _folder, page = 1, envelopes = {}, marks = {}, staged = {} }
     configure_buffer(_bufnr, _cfg.keymaps)
-    -- Placeholder so a slow first fetch doesn't show an empty buffer
-    vim.bo[_bufnr].modifiable = true
+    -- Placeholder so a slow first fetch doesn't show an empty buffer (kept
+    -- out of undo history, same as draws)
+    local _undolevels = vim.bo[_bufnr].undolevels
+    vim.bo[_bufnr].undolevels = -1
     vim.api.nvim_buf_set_lines(_bufnr, 0, -1, false, { ("Loading %s..."):format(_folder) })
-    vim.bo[_bufnr].modifiable = false
+    vim.bo[_bufnr].undolevels = _undolevels
+    vim.bo[_bufnr].modified = false
   end
 
   vim.api.nvim_set_current_buf(_bufnr)
   vim.wo.wrap = false
   vim.wo.cursorline = true
   M.refresh(_bufnr)
+end
+
+--- Explicitly reload the mailbox, asking first if staged operations would be lost
+---@param bufnr integer Buffer handle of the mailbox (0 for the current buffer)
+M.reload = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  if M.has_pending_changes(bufnr) then
+    if vim.fn.confirm("Discard pending operations?", "&Yes\n&No", 2) ~= 1 then return end
+  end
+  M.refresh(bufnr, true)
 end
 
 --- Open the message of the envelope under the cursor
@@ -192,12 +252,26 @@ local set_envelope_seen = function(bufnr, envelope, seen)
   end)
 end
 
+--- Guard flag toggles against running on a mailbox with pending operations:
+--- the redraw they need would either wipe the staging or show stale state
+---@param bufnr integer Mailbox buffer handle
+---@return boolean blocked True (with a hint to the user) if pending changes exist
+local blocked_by_pending_changes = function(bufnr)
+  if not M.has_pending_changes(bufnr) then return false end
+  vim.notify(
+    "[correo] pending operations: commit with :w or discard with reload first",
+    vim.log.levels.WARN
+  )
+  return true
+end
+
 --- Toggle the "Seen" flag of the envelope under the cursor
 ---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
 M.toggle_seen_at_cursor = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
   if _envelope == nil or State[bufnr] == nil then return end
+  if blocked_by_pending_changes(bufnr) then return end
   set_envelope_seen(bufnr, _envelope, not vim.tbl_contains(_envelope.flags, "Seen"))
 end
 
@@ -207,7 +281,207 @@ M.mark_unseen_at_cursor = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
   if _envelope == nil or State[bufnr] == nil then return end
+  if blocked_by_pending_changes(bufnr) then return end
   set_envelope_seen(bufnr, _envelope, false)
+end
+
+--- Toggle a staged operation on a mailbox line
+---@param bufnr integer Mailbox buffer handle
+---@param lnum integer 1-indexed line of the envelope
+---@param op "archive"|"move" Kind of operation to stage
+---@param target string Target folder of the operation
+local toggle_staged = function(bufnr, lnum, op, target)
+  local _envelope = M.get_envelope_at(bufnr, lnum)
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then return end
+
+  -- Restaging the same op unstages it; a different op replaces the current one
+  local _current = _state.staged[_envelope.id]
+  if _current ~= nil then
+    vim.api.nvim_buf_del_extmark(bufnr, STAGE_NS, _current.mark)
+    _state.staged[_envelope.id] = nil
+    if _current.op == op and _current.target == target then return end
+  end
+
+  local _mark = vim.api.nvim_buf_set_extmark(bufnr, STAGE_NS, lnum - 1, 0, {
+    virt_text = { { "→ " .. target, "CorreoStaged" } },
+    virt_text_pos = "eol",
+  })
+  _state.staged[_envelope.id] = { op = op, target = target, mark = _mark }
+  -- Pending operations count as unsaved changes (`:q` warns, `:w` commits)
+  vim.bo[bufnr].modified = true
+end
+
+--- Stage/unstage archiving the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.stage_archive_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+  toggle_staged(bufnr, _lnum, "archive", vim.g.correo.opts.archive_folder)
+end
+
+--- Stage/unstage moving the envelope under the cursor (folder picked via vim.ui.select)
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.stage_move_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+  local _envelope = M.get_envelope_at(bufnr, _lnum)
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then return end
+
+  -- Already staged as a move: plain unstage, no folder prompt needed
+  local _current = _state.staged[_envelope.id]
+  if _current ~= nil and _current.op == "move" then
+    toggle_staged(bufnr, _lnum, "move", _current.target)
+    return
+  end
+
+  himalaya.list_folders({ account = _state.account }, function(_folders, _err)
+    if _err or _folders == nil then
+      vim.notify("[correo] " .. (_err or "no folders"), vim.log.levels.ERROR)
+      return
+    end
+    local _names = vim.tbl_map(function(f) return f.name end, _folders)
+    vim.ui.select(_names, { prompt = "Move to folder:" }, function(_choice)
+      if _choice then toggle_staged(bufnr, _lnum, "move", _choice) end
+    end)
+  end)
+end
+
+--- Collect the operations implied by buffer edits and staged keymap ops
+---@param bufnr integer Mailbox buffer handle
+---@return { deletes: Correo.Himalaya.Envelope[], moves: table<string, Correo.Himalaya.Envelope[]> } ops Moves are grouped by target folder
+M.gather_operations = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  local _by_id = {}
+  for _, _envelope in ipairs(_state.envelopes) do
+    _by_id[_envelope.id] = _envelope
+  end
+
+  -- Envelopes whose identity extmark was invalidated (line deleted) are deletes
+  local _deleted = {}
+  for _mark, _id in pairs(_state.marks) do
+    local _info = vim.api.nvim_buf_get_extmark_by_id(bufnr, NS, _mark, { details = true })
+    if #_info == 0 or (_info[3] and _info[3].invalid) then _deleted[_id] = true end
+  end
+
+  local _ops = { deletes = {}, moves = {} }
+  for _id in pairs(_deleted) do
+    table.insert(_ops.deletes, _by_id[_id])
+  end
+  -- A delete wins over a staged move on the same envelope
+  for _id, _staged in pairs(_state.staged) do
+    if not _deleted[_id] then
+      _ops.moves[_staged.target] = _ops.moves[_staged.target] or {}
+      table.insert(_ops.moves[_staged.target], _by_id[_id])
+    end
+  end
+  return _ops
+end
+
+--- Describe operations as human-readable lines for the confirmation prompt
+---@param ops { deletes: Correo.Himalaya.Envelope[], moves: table<string, Correo.Himalaya.Envelope[]> }
+---@return string[] lines One line per operation
+local describe_operations = function(ops)
+  local _lines = {}
+  for _, _envelope in ipairs(ops.deletes) do
+    table.insert(_lines, ("  delete       %s"):format(_envelope.subject))
+  end
+  for _target, _envelopes in pairs(ops.moves) do
+    for _, _envelope in ipairs(_envelopes) do
+      table.insert(_lines, ("  move → %s  %s"):format(_target, _envelope.subject))
+    end
+  end
+  return _lines
+end
+
+--- Build one asynchronous CLI task per operation group
+---@param state Correo.Mailbox.State Mailbox state (account/folder context)
+---@param ops { deletes: Correo.Himalaya.Envelope[], moves: table<string, Correo.Himalaya.Envelope[]> }
+---@return fun(next: fun(err: string|nil))[] tasks Tasks to run sequentially
+local build_tasks = function(state, ops)
+  local _ids = function(envelopes)
+    return vim.tbl_map(function(e) return e.id end, envelopes)
+  end
+  local _tasks = {}
+  if #ops.deletes > 0 then
+    table.insert(_tasks, function(_next)
+      himalaya.delete_messages({
+        account = state.account,
+        folder = state.folder,
+        ids = _ids(ops.deletes),
+      }, function(_, _err) _next(_err) end)
+    end)
+  end
+  for _target, _envelopes in pairs(ops.moves) do
+    table.insert(_tasks, function(_next)
+      himalaya.move_messages({
+        account = state.account,
+        folder = state.folder,
+        target = _target,
+        ids = _ids(_envelopes),
+      }, function(_, _err) _next(_err) end)
+    end)
+  end
+  return _tasks
+end
+
+--- Run tasks one after another, stopping at the first error
+---@param tasks fun(next: fun(err: string|nil))[] Remaining tasks
+---@param on_done fun(err: string|nil) Callback once all tasks ran (or one failed)
+local run_sequentially
+run_sequentially = function(tasks, on_done)
+  local _task = table.remove(tasks, 1)
+  if _task == nil then
+    on_done(nil)
+    return
+  end
+  _task(function(_err)
+    if _err then
+      on_done(_err)
+      return
+    end
+    run_sequentially(tasks, on_done)
+  end)
+end
+
+--- Commit pending operations: confirm with the user, run them, refresh
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.commit = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  if _state == nil then return end
+
+  local _ops = M.gather_operations(bufnr)
+  local _description = describe_operations(_ops)
+  if #_description == 0 then
+    vim.notify("[correo] no operations to apply", vim.log.levels.INFO)
+    M.refresh(bufnr, true) -- Restore any stray text edits
+    return
+  end
+
+  local _prompt = ("correo will apply %d operation(s) on %s/%s:\n%s"):format(
+    #_description,
+    _state.account or "default",
+    _state.folder,
+    table.concat(_description, "\n")
+  )
+  if vim.fn.confirm(_prompt, "&Yes\n&No", 2) ~= 1 then
+    -- Keep the staged operations: aborting the commit is not discarding work
+    vim.notify("[correo] aborted, staged operations kept", vim.log.levels.INFO)
+    return
+  end
+
+  run_sequentially(build_tasks(_state, _ops), function(_err)
+    if _err then
+      vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
+      log.error(_err)
+    else
+      vim.notify(("[correo] applied %d operation(s)"):format(#_description), vim.log.levels.INFO)
+    end
+    if vim.api.nvim_buf_is_valid(bufnr) then M.refresh(bufnr, true) end
+  end)
 end
 
 --- Get the account/folder context of a mailbox buffer

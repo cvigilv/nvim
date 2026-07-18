@@ -30,11 +30,14 @@
 ---@field toggle_seen string Keymap to toggle the "Seen" flag (mailbox and message buffers)
 ---@field mark_unseen string Keymap to mark as unseen/unread (mailbox and message buffers)
 ---@field quit string Keymap to return from a message buffer to its mailbox
+---@field archive string Keymap to stage/unstage archiving the envelope under the cursor
+---@field move string Keymap to stage/unstage moving the envelope under the cursor
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
 ---@field account string|nil Account to use (nil → Himalaya's default account)
 ---@field folder string Folder opened by default
+---@field archive_folder string Folder that "archive" moves messages to
 ---@field page_size integer Number of envelopes fetched per page
 ---@field ui Correo.UI.Configuration UI options
 ---@field keymaps Correo.Keymaps.Configuration Mailbox buffer keymaps
@@ -45,6 +48,7 @@ local defaults = {
   binary = "himalaya",
   account = nil,
   folder = "INBOX",
+  archive_folder = "Archive",
   page_size = 100,
   ui = {
     from_width = 24,
@@ -63,6 +67,8 @@ local defaults = {
     toggle_seen = "gs",
     mark_unseen = "gS",
     quit = "q",
+    archive = "ga",
+    move = "gm",
   },
   logging = {
     enabled = true,
@@ -88,6 +94,7 @@ M.updateconfig = function(opts)
     ["binary"] = { opts.binary, "string" },
     ["account"] = { opts.account, "string", true },
     ["folder"] = { opts.folder, "string" },
+    ["archive_folder"] = { opts.archive_folder, "string" },
     ["page_size"] = { opts.page_size, "number" },
 
     -- UI
@@ -107,6 +114,8 @@ M.updateconfig = function(opts)
     ["keymaps.toggle_seen"] = { opts.keymaps.toggle_seen, "string" },
     ["keymaps.mark_unseen"] = { opts.keymaps.mark_unseen, "string" },
     ["keymaps.quit"] = { opts.keymaps.quit, "string" },
+    ["keymaps.archive"] = { opts.keymaps.archive, "string" },
+    ["keymaps.move"] = { opts.keymaps.move, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },
