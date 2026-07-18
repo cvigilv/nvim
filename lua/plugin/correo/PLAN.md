@@ -35,8 +35,9 @@ can be tested manually and committed.
   `mailbox.lua` (buffer at `correo://<account>/<folder>`, non-modifiable, per-line identity
   extmarks, `R` to refresh), `excmd.lua` (`:Correo [folder]` with cached folder completion).
 - [x] **Step 2 — Message reading.** `<CR>` on an envelope opens the message in a buffer at
-  `/tmp/<account>.<id>` with `filetype=mail`, using `message read --preview` (no implicit
-  "seen" mutation). Keymaps to mark seen/unseen, go back to mailbox.
+  `/tmp/<account>.<id>` with `filetype=mail` via `message read`; opening marks the message
+  seen (like any mail client). Keymaps: toggle seen (`gs`), mark unseen (`gS`), back to
+  mailbox (`q`). `ui.message.open` picks replace vs 20/80 split display.
 - [ ] **Step 3 — Mutations (oil-style commit on `:w`).** Mailbox becomes modifiable via
   `acwrite`/`BufWriteCmd`: deleting a line stages a delete (detected by vanished identity
   extmarks, not text parsing); keymaps stage move/archive/flag ops. `:w` shows a confirmation

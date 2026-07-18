@@ -28,6 +28,7 @@
 ---@field refresh string Keymap to refresh the mailbox buffer
 ---@field open string Keymap to open the message under the cursor
 ---@field toggle_seen string Keymap to toggle the "Seen" flag (mailbox and message buffers)
+---@field mark_unseen string Keymap to mark as unseen/unread (mailbox and message buffers)
 ---@field quit string Keymap to return from a message buffer to its mailbox
 
 ---@class Correo.Configuration
@@ -60,6 +61,7 @@ local defaults = {
     refresh = "R",
     open = "<CR>",
     toggle_seen = "gs",
+    mark_unseen = "gS",
     quit = "q",
   },
   logging = {
@@ -103,6 +105,7 @@ M.updateconfig = function(opts)
     ["keymaps.refresh"] = { opts.keymaps.refresh, "string" },
     ["keymaps.open"] = { opts.keymaps.open, "string" },
     ["keymaps.toggle_seen"] = { opts.keymaps.toggle_seen, "string" },
+    ["keymaps.mark_unseen"] = { opts.keymaps.mark_unseen, "string" },
     ["keymaps.quit"] = { opts.keymaps.quit, "string" },
 
     -- Logging

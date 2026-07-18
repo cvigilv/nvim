@@ -55,6 +55,7 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.refresh, function() M.refresh(bufnr) end, "refresh mailbox")
   _map(keymaps.open, function() M.open_message_at_cursor(bufnr) end, "open message")
   _map(keymaps.toggle_seen, function() M.toggle_seen_at_cursor(bufnr) end, "toggle seen flag")
+  _map(keymaps.mark_unseen, function() M.mark_unseen_at_cursor(bufnr) end, "mark as unseen")
 
   -- Drop per-buffer state when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -170,20 +171,16 @@ M.open_message_at_cursor = function(bufnr)
   })
 end
 
---- Toggle the "Seen" flag of the envelope under the cursor
----@param bufnr integer Mailbox buffer handle (0 for the current buffer)
-M.toggle_seen_at_cursor = function(bufnr)
-  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
-  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
-  local _envelope = M.get_envelope_at(bufnr, _lnum)
+--- Set the "Seen" flag of an envelope and refresh the mailbox
+---@param bufnr integer Mailbox buffer handle
+---@param envelope Correo.Himalaya.Envelope Envelope to update
+---@param seen boolean Desired "Seen" state
+local set_envelope_seen = function(bufnr, envelope, seen)
   local _state = State[bufnr]
-  if _envelope == nil or _state == nil then return end
-
-  local _seen = vim.tbl_contains(_envelope.flags, "Seen")
-  himalaya.change_flags(_seen and "remove" or "add", {
+  himalaya.change_flags(seen and "add" or "remove", {
     account = _state.account,
     folder = _state.folder,
-    ids = { _envelope.id },
+    ids = { envelope.id },
     flags = { "seen" },
   }, function(_, _err)
     if _err then
@@ -193,6 +190,24 @@ M.toggle_seen_at_cursor = function(bufnr)
     end
     if vim.api.nvim_buf_is_valid(bufnr) then M.refresh(bufnr) end
   end)
+end
+
+--- Toggle the "Seen" flag of the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.toggle_seen_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
+  if _envelope == nil or State[bufnr] == nil then return end
+  set_envelope_seen(bufnr, _envelope, not vim.tbl_contains(_envelope.flags, "Seen"))
+end
+
+--- Mark the envelope under the cursor as unseen/unread
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.mark_unseen_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
+  if _envelope == nil or State[bufnr] == nil then return end
+  set_envelope_seen(bufnr, _envelope, false)
 end
 
 --- Get the account/folder context of a mailbox buffer

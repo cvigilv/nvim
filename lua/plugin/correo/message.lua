@@ -89,6 +89,7 @@ local configure_buffer = function(bufnr, keymaps)
   end
   _map(keymaps.quit, function() return_to_mailbox(bufnr) end, "back to mailbox")
   _map(keymaps.toggle_seen, function() M.toggle_seen(bufnr) end, "toggle seen flag")
+  _map(keymaps.mark_unseen, function() M.set_seen(bufnr, false) end, "mark as unseen")
 
   -- Drop per-buffer context when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -97,16 +98,23 @@ local configure_buffer = function(bufnr, keymaps)
   })
 end
 
---- Toggle the "Seen" flag of the message shown in a buffer
+--- Record a "Seen" flag state on a local envelope copy
+---@param envelope Correo.Himalaya.Envelope Envelope to update in place
+---@param seen boolean Desired "Seen" state
+local record_seen = function(envelope, seen)
+  envelope.flags = vim.tbl_filter(function(f) return f ~= "Seen" end, envelope.flags)
+  if seen then table.insert(envelope.flags, "Seen") end
+end
+
+--- Set the "Seen" flag of the message shown in a buffer
 ---@param bufnr integer Message buffer handle (0 for the current buffer)
-M.toggle_seen = function(bufnr)
+---@param seen boolean Desired "Seen" state
+M.set_seen = function(bufnr, seen)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _ctx = State[bufnr]
   if _ctx == nil then return end
 
-  local _seen = vim.tbl_contains(_ctx.envelope.flags, "Seen")
-  local _action = _seen and "remove" or "add"
-  himalaya.change_flags(_action, {
+  himalaya.change_flags(seen and "add" or "remove", {
     account = _ctx.account,
     folder = _ctx.folder,
     ids = { _ctx.envelope.id },
@@ -117,13 +125,8 @@ M.toggle_seen = function(bufnr)
       log.error(_err)
       return
     end
-    -- Update the local copy so repeated toggles keep alternating
-    if _seen then
-      _ctx.envelope.flags = vim.tbl_filter(function(f) return f ~= "Seen" end, _ctx.envelope.flags)
-    else
-      table.insert(_ctx.envelope.flags, "Seen")
-    end
-    vim.notify(("[correo] marked %sseen"):format(_seen and "un" or ""), vim.log.levels.INFO)
+    record_seen(_ctx.envelope, seen)
+    vim.notify(("[correo] marked %sseen"):format(seen and "" or "un"), vim.log.levels.INFO)
     -- Reflect the change in the originating mailbox
     if vim.api.nvim_buf_is_valid(_ctx.mailbox_bufnr) then
       require("plugin.correo.mailbox").refresh(_ctx.mailbox_bufnr)
@@ -131,19 +134,36 @@ M.toggle_seen = function(bufnr)
   end)
 end
 
+--- Toggle the "Seen" flag of the message shown in a buffer
+---@param bufnr integer Message buffer handle (0 for the current buffer)
+M.toggle_seen = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _ctx = State[bufnr]
+  if _ctx == nil then return end
+  M.set_seen(bufnr, not vim.tbl_contains(_ctx.envelope.flags, "Seen"))
+end
+
 --- Fetch a message and display it in a /tmp-backed buffer
+---
+--- Reading goes through `message read` without `--preview`, so opening a
+--- message marks it as seen (like any mail client); `gS` reverts that.
 ---@param ctx Correo.Message.Context Message to open and where it came from
 M.open = function(ctx)
   himalaya.read_message({
     account = ctx.account,
     folder = ctx.folder,
     id = ctx.envelope.id,
-    preview = true,
+    preview = false,
   }, function(_content, _err)
     if _err then
       vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
       log.error(_err)
       return
+    end
+    -- The server just marked the message seen: mirror that locally and in the mailbox
+    record_seen(ctx.envelope, true)
+    if vim.api.nvim_buf_is_valid(ctx.mailbox_bufnr) then
+      require("plugin.correo.mailbox").refresh(ctx.mailbox_bufnr)
     end
 
     -- Materialize the message on disk, then display it (reload if already open)
