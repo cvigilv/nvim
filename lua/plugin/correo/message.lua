@@ -33,11 +33,46 @@ end
 ---@param bufnr integer Message buffer handle
 local return_to_mailbox = function(bufnr)
   local _ctx = State[bufnr]
-  if _ctx and vim.api.nvim_buf_is_valid(_ctx.mailbox_bufnr) then
-    vim.api.nvim_set_current_buf(_ctx.mailbox_bufnr)
-  else
+  if _ctx == nil or not vim.api.nvim_buf_is_valid(_ctx.mailbox_bufnr) then
     vim.cmd.bprevious()
+    return
   end
+  -- Mailbox visible in another window (split mode): close ours and focus it
+  local _win = vim.fn.bufwinid(_ctx.mailbox_bufnr)
+  if _win ~= -1 and _win ~= vim.api.nvim_get_current_win() then
+    vim.api.nvim_win_close(vim.api.nvim_get_current_win(), false)
+    vim.api.nvim_set_current_win(_win)
+    return
+  end
+  vim.api.nvim_set_current_buf(_ctx.mailbox_bufnr)
+end
+
+--- Find a window in the current tab already showing a message of a mailbox
+---@param mailbox_bufnr integer Mailbox buffer handle
+---@return integer|nil win Window handle, or nil if none
+local find_message_window = function(mailbox_bufnr)
+  for _, _win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local _ctx = State[vim.api.nvim_win_get_buf(_win)]
+    if _ctx and _ctx.mailbox_bufnr == mailbox_bufnr then return _win end
+  end
+  return nil
+end
+
+--- Display a message file according to `ui.message.open` ("replace" or "split")
+---@param path string Path of the message file on disk
+---@param mailbox_bufnr integer Mailbox buffer the message was opened from
+local display = function(path, mailbox_bufnr)
+  local _style = vim.g.correo.opts.ui.message.open
+  local _reuse_win = find_message_window(mailbox_bufnr)
+  if _style == "split" and _reuse_win ~= nil then
+    -- A split for this mailbox is already open: reuse it
+    vim.api.nvim_set_current_win(_reuse_win)
+  elseif _style == "split" then
+    -- 20% mailbox on top, 80% message below
+    local _height = math.floor(vim.api.nvim_win_get_height(0) * 0.8)
+    vim.cmd(("belowright %dsplit"):format(_height))
+  end
+  vim.cmd.edit({ vim.fn.fnameescape(path), bang = true })
 end
 
 --- Configure buffer options, keymaps and cleanup for a message buffer
@@ -111,10 +146,10 @@ M.open = function(ctx)
       return
     end
 
-    -- Materialize the message on disk, then edit it (reload if already open)
+    -- Materialize the message on disk, then display it (reload if already open)
     local _path = build_path(ctx.account, ctx.envelope.id)
     vim.fn.writefile(vim.split(_content:gsub("\r\n", "\n"), "\n"), _path)
-    vim.cmd.edit({ vim.fn.fnameescape(_path), bang = true })
+    display(_path, ctx.mailbox_bufnr)
 
     local _bufnr = vim.api.nvim_get_current_buf()
     State[_bufnr] = ctx
