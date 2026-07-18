@@ -15,9 +15,14 @@
 ---@field flagged string Icon shown for flagged envelopes
 ---@field attachment string Icon shown for envelopes with attachments
 
+---@class Correo.UI.Message.Configuration
+---@field open "replace"|"split" How to open a message: replace the mailbox window, or open a
+---horizontal split (20% mailbox / 80% message)
+
 ---@class Correo.UI.Configuration
 ---@field from_width integer Display width of the sender column
 ---@field icons Correo.UI.Icons Icons used in the mailbox listing
+---@field message Correo.UI.Message.Configuration Message buffer behaviour
 
 ---@class Correo.Keymaps.Configuration
 ---@field refresh string Keymap to refresh the mailbox buffer
@@ -42,6 +47,9 @@ local defaults = {
   page_size = 100,
   ui = {
     from_width = 24,
+    message = {
+      open = "replace",
+    },
     icons = {
       unread = "●",
       flagged = "⚑",
@@ -82,6 +90,11 @@ M.updateconfig = function(opts)
 
     -- UI
     ["ui.from_width"] = { opts.ui.from_width, "number" },
+    ["ui.message.open"] = {
+      opts.ui.message.open,
+      function(v) return v == "replace" or v == "split" end,
+      '"replace" or "split"',
+    },
     ["ui.icons.unread"] = { opts.ui.icons.unread, "string" },
     ["ui.icons.flagged"] = { opts.ui.icons.flagged, "string" },
     ["ui.icons.attachment"] = { opts.ui.icons.attachment, "string" },
