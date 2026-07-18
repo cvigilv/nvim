@@ -88,12 +88,12 @@ end
 local READ_HEADERS = { "From", "To", "Cc", "Subject", "Date" }
 
 --- Read the rendered plain-text version of a message
----@param opts { account?: string, folder?: string, id: string, preview?: boolean }
+---@param opts { account?: string, folder?: string, id: string, preview?: boolean, headers?: string[] }
 ---@param on_done fun(content: string|nil, err: string|nil) Callback with the message text
 M.read_message = function(opts, on_done)
   -- `--preview` reads without applying the "Seen" flag to the envelope
   local _extra = opts.preview and { "--preview" } or {}
-  for _, _header in ipairs(READ_HEADERS) do
+  for _, _header in ipairs(opts.headers or READ_HEADERS) do
     vim.list_extend(_extra, { "--header", _header })
   end
   table.insert(_extra, opts.id)

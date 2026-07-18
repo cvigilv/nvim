@@ -12,10 +12,11 @@ local log = require("plugin.correo.log")
 
 ---@class Correo.Compose.Context
 ---@field account string|nil Account the message will be sent from
----@field folder string|nil Folder of the replied/forwarded message (nil for a new message)
----@field kind "write"|"reply"|"forward" Compose flavour
----@field envelope Correo.Himalaya.Envelope|nil Envelope being replied to/forwarded
+---@field folder string|nil Folder of the source message (nil for a new message)
+---@field kind "write"|"reply"|"forward"|"draft" Compose flavour
+---@field envelope Correo.Himalaya.Envelope|nil Envelope being replied to/forwarded/edited
 ---@field reply_all boolean|nil Whether a reply targets all recipients
+---@field mailbox_bufnr integer|nil Mailbox to refresh after a draft is consumed
 
 -- Per-buffer context, keyed by buffer number
 ---@type table<integer, Correo.Compose.Context>
@@ -51,20 +52,50 @@ local configure_buffer = function(bufnr)
   })
 end
 
+--- Delete the original draft once it was sent or superseded (no-op otherwise)
+---@param ctx Correo.Compose.Context Compose context
+---@param on_done fun() Continuation, called even if the deletion failed
+local delete_original_draft = function(ctx, on_done)
+  if ctx.kind ~= "draft" or ctx.envelope == nil then
+    on_done()
+    return
+  end
+  himalaya.delete_messages({
+    account = ctx.account,
+    folder = ctx.folder,
+    ids = { ctx.envelope.id },
+  }, function(_, _err)
+    if _err then
+      vim.notify("[correo] could not delete original draft: " .. _err, vim.log.levels.WARN)
+      log.error(_err)
+    end
+    on_done()
+  end)
+end
+
 --- Report a template operation and close the compose buffer on success
+---
+--- When editing a draft, the original draft message is deleted first so the
+--- drafts folder never keeps a stale copy of what was sent/updated.
 ---@param bufnr integer Compose buffer handle
+---@param ctx Correo.Compose.Context Compose context
 ---@param success string Message shown when the operation succeeded
 ---@return fun(result: string|nil, err: string|nil) callback Completion callback
-local finish_compose = function(bufnr, success)
+local finish_compose = function(bufnr, ctx, success)
   return function(_, _err)
     if _err then
       vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
       log.error(_err)
       return
     end
-    vim.notify("[correo] " .. success, vim.log.levels.INFO)
-    -- The compose buffer served its purpose (local /tmp copy stays as backup)
-    if vim.api.nvim_buf_is_valid(bufnr) then vim.cmd(("bwipeout! %d"):format(bufnr)) end
+    delete_original_draft(ctx, function()
+      vim.notify("[correo] " .. success, vim.log.levels.INFO)
+      -- The compose buffer served its purpose (local /tmp copy stays as backup)
+      if vim.api.nvim_buf_is_valid(bufnr) then vim.cmd(("bwipeout! %d"):format(bufnr)) end
+      if ctx.mailbox_bufnr ~= nil and vim.api.nvim_buf_is_valid(ctx.mailbox_bufnr) then
+        require("plugin.correo.mailbox").refresh(ctx.mailbox_bufnr)
+      end
+    end)
   end
 end
 
@@ -92,17 +123,33 @@ M.send = function(bufnr)
   if _choice == 1 then
     himalaya.send_template(
       { account = _ctx.account, template = _template },
-      finish_compose(bufnr, "message sent")
+      finish_compose(bufnr, _ctx, "message sent")
     )
   elseif _choice == 2 then
     local _folder = vim.g.correo.opts.drafts_folder
     himalaya.save_template(
       { account = _ctx.account, folder = _folder, template = _template },
-      finish_compose(bufnr, "draft saved to " .. _folder)
+      finish_compose(bufnr, _ctx, "draft saved to " .. _folder)
     )
   else
     vim.notify("[correo] cancelled, kept editing", vim.log.levels.INFO)
   end
+end
+
+--- Materialize compose content on disk and edit it in the current window
+---@param ctx Correo.Compose.Context Compose context to register for the buffer
+---@param content string Raw template content (headers + body)
+---@return integer bufnr Handle of the compose buffer
+local open_compose_buffer = function(ctx, content)
+  local _path = build_path(ctx)
+  vim.fn.writefile(vim.split(content:gsub("\r\n", "\n"), "\n"), _path)
+  vim.cmd.edit({ vim.fn.fnameescape(_path), bang = true })
+
+  local _bufnr = vim.api.nvim_get_current_buf()
+  State[_bufnr] = ctx
+  configure_buffer(_bufnr)
+  log.fmt_debug("composing %s at %s", ctx.kind, _path)
+  return _bufnr
 end
 
 --- Generate a template and open it as an editable compose buffer
@@ -119,18 +166,37 @@ M.open = function(ctx)
       log.error(_err)
       return
     end
-
-    -- Materialize the template on disk and edit it in the current window
-    local _path = build_path(ctx)
-    vim.fn.writefile(vim.split(_template.content:gsub("\r\n", "\n"), "\n"), _path)
-    vim.cmd.edit({ vim.fn.fnameescape(_path), bang = true })
-
-    local _bufnr = vim.api.nvim_get_current_buf()
-    State[_bufnr] = ctx
-    configure_buffer(_bufnr)
+    open_compose_buffer(ctx, _template.content)
     -- Land the cursor where the template says the body starts
     pcall(vim.api.nvim_win_set_cursor, 0, { _template.cursor.row, _template.cursor.col })
-    log.fmt_debug("composing %s at %s", ctx.kind, _path)
+  end)
+end
+
+-- Headers preserved when a draft is reopened for editing (threading included)
+local DRAFT_HEADERS = { "From", "To", "Cc", "Bcc", "Subject", "In-Reply-To", "References" }
+
+--- Reopen an existing draft as an editable compose buffer
+---
+--- Sending (or re-saving) the buffer deletes the original draft message, so
+--- the drafts folder always holds at most one copy.
+---@param ctx Correo.Compose.Context Draft to edit (`envelope` and `folder` required)
+M.open_draft = function(ctx)
+  himalaya.read_message({
+    account = ctx.account,
+    folder = ctx.folder,
+    id = ctx.envelope.id,
+    preview = true,
+    headers = DRAFT_HEADERS,
+  }, function(_content, _err)
+    if _err or _content == nil then
+      vim.notify("[correo] " .. (_err or "no draft content"), vim.log.levels.ERROR)
+      log.error(_err)
+      return
+    end
+    ctx.kind = "draft"
+    open_compose_buffer(ctx, _content)
+    -- Resume editing at the end of the body
+    vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
   end)
 end
 
