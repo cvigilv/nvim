@@ -149,6 +149,15 @@ M.open = function(opts)
   M.refresh(_bufnr)
 end
 
+--- Get the account/folder context of a mailbox buffer
+---@param bufnr integer Buffer handle (0 for the current buffer)
+---@return { account: string|nil, folder: string }|nil context Context, or nil if not a mailbox
+M.get_context = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  return _state and { account = _state.account, folder = _state.folder } or nil
+end
+
 --- Get the envelope rendered on a given line of a mailbox buffer
 ---@param bufnr integer Buffer handle of the mailbox
 ---@param lnum integer 1-indexed line number
