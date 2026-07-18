@@ -48,6 +48,10 @@ can be tested manually and committed.
   `envelope list [QUERY]`; folder/account switching from within the mailbox; paging keymaps.
 - [ ] **Step 6 — Public API polish.** Round out `init.lua` API (open/read/compose/search),
   document keymaps, help/`g?` overlay.
+- [ ] **Backlog — customizable mailbox view.** `ui.mailbox.format` config entry: a
+  statusline-style flag string (e.g. `"%u%F%a %d  %f  %s"` → unread, flagged, attachment,
+  date, from, subject) that drives `render.lua`. The current fixed column layout becomes the
+  default value of that string. Revisit after the MVP slices.
 - [ ] **Step 7 — Unit tests.** Headless `nvim -l` test harness (no external deps, per rules):
   cover `render.lua` formatting, `cli.lua` result normalization, argv building in
   `himalaya.lua`, and mailbox state transitions with a stubbed CLI.
