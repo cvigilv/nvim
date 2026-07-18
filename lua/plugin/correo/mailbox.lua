@@ -216,6 +216,9 @@ M.reload = function(bufnr)
 end
 
 --- Open the message of the envelope under the cursor
+---
+--- In the drafts folder (per `drafts_folder` config) this resumes editing the
+--- draft as a compose buffer instead of opening a read-only view.
 ---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
 M.open_message_at_cursor = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
@@ -224,6 +227,16 @@ M.open_message_at_cursor = function(bufnr)
   local _state = State[bufnr]
   if _envelope == nil or _state == nil then
     log.warn("no envelope under cursor")
+    return
+  end
+  if _state.folder == vim.g.correo.opts.drafts_folder then
+    require("plugin.correo.compose").open_draft({
+      account = _state.account,
+      folder = _state.folder,
+      kind = "draft",
+      envelope = _envelope,
+      mailbox_bufnr = bufnr,
+    })
     return
   end
   require("plugin.correo.message").open({
