@@ -38,10 +38,13 @@ can be tested manually and committed.
   `/tmp/<account>.<id>` with `filetype=mail` via `message read`; opening marks the message
   seen (like any mail client). Keymaps: toggle seen (`gs`), mark unseen (`gS`), back to
   mailbox (`q`). `ui.message.open` picks replace vs 20/80 split display.
-- [ ] **Step 3 — Mutations (oil-style commit on `:w`).** Mailbox becomes modifiable via
-  `acwrite`/`BufWriteCmd`: deleting a line stages a delete (detected by vanished identity
-  extmarks, not text parsing); keymaps stage move/archive/flag ops. `:w` shows a confirmation
-  summary, then runs `message delete|move` / `flag add|remove` and refreshes.
+- [x] **Step 3 — Mutations (oil-style commit on `:w`).** Mailbox is modifiable via
+  `acwrite`/`BufWriteCmd`: deleting a line (`dd`) stages a delete (detected by invalidated
+  identity extmarks, not text parsing; `u` unstages); `ga` stages/unstages archive (move to
+  `archive_folder`), `gm` stages/unstages a move (folder picked via `vim.ui.select`), shown
+  as virtual text. `:w` shows a confirmation summary, then runs `message delete|move`
+  grouped per operation and refreshes. Draws are excluded from undo history so `u` can never
+  invalidate the whole listing.
 - [ ] **Step 4 — Compose: reply, forward, write.** `template reply|forward|write` → editable
   buffer (`filetype=mail`) → send on `:w` (confirm first) via `template send` reading the
   buffer as the raw template. Never let Himalaya spawn its own editor.
@@ -49,6 +52,9 @@ can be tested manually and committed.
   `envelope list [QUERY]`; folder/account switching from within the mailbox; paging keymaps.
 - [ ] **Step 6 — Public API polish.** Round out `init.lua` API (open/read/compose/search),
   document keymaps, help/`g?` overlay.
+- [ ] **Backlog — verbose staged-operation display.** Highlight the whole line of a staged
+  archive/move (extmark `line_hl_group`) in addition to the virtual text, so staged rows are
+  visible at a glance.
 - [ ] **Backlog — customizable mailbox view.** `ui.mailbox.format` config entry: a
   statusline-style flag string (e.g. `"%u%F%a %d  %f  %s"` → unread, flagged, attachment,
   date, from, subject) that drives `render.lua`. The current fixed column layout becomes the
