@@ -17,10 +17,11 @@ local M = {}
 --- Run a command asynchronously and hand a normalized result to `on_done`
 ---@param argv string[] Command and arguments to execute
 ---@param on_done fun(result: Correo.CLI.Result) Callback, invoked on the main event loop
-M.run = function(argv, on_done)
+---@param stdin string|nil Text fed to the command's standard input
+M.run = function(argv, on_done, stdin)
   vim.system(
     argv,
-    { text = true },
+    { text = true, stdin = stdin },
     vim.schedule_wrap(function(_out)
       on_done({
         ok = _out.code == 0,
@@ -32,15 +33,40 @@ M.run = function(argv, on_done)
   )
 end
 
+--- Format a failed result as a single human-readable error string
+---@param argv string[] Command that was executed
+---@param result Correo.CLI.Result Failed result
+---@return string err Error message
+local format_error = function(argv, result)
+  return ("`%s` failed (%d): %s"):format(
+    table.concat(argv, " "),
+    result.code,
+    vim.trim(result.stderr)
+  )
+end
+
+--- Run a command asynchronously, expecting plain-text output
+---@param argv string[] Command and arguments to execute
+---@param on_done fun(output: string|nil, err: string|nil) Callback with trimmed stdout or an error
+---@param stdin string|nil Text fed to the command's standard input
+M.run_text = function(argv, on_done, stdin)
+  M.run(argv, function(_result)
+    if not _result.ok then
+      on_done(nil, format_error(argv, _result))
+      return
+    end
+    on_done(vim.trim(_result.stdout), nil)
+  end, stdin)
+end
+
 --- Run a command asynchronously and JSON-decode its standard output
 ---@param argv string[] Command and arguments to execute
 ---@param on_done fun(data: any|nil, err: string|nil) Callback with decoded data or an error message
-M.run_json = function(argv, on_done)
+---@param stdin string|nil Text fed to the command's standard input
+M.run_json = function(argv, on_done, stdin)
   M.run(argv, function(_result)
-    -- Surface a single human-readable error string for any failure mode
     if not _result.ok then
-      local _cmd = table.concat(argv, " ")
-      on_done(nil, ("`%s` failed (%d): %s"):format(_cmd, _result.code, vim.trim(_result.stderr)))
+      on_done(nil, format_error(argv, _result))
       return
     end
 
@@ -53,7 +79,7 @@ M.run_json = function(argv, on_done)
     end
 
     on_done(_data, nil)
-  end)
+  end, stdin)
 end
 
 return M

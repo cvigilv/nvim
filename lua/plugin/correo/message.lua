@@ -90,6 +90,9 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.quit, function() return_to_mailbox(bufnr) end, "back to mailbox")
   _map(keymaps.toggle_seen, function() M.toggle_seen(bufnr) end, "toggle seen flag")
   _map(keymaps.mark_unseen, function() M.set_seen(bufnr, false) end, "mark as unseen")
+  _map(keymaps.reply, function() M.compose(bufnr, "reply", false) end, "reply")
+  _map(keymaps.reply_all, function() M.compose(bufnr, "reply", true) end, "reply all")
+  _map(keymaps.forward, function() M.compose(bufnr, "forward", false) end, "forward")
 
   -- Drop per-buffer context when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -141,6 +144,23 @@ M.toggle_seen = function(bufnr)
   local _ctx = State[bufnr]
   if _ctx == nil then return end
   M.set_seen(bufnr, not vim.tbl_contains(_ctx.envelope.flags, "Seen"))
+end
+
+--- Compose a reply/forward for the message shown in a buffer
+---@param bufnr integer Message buffer handle (0 for the current buffer)
+---@param kind "reply"|"forward" Compose flavour
+---@param reply_all boolean Whether a reply targets all recipients
+M.compose = function(bufnr, kind, reply_all)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _ctx = State[bufnr]
+  if _ctx == nil then return end
+  require("plugin.correo.compose").open({
+    account = _ctx.account,
+    folder = _ctx.folder,
+    kind = kind,
+    envelope = _ctx.envelope,
+    reply_all = reply_all,
+  })
 end
 
 --- Fetch a message and display it in a /tmp-backed buffer

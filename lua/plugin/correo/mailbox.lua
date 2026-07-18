@@ -66,6 +66,9 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.mark_unseen, function() M.mark_unseen_at_cursor(bufnr) end, "mark as unseen")
   _map(keymaps.archive, function() M.stage_archive_at_cursor(bufnr) end, "stage archive")
   _map(keymaps.move, function() M.stage_move_at_cursor(bufnr) end, "stage move to folder")
+  _map(keymaps.reply, function() M.compose_at_cursor(bufnr, "reply", false) end, "reply")
+  _map(keymaps.reply_all, function() M.compose_at_cursor(bufnr, "reply", true) end, "reply all")
+  _map(keymaps.forward, function() M.compose_at_cursor(bufnr, "forward", false) end, "forward")
 
   vim.api.nvim_create_autocmd("BufWriteCmd", {
     buffer = bufnr,
@@ -250,6 +253,27 @@ local set_envelope_seen = function(bufnr, envelope, seen)
     end
     if vim.api.nvim_buf_is_valid(bufnr) then M.refresh(bufnr) end
   end)
+end
+
+--- Compose a reply/forward for the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+---@param kind "reply"|"forward" Compose flavour
+---@param reply_all boolean Whether a reply targets all recipients
+M.compose_at_cursor = function(bufnr, kind, reply_all)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then
+    log.warn("no envelope under cursor")
+    return
+  end
+  require("plugin.correo.compose").open({
+    account = _state.account,
+    folder = _state.folder,
+    kind = kind,
+    envelope = _envelope,
+    reply_all = reply_all,
+  })
 end
 
 --- Guard flag toggles against running on a mailbox with pending operations:

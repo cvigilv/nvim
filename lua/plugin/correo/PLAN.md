@@ -45,13 +45,19 @@ can be tested manually and committed.
   as virtual text. `:w` shows a confirmation summary, then runs `message delete|move`
   grouped per operation and refreshes. Draws are excluded from undo history so `u` can never
   invalidate the whole listing.
-- [ ] **Step 4 — Compose: reply, forward, write.** `template reply|forward|write` → editable
-  buffer (`filetype=mail`) → send on `:w` (confirm first) via `template send` reading the
-  buffer as the raw template. Never let Himalaya spawn its own editor.
+- [x] **Step 4 — Compose: reply, forward, write.** `template reply|forward|write` → editable
+  buffer at `/tmp/<account>.<kind>.<id>` (`filetype=mail`, cursor at template's body start) →
+  `:w` confirms then sends via `template send`; declining keeps the draft on disk. Entry
+  points: `gr`/`gR`/`gf` in mailbox and message buffers, `:CorreoWrite [account]` for new
+  messages. Himalaya never spawns its own editor.
 - [ ] **Step 5 — Search and filter.** `:Correo` grows a query argument mapped to
   `envelope list [QUERY]`; folder/account switching from within the mailbox; paging keymaps.
 - [ ] **Step 6 — Public API polish.** Round out `init.lua` API (open/read/compose/search),
   document keymaps, help/`g?` overlay.
+- [ ] **Backlog — expose buffer actions as user commands.** The functionality behind `<CR>`,
+  `gs`, `gS`, `ga` and `gm` (open message, toggle seen, mark unseen, stage archive, stage
+  move) should also be reachable as user commands (e.g. `:CorreoOpen`, `:CorreoSeen`, ...)
+  so keymaps are optional shortcuts, not the only interface.
 - [ ] **Backlog — verbose staged-operation display.** Highlight the whole line of a staged
   archive/move (extmark `line_hl_group`) in addition to the virtual text, so staged rows are
   visible at a glance.

@@ -43,19 +43,20 @@ local resolve_binary = function()
   return _opts and _opts.binary or "himalaya"
 end
 
---- Build a Himalaya argv with JSON output and optional account/folder flags
+--- Build a Himalaya argv with optional account/folder flags
 ---@param subcmd string[] Subcommand parts, e.g. { "envelope", "list" }
 ---@param ctx Correo.Himalaya.ContextOpts|nil Account/folder context
 ---@param extra string[]|nil Extra positional arguments or flags
----@return string[] argv Full command ready for `cli.run_json`
-local build_argv = function(subcmd, ctx, extra)
+---@param plain boolean|nil Keep plain output (template send/save break with `--output json`)
+---@return string[] argv Full command ready for `cli.run_json`/`cli.run_text`
+local build_argv = function(subcmd, ctx, extra, plain)
   ctx = ctx or {}
   local _argv = { resolve_binary() }
   vim.list_extend(_argv, subcmd)
   if ctx.account then vim.list_extend(_argv, { "--account", ctx.account }) end
   if ctx.folder then vim.list_extend(_argv, { "--folder", ctx.folder }) end
   if extra then vim.list_extend(_argv, extra) end
-  vim.list_extend(_argv, { "--output", "json" })
+  if not plain then vim.list_extend(_argv, { "--output", "json" }) end
   return _argv
 end
 
@@ -98,6 +99,42 @@ M.read_message = function(opts, on_done)
   table.insert(_extra, opts.id)
   local _ctx = { account = opts.account, folder = opts.folder }
   cli.run_json(build_argv({ "message", "read" }, _ctx, _extra), on_done)
+end
+
+---@class Correo.Himalaya.Template
+---@field content string Raw template: headers plus MML body
+---@field cursor { row: integer, col: integer } Suggested initial cursor position (1-indexed row)
+
+--- Generate a compose template (new message, reply or forward)
+---@param kind "write"|"reply"|"forward" Template flavour
+---@param opts { account?: string, folder?: string, id?: string, reply_all?: boolean }
+---@param on_done fun(template: Correo.Himalaya.Template|nil, err: string|nil)
+M.build_template = function(kind, opts, on_done)
+  local _extra = {}
+  if kind == "reply" and opts.reply_all then table.insert(_extra, "--all") end
+  if opts.id then table.insert(_extra, opts.id) end
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "template", kind }, _ctx, _extra), on_done)
+end
+
+--- Send a raw template (headers + MML body) through the account's backend
+---
+--- The template travels over stdin: when stdin is not a TTY (always the case
+--- under `vim.system`) Himalaya reads it from there, ignoring positionals.
+--- Plain output is required: `template send/save` misbehave under `-o json`.
+---@param opts { account?: string, template: string }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.send_template = function(opts, on_done)
+  local _ctx = { account = opts.account }
+  cli.run_text(build_argv({ "template", "send" }, _ctx, nil, true), on_done, opts.template)
+end
+
+--- Save a raw template (headers + MML body) as a message in a folder
+---@param opts { account?: string, folder: string, template: string }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.save_template = function(opts, on_done)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_text(build_argv({ "template", "save" }, _ctx, nil, true), on_done, opts.template)
 end
 
 --- Mark messages as deleted (moved to trash or expunged, per backend behaviour)
