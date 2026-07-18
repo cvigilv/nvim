@@ -34,7 +34,7 @@ can be tested manually and committed.
   accounts), `render.lua` (envelope → line + highlight spans), `highlights.lua`,
   `mailbox.lua` (buffer at `correo://<account>/<folder>`, non-modifiable, per-line identity
   extmarks, `R` to refresh), `excmd.lua` (`:Correo [folder]` with cached folder completion).
-- [ ] **Step 2 — Message reading.** `<CR>` on an envelope opens the message in a buffer at
+- [x] **Step 2 — Message reading.** `<CR>` on an envelope opens the message in a buffer at
   `/tmp/<account>.<id>` with `filetype=mail`, using `message read --preview` (no implicit
   "seen" mutation). Keymaps to mark seen/unseen, go back to mailbox.
 - [ ] **Step 3 — Mutations (oil-style commit on `:w`).** Mailbox becomes modifiable via

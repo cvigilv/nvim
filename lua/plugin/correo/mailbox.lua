@@ -49,10 +49,12 @@ local configure_buffer = function(bufnr, keymaps)
   vim.bo[bufnr].modifiable = false
   vim.bo[bufnr].filetype = "correo"
 
-  vim.keymap.set("n", keymaps.refresh, function() M.refresh(bufnr) end, {
-    buffer = bufnr,
-    desc = "correo: refresh mailbox",
-  })
+  local _map = function(lhs, rhs, desc)
+    vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = "correo: " .. desc })
+  end
+  _map(keymaps.refresh, function() M.refresh(bufnr) end, "refresh mailbox")
+  _map(keymaps.open, function() M.open_message_at_cursor(bufnr) end, "open message")
+  _map(keymaps.toggle_seen, function() M.toggle_seen_at_cursor(bufnr) end, "toggle seen flag")
 
   -- Drop per-buffer state when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -147,6 +149,50 @@ M.open = function(opts)
   vim.wo.wrap = false
   vim.wo.cursorline = true
   M.refresh(_bufnr)
+end
+
+--- Open the message of the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.open_message_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+  local _envelope = M.get_envelope_at(bufnr, _lnum)
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then
+    log.warn("no envelope under cursor")
+    return
+  end
+  require("plugin.correo.message").open({
+    account = _state.account,
+    folder = _state.folder,
+    envelope = _envelope,
+    mailbox_bufnr = bufnr,
+  })
+end
+
+--- Toggle the "Seen" flag of the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.toggle_seen_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+  local _envelope = M.get_envelope_at(bufnr, _lnum)
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then return end
+
+  local _seen = vim.tbl_contains(_envelope.flags, "Seen")
+  himalaya.change_flags(_seen and "remove" or "add", {
+    account = _state.account,
+    folder = _state.folder,
+    ids = { _envelope.id },
+    flags = { "seen" },
+  }, function(_, _err)
+    if _err then
+      vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
+      log.error(_err)
+      return
+    end
+    if vim.api.nvim_buf_is_valid(bufnr) then M.refresh(bufnr) end
+  end)
 end
 
 --- Get the account/folder context of a mailbox buffer
