@@ -90,6 +90,18 @@ M.setup = function(opts)
     desc = "Open an account's mailbox (defaults to the configured account)",
   })
 
+  vim.api.nvim_create_user_command("CorreoWrite", function(_cmd)
+    local _account = _cmd.fargs[1] or current_account()
+    require("plugin.correo.compose").open({ account = _account, kind = "write" })
+  end, {
+    nargs = "?",
+    complete = function(_arglead)
+      prime_account_cache()
+      return match_prefix(Account_cache or {}, _arglead)
+    end,
+    desc = "Compose a new message (defaults to the account in scope)",
+  })
+
   vim.api.nvim_create_user_command("CorreoFolder", function(_cmd)
     local _account = current_account()
     prime_folder_cache(_account)

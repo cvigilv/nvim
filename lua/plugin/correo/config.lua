@@ -32,12 +32,16 @@
 ---@field quit string Keymap to return from a message buffer to its mailbox
 ---@field archive string Keymap to stage/unstage archiving the envelope under the cursor
 ---@field move string Keymap to stage/unstage moving the envelope under the cursor
+---@field reply string Keymap to reply (mailbox and message buffers)
+---@field reply_all string Keymap to reply to all recipients (mailbox and message buffers)
+---@field forward string Keymap to forward (mailbox and message buffers)
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
 ---@field account string|nil Account to use (nil → Himalaya's default account)
 ---@field folder string Folder opened by default
 ---@field archive_folder string Folder that "archive" moves messages to
+---@field drafts_folder string Folder drafts are saved to ("drafts" resolves Himalaya's per-account alias)
 ---@field page_size integer Number of envelopes fetched per page
 ---@field ui Correo.UI.Configuration UI options
 ---@field keymaps Correo.Keymaps.Configuration Mailbox buffer keymaps
@@ -49,6 +53,7 @@ local defaults = {
   account = nil,
   folder = "INBOX",
   archive_folder = "Archive",
+  drafts_folder = "drafts",
   page_size = 100,
   ui = {
     from_width = 24,
@@ -69,6 +74,9 @@ local defaults = {
     quit = "q",
     archive = "ga",
     move = "gm",
+    reply = "gr",
+    reply_all = "gR",
+    forward = "gf",
   },
   logging = {
     enabled = true,
@@ -95,6 +103,7 @@ M.updateconfig = function(opts)
     ["account"] = { opts.account, "string", true },
     ["folder"] = { opts.folder, "string" },
     ["archive_folder"] = { opts.archive_folder, "string" },
+    ["drafts_folder"] = { opts.drafts_folder, "string" },
     ["page_size"] = { opts.page_size, "number" },
 
     -- UI
@@ -116,6 +125,9 @@ M.updateconfig = function(opts)
     ["keymaps.quit"] = { opts.keymaps.quit, "string" },
     ["keymaps.archive"] = { opts.keymaps.archive, "string" },
     ["keymaps.move"] = { opts.keymaps.move, "string" },
+    ["keymaps.reply"] = { opts.keymaps.reply, "string" },
+    ["keymaps.reply_all"] = { opts.keymaps.reply_all, "string" },
+    ["keymaps.forward"] = { opts.keymaps.forward, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },
