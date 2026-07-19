@@ -27,6 +27,7 @@ local STAGE_NS = vim.api.nvim_create_namespace("correo.mailbox.stage")
 ---@field envelopes Correo.Himalaya.Envelope[] Envelopes currently rendered
 ---@field marks table<integer, string> Identity extmark id → envelope id
 ---@field staged table<string, Correo.Mailbox.StagedOp> Staged ops, keyed by envelope id
+---@field query string|nil Active filter/sort query (nil → unfiltered listing)
 
 -- Per-buffer state, keyed by buffer number
 ---@type table<integer, Correo.Mailbox.State>
@@ -34,16 +35,54 @@ local State = {}
 
 local M = {}
 
---- Find or create the buffer for a given mailbox name
----@param name string Buffer name, e.g. "correo://work/INBOX"
+--- Compose the display name of a mailbox buffer, including any active query
+---@param state Correo.Mailbox.State Mailbox state
+---@return string name Buffer name, e.g. "correo://work/INBOX [subject foo]"
+local mailbox_name = function(state)
+  local _base = ("correo://%s/%s"):format(state.account or "default", state.folder)
+  return state.query and (_base .. " [" .. state.query .. "]") or _base
+end
+
+--- Rename a buffer without leaving stale name-holding buffers around:
+--- a rename parks the old name on an unlisted buffer (which would then block
+--- renaming back with "buffer name already in use"), and any buffer already
+--- holding the target name blocks the rename the same way
+---@param bufnr integer Buffer handle to rename
+---@param name string New buffer name
+local rename_buffer = function(bufnr, name)
+  local _wipe_others_named = function(_name)
+    for _, _other in ipairs(vim.api.nvim_list_bufs()) do
+      if _other ~= bufnr and vim.api.nvim_buf_get_name(_other) == _name then
+        vim.api.nvim_buf_delete(_other, { force = true })
+      end
+    end
+  end
+  local _old = vim.api.nvim_buf_get_name(bufnr)
+  _wipe_others_named(name)
+  vim.api.nvim_buf_set_name(bufnr, name)
+  _wipe_others_named(_old)
+  -- Buffer renames don't trigger a statusline update on their own
+  vim.cmd("redrawstatus!")
+end
+
+--- Find (by account/folder) or create the buffer for a mailbox
+---@param account string|nil Account of the mailbox
+---@param folder string Folder of the mailbox
 ---@return integer bufnr Buffer handle
 ---@return boolean is_new Whether the buffer was just created
-local ensure_buffer = function(name)
-  for _, _bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_get_name(_bufnr) == name then return _bufnr, false end
+local ensure_buffer = function(account, folder)
+  -- Match on state, not name: an active query changes the buffer's name
+  for _bufnr, _state in pairs(State) do
+    if
+      vim.api.nvim_buf_is_valid(_bufnr)
+      and _state.account == account
+      and _state.folder == folder
+    then
+      return _bufnr, false
+    end
   end
   local _bufnr = vim.api.nvim_create_buf(true, false)
-  vim.api.nvim_buf_set_name(_bufnr, name)
+  vim.api.nvim_buf_set_name(_bufnr, ("correo://%s/%s"):format(account or "default", folder))
   return _bufnr, true
 end
 
@@ -69,6 +108,10 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.reply, function() M.compose_at_cursor(bufnr, "reply", false) end, "reply")
   _map(keymaps.reply_all, function() M.compose_at_cursor(bufnr, "reply", true) end, "reply all")
   _map(keymaps.forward, function() M.compose_at_cursor(bufnr, "forward", false) end, "forward")
+  _map(keymaps.next_page, function() M.change_page(bufnr, 1) end, "next page")
+  _map(keymaps.prev_page, function() M.change_page(bufnr, -1) end, "previous page")
+  _map(keymaps.select_folder, function() M.select_folder(bufnr) end, "open folder")
+  _map(keymaps.select_account, function() M.select_account(bufnr) end, "open account")
 
   vim.api.nvim_create_autocmd("BufWriteCmd", {
     buffer = bufnr,
@@ -127,6 +170,18 @@ local draw = function(bufnr, envelopes)
   State[bufnr].staged = {}
   -- A freshly drawn mailbox has no pending operations
   vim.bo[bufnr].modified = false
+
+  -- Surface non-default listing context (active query, page > 1) above line 1
+  local _state = State[bufnr]
+  if _state.query ~= nil or _state.page > 1 then
+    local _info = {}
+    if _state.query then table.insert(_info, "query: " .. _state.query) end
+    if _state.page > 1 then table.insert(_info, "page " .. _state.page) end
+    vim.api.nvim_buf_set_extmark(bufnr, NS, 0, 0, {
+      virt_lines = { { { "≡ " .. table.concat(_info, " · "), "CorreoListingInfo" } } },
+      virt_lines_above = true,
+    })
+  end
 end
 
 --- Check whether a mailbox has pending (uncommitted) operations
@@ -163,8 +218,19 @@ M.refresh = function(bufnr, force)
     folder = _state.folder,
     page = _state.page,
     page_size = _opts.page_size,
+    query = _state.query,
   }, function(_envelopes, _err)
     if not vim.api.nvim_buf_is_valid(bufnr) then return end
+    -- Paged past the end (IMAP errors, maildir returns []): step back to the
+    -- last valid page instead of surfacing an error or drawing empty
+    local _past_end = (_err ~= nil and _err:find("out of bounds", 1, true) ~= nil)
+      or (_err == nil and #_envelopes == 0)
+    if _past_end and _state.page > 1 then
+      _state.page = _state.page - 1
+      vim.notify("[correo] no more pages", vim.log.levels.INFO)
+      M.refresh(bufnr, true)
+      return
+    end
     if _err then
       vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
       log.error(_err)
@@ -184,8 +250,7 @@ M.open = function(opts)
   local _account = opts.account or _cfg.account
   local _folder = opts.folder or _cfg.folder
 
-  local _name = ("correo://%s/%s"):format(_account or "default", _folder)
-  local _bufnr, _is_new = ensure_buffer(_name)
+  local _bufnr, _is_new = ensure_buffer(_account, _folder)
   if _is_new then
     State[_bufnr] =
       { account = _account, folder = _folder, page = 1, envelopes = {}, marks = {}, staged = {} }
@@ -205,12 +270,88 @@ M.open = function(opts)
   M.refresh(_bufnr)
 end
 
---- Explicitly reload the mailbox, asking first if staged operations would be lost
+--- Set (or clear) the filter/sort query of a mailbox and reload it
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+---@param query string|nil Himalaya query (nil or "" clears the filter)
+M.set_query = function(bufnr, query)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  if _state == nil then return end
+  if M.has_pending_changes(bufnr) then
+    vim.notify("[correo] commit or discard pending operations first", vim.log.levels.WARN)
+    return
+  end
+  _state.query = query ~= "" and query or nil
+  _state.page = 1
+  -- Reflect the active filter in the buffer name
+  rename_buffer(bufnr, mailbox_name(_state))
+  M.refresh(bufnr, true)
+end
+
+--- Move `delta` pages through the mailbox listing (staying at page >= 1)
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+---@param delta integer Page offset (1 = next page, -1 = previous page)
+M.change_page = function(bufnr, delta)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  if _state == nil then return end
+  if M.has_pending_changes(bufnr) then
+    vim.notify("[correo] commit or discard pending operations first", vim.log.levels.WARN)
+    return
+  end
+  local _page = math.max(1, _state.page + delta)
+  if _page == _state.page then return end
+  _state.page = _page
+  M.refresh(bufnr, true)
+end
+
+--- Pick a folder of the current account and open its mailbox
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.select_folder = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _state = State[bufnr]
+  if _state == nil then return end
+  himalaya.list_folders({ account = _state.account }, function(_folders, _err)
+    if _err or _folders == nil then
+      vim.notify("[correo] " .. (_err or "no folders"), vim.log.levels.ERROR)
+      return
+    end
+    local _names = vim.tbl_map(function(f) return f.name end, _folders)
+    vim.ui.select(_names, { prompt = "Open folder:" }, function(_choice)
+      if _choice then M.open({ account = _state.account, folder = _choice }) end
+    end)
+  end)
+end
+
+--- Pick an account and open its default-folder mailbox
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.select_account = function(bufnr)
+  local _ = bufnr -- Present for keymap symmetry; accounts are global
+  himalaya.list_accounts(function(_accounts, _err)
+    if _err or _accounts == nil then
+      vim.notify("[correo] " .. (_err or "no accounts"), vim.log.levels.ERROR)
+      return
+    end
+    local _names = vim.tbl_map(function(a) return a.name end, _accounts)
+    vim.ui.select(_names, { prompt = "Open account:" }, function(_choice)
+      if _choice then M.open({ account = _choice }) end
+    end)
+  end)
+end
+
+--- Reload the mailbox back to its default view (no filter, first page),
+--- asking first if staged operations would be lost
 ---@param bufnr integer Buffer handle of the mailbox (0 for the current buffer)
 M.reload = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   if M.has_pending_changes(bufnr) then
     if vim.fn.confirm("Discard pending operations?", "&Yes\n&No", 2) ~= 1 then return end
+  end
+  local _state = State[bufnr]
+  if _state ~= nil and (_state.query ~= nil or _state.page > 1) then
+    _state.query = nil
+    _state.page = 1
+    rename_buffer(bufnr, mailbox_name(_state))
   end
   M.refresh(bufnr, true)
 end

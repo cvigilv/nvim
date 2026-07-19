@@ -35,6 +35,10 @@
 ---@field reply string Keymap to reply (mailbox and message buffers)
 ---@field reply_all string Keymap to reply to all recipients (mailbox and message buffers)
 ---@field forward string Keymap to forward (mailbox and message buffers)
+---@field next_page string Keymap to show the next page of the listing
+---@field prev_page string Keymap to show the previous page of the listing
+---@field select_folder string Keymap to pick and open a folder of the current account
+---@field select_account string Keymap to pick and open another account
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
@@ -77,6 +81,10 @@ local defaults = {
     reply = "gr",
     reply_all = "gR",
     forward = "gf",
+    next_page = "]]",
+    prev_page = "[[",
+    select_folder = "gF",
+    select_account = "gA",
   },
   logging = {
     enabled = true,
@@ -128,6 +136,10 @@ M.updateconfig = function(opts)
     ["keymaps.reply"] = { opts.keymaps.reply, "string" },
     ["keymaps.reply_all"] = { opts.keymaps.reply_all, "string" },
     ["keymaps.forward"] = { opts.keymaps.forward, "string" },
+    ["keymaps.next_page"] = { opts.keymaps.next_page, "string" },
+    ["keymaps.prev_page"] = { opts.keymaps.prev_page, "string" },
+    ["keymaps.select_folder"] = { opts.keymaps.select_folder, "string" },
+    ["keymaps.select_account"] = { opts.keymaps.select_account, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },

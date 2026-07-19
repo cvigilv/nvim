@@ -60,15 +60,19 @@ local build_argv = function(subcmd, ctx, extra, plain)
   return _argv
 end
 
---- List envelopes of a folder, newest first
----@param opts { account?: string, folder?: string, page?: integer, page_size?: integer }
+--- List envelopes of a folder, newest first, optionally filtered/sorted
+---@param opts { account?: string, folder?: string, page?: integer, page_size?: integer, query?: string }
 ---@param on_done fun(envelopes: Correo.Himalaya.Envelope[]|nil, err: string|nil)
 M.list_envelopes = function(opts, on_done)
   local _extra = {}
   if opts.page then vim.list_extend(_extra, { "--page", tostring(opts.page) }) end
   if opts.page_size then vim.list_extend(_extra, { "--page-size", tostring(opts.page_size) }) end
   local _ctx = { account = opts.account, folder = opts.folder }
-  cli.run_json(build_argv({ "envelope", "list" }, _ctx, _extra), on_done)
+  local _argv = build_argv({ "envelope", "list" }, _ctx, _extra)
+  -- The query is greedy-trailing: it must come after every flag, or it
+  -- swallows them ("cannot parse search emails query `... -o json`")
+  if opts.query and opts.query ~= "" then table.insert(_argv, opts.query) end
+  cli.run_json(_argv, on_done)
 end
 
 --- List all folders of an account

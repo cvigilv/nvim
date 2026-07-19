@@ -50,8 +50,11 @@ can be tested manually and committed.
   `:w` confirms then sends via `template send`; declining keeps the draft on disk. Entry
   points: `gr`/`gR`/`gf` in mailbox and message buffers, `:CorreoWrite [account]` for new
   messages. Himalaya never spawns its own editor.
-- [ ] **Step 5 — Search and filter.** `:Correo` grows a query argument mapped to
-  `envelope list [QUERY]`; folder/account switching from within the mailbox; paging keymaps.
+- [x] **Step 5 — Search and filter.** `:CorreoSearch <query>` filters/sorts the current
+  mailbox via `envelope list [QUERY]` (no args clears); active query and page are shown as a
+  virtual info line. Paging with `]]`/`[[` (past-the-end reverts gracefully); `gF`/`gA` pick
+  a folder/account via `vim.ui.select`. All listing changes are blocked while operations are
+  staged.
 - [ ] **Step 6 — Public API polish.** Round out `init.lua` API (open/read/compose/search),
   document keymaps, help/`g?` overlay.
 - [ ] **Backlog — expose buffer actions as user commands.** The functionality behind `<CR>`,
