@@ -19,6 +19,8 @@ require("plugin.correo").setup({
   page_size = 100,
   ui = {
     from_width = 24,
+    mailbox = { format = "%u%F%a%d%f  %s" }, -- %u unread %F flagged %a attachment
+                                             -- %d date %f sender %s subject
     message = { open = "replace" }, -- "split" (20/80 horizontal) or "vsplit" (50/50 vertical)
     icons = { unread = "●", flagged = "⚑", attachment = "" },
   },
@@ -38,6 +40,12 @@ require("plugin.correo").setup({
 | `:CorreoArchive` | Stage archiving the envelope under the cursor |
 | `:CorreoMove [folder]` | Stage a move; no args opens a folder picker (completion from `folder list`) |
 | `:CorreoReply[!]` / `:CorreoForward` | Reply (`!` = reply all) / forward |
+| `:CorreoCopy [folder]` | Stage a copy (Gmail: add label); no args opens a folder picker |
+| `:CorreoDelete` | Stage deleting the envelope under the cursor |
+| `:CorreoAttachments` | Download all attachments of the current message |
+| `:CorreoNextPage` / `:CorreoPrevPage` | Page through the listing |
+| `:CorreoAccounts` / `:CorreoFolders` | Pick an account / folder via `vim.ui.select` |
+| `:CorreoAttach [file]` | Insert an attachment into the compose buffer |
 
 ## Mailbox model
 
@@ -69,8 +77,9 @@ via `keymaps`):
 | `q` | — | back to mailbox |
 | `R` | reload default view | — |
 | `gs` / `gS` | toggle seen / mark unseen | same |
-| `ga` / `gm` | stage archive / move | — |
+| `ga` / `gm` / `gc` | stage archive / move / copy | — (`ga` in compose: attach file) |
 | `gr` / `gR` / `gf` | reply / reply all / forward | same |
+| `gt` | download attachments | same |
 | `]]` / `[[` | next / previous page | — |
 | `gF` / `gA` | pick folder / account | — |
 | `g?` | help | help |
@@ -83,6 +92,15 @@ correo.open({ account = "work", folder = "INBOX" })
 correo.search("from jules and not flag seen")
 correo.write({ account = "personal" })
 ```
+
+## Tests
+
+```sh
+nvim -l tests/run.lua
+```
+
+No dependencies: a stub `himalaya` in `tests/bin` answers with fixtures and
+logs its argv, so no real mailbox is touched.
 
 ## Architecture
 

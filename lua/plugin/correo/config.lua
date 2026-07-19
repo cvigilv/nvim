@@ -15,6 +15,10 @@
 ---@field flagged string Icon shown for flagged envelopes
 ---@field attachment string Icon shown for envelopes with attachments
 
+---@class Correo.UI.Mailbox.Configuration
+---@field format string Statusline-style line format: %u unread, %F flagged, %a attachment,
+---%d date, %f sender, %s subject; anything else is literal text
+
 ---@class Correo.UI.Message.Configuration
 ---@field open "replace"|"split"|"vsplit" How to open a message: replace the mailbox window,
 ---open a horizontal split (20% mailbox / 80% message) or a vertical split (50/50)
@@ -22,6 +26,7 @@
 ---@class Correo.UI.Configuration
 ---@field from_width integer Display width of the sender column
 ---@field icons Correo.UI.Icons Icons used in the mailbox listing
+---@field mailbox Correo.UI.Mailbox.Configuration Mailbox listing options
 ---@field message Correo.UI.Message.Configuration Message buffer behaviour
 
 ---@class Correo.Keymaps.Configuration
@@ -40,6 +45,9 @@
 ---@field select_folder string Keymap to pick and open a folder of the current account
 ---@field select_account string Keymap to pick and open another account
 ---@field help string Keymap to show the keymap help overlay
+---@field copy string Keymap to stage/unstage copying the envelope (Gmail: add label)
+---@field attachments string Keymap to download attachments (mailbox and message buffers)
+---@field attach string Keymap to insert an attachment part (compose buffers)
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
@@ -62,6 +70,9 @@ local defaults = {
   page_size = 100,
   ui = {
     from_width = 24,
+    mailbox = {
+      format = "%u%F%a%d%f  %s",
+    },
     message = {
       open = "replace",
     },
@@ -87,6 +98,9 @@ local defaults = {
     select_folder = "gF",
     select_account = "gA",
     help = "g?",
+    copy = "gc",
+    attachments = "gt",
+    attach = "ga",
   },
   logging = {
     enabled = true,
@@ -118,6 +132,7 @@ M.updateconfig = function(opts)
 
     -- UI
     ["ui.from_width"] = { opts.ui.from_width, "number" },
+    ["ui.mailbox.format"] = { opts.ui.mailbox.format, "string" },
     ["ui.message.open"] = {
       opts.ui.message.open,
       function(v) return v == "replace" or v == "split" or v == "vsplit" end,
@@ -143,6 +158,9 @@ M.updateconfig = function(opts)
     ["keymaps.select_folder"] = { opts.keymaps.select_folder, "string" },
     ["keymaps.select_account"] = { opts.keymaps.select_account, "string" },
     ["keymaps.help"] = { opts.keymaps.help, "string" },
+    ["keymaps.copy"] = { opts.keymaps.copy, "string" },
+    ["keymaps.attachments"] = { opts.keymaps.attachments, "string" },
+    ["keymaps.attach"] = { opts.keymaps.attach, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },

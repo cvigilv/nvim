@@ -65,17 +65,19 @@ can be tested manually and committed.
 - [x] **Backlog — verbose staged-operation display.** Done: staged rows get a whole-line
   background (`CorreoStagedLine` → Visual) and the target folder is shown right-aligned in
   bold (`CorreoStaged`).
-- [ ] **Backlog — Gmail labels via staged copy.** Himalaya can't list a message's Gmail
-  labels (no X-GM-LABELS support), but `message copy` adds a label (message appears in
-  another folder without leaving the current one). Add a staged copy operation (e.g. `gc`)
-  as the "add tag" gesture next to move/archive.
-- [ ] **Backlog — customizable mailbox view.** `ui.mailbox.format` config entry: a
-  statusline-style flag string (e.g. `"%u%F%a %d  %f  %s"` → unread, flagged, attachment,
-  date, from, subject) that drives `render.lua`. The current fixed column layout becomes the
-  default value of that string. Revisit after the MVP slices.
-- [ ] **Step 7 — Unit tests.** Headless `nvim -l` test harness (no external deps, per rules):
-  cover `render.lua` formatting, `cli.lua` result normalization, argv building in
-  `himalaya.lua`, and mailbox state transitions with a stubbed CLI.
+- [x] **Backlog — Gmail labels via staged copy.** Done: `gc` / `:CorreoCopy [folder]` stage
+  a copy (shown as `+ folder`), committed with `message copy`. Per-message label listing
+  remains impossible (Himalaya lacks X-GM-LABELS support).
+- [x] **Backlog — customizable mailbox view.** Done: `ui.mailbox.format` statusline-style
+  string (`%u` unread, `%F` flagged, `%a` attachment, `%d` date, `%f` sender, `%s` subject,
+  literals kept verbatim) drives `render.lua`; default `"%u%F%a%d%f  %s"` reproduces the
+  original layout.
+- [x] **Step 7 — Unit tests.** `tests/run.lua`, run with `nvim -l tests/run.lua`: zero
+  external deps, a stub `himalaya` binary (tests/bin) answers with fixtures and logs argv.
+  Covers `render.lua` (formats, widths, spans), `cli.lua` (json/text/stdin/error paths),
+  `himalaya.lua` (argv shape, stdin templates), and the mailbox state machine (draw,
+  dd/undo staging, archive/move/copy toggles, mocked-confirm commit, query rename, reload,
+  past-end paging).
 
 ## Architecture
 
