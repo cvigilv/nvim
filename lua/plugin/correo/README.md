@@ -63,7 +63,8 @@ position. Mutations are **staged**, then committed:
   discarding staged operations; the active query is shown in the buffer name
 
 With `ui.mailbox.threads = true`, envelopes sharing a (normalized) subject are
-grouped into a Vim fold shown as `▸ <newest message> (N)`; `<Tab>` expands and
+grouped into a Vim fold shown as the newest message's line suffixed with the
+message count `(N)`; `<Tab>` expands and
 collapses the thread under the cursor (`zR`/`zM` work too). `dd` on a collapsed
 thread stages deletion of every message in it. Grouping is by subject —
 Himalaya's server-side threading (`UID THREAD`) is not supported by Gmail.

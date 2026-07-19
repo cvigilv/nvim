@@ -98,7 +98,7 @@ Proposed design (not yet implemented):
 - [x] **Threads as Vim folds.** Done: `render.thread_envelopes` groups by normalized
   subject (newest member anchors the thread, members newest-first, empty subjects never
   merge); one manual fold per multi-message thread, applied per-window (and on
-  `BufWinEnter`). Chunk-style `foldtext` renders `▸ <envelope line> (N)`; `<Tab>` toggles
+  `BufWinEnter`). Chunk-style `foldtext` renders `<envelope line> (N)`; `<Tab>` toggles
   the fold under the cursor, `zR`/`zM` work for free. `ui.mailbox.threads = false` default.
 - Why folds instead of redraw-based expand/collapse: every line and identity extmark exists
   whether folded or not, so the staging model is untouched — `dd` on a collapsed thread
