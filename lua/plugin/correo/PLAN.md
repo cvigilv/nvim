@@ -79,6 +79,32 @@ can be tested manually and committed.
   dd/undo staging, archive/move/copy toggles, mocked-confirm commit, query rename, reload,
   past-end paging).
 
+## Study: email threads (single line, expand on Tab)
+
+Findings (2026-07-19, himalaya v1.1.0 against Gmail IMAP):
+
+- `envelope thread` and `message thread` both exist in the CLI but **panic against Gmail**:
+  they require the IMAP `UID THREAD` extension (RFC 5256), which Gmail does not implement
+  ("Unknown command: UID THREAD", email-lib 0.26.4 unwraps the error). Server-side threading
+  is therefore unavailable for both accounts until upstream adds a client-side fallback.
+- True header threading (Message-ID/References) client-side would need one `message read -H`
+  per envelope — O(page_size) CLI round-trips per refresh. Not viable.
+- Viable approach: **client-side grouping by normalized subject** (strip `Re:`/`Fwd:`/`RE:`
+  prefixes, case-fold), the same heuristic Gmail's own UI largely uses. Zero extra CLI calls;
+  false merges possible for unrelated mails sharing a subject (acceptable trade-off).
+
+Proposed design (not yet implemented):
+
+- [ ] **Threads as Vim folds.** Sort the listing so thread members are adjacent (groups by
+  newest-member date desc, members chronological); create one manual fold per multi-message
+  group. `foldtext` (chunk-style, nvim 0.10+) renders the single-line summary:
+  `▸ subject (N) · date · senders`. `<Tab>` toggles the fold under the cursor; `zR`/`zM`
+  work for free. Config: `ui.mailbox.threads = false` default.
+- Why folds instead of redraw-based expand/collapse: every line and identity extmark exists
+  whether folded or not, so the staging model is untouched — `dd` on a collapsed thread
+  stages deletion of the whole thread, `:w` commits it; no new state machine, no
+  pending-changes conflicts, no special-casing in `gather_operations`.
+
 ## Architecture
 
 - `cli.lua` knows nothing about email: it runs an argv asynchronously and normalizes
