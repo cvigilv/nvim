@@ -34,14 +34,19 @@ M.run = function(argv, on_done, stdin)
 end
 
 --- Format a failed result as a single human-readable error string
+---
+--- Himalaya's stderr mixes backend WARN logs with the actual error report
+--- ("Error:\n   0: <cause>"); extract the cause when present.
 ---@param argv string[] Command that was executed
 ---@param result Correo.CLI.Result Failed result
 ---@return string err Error message
 local format_error = function(argv, result)
+  local _stderr = vim.trim(result.stderr):gsub("\27%[[%d;]*m", "") -- Strip ANSI colors
+  local _cause = _stderr:match("Error:%s*\n%s*0:%s*([^\n]+)")
   return ("`%s` failed (%d): %s"):format(
     table.concat(argv, " "),
     result.code,
-    vim.trim(result.stderr)
+    _cause or _stderr
   )
 end
 

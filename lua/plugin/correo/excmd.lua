@@ -90,6 +90,19 @@ M.setup = function(opts)
     desc = "Open an account's mailbox (defaults to the configured account)",
   })
 
+  vim.api.nvim_create_user_command("CorreoSearch", function(_cmd)
+    local _mailbox = require("plugin.correo.mailbox")
+    if _mailbox.get_context(0) == nil then
+      vim.notify("[correo] open a mailbox first (:Correo)", vim.log.levels.WARN)
+      return
+    end
+    -- No argument clears the active filter
+    _mailbox.set_query(0, table.concat(_cmd.fargs, " "))
+  end, {
+    nargs = "*",
+    desc = "Filter/sort the current mailbox with a Himalaya query (no args to clear)",
+  })
+
   vim.api.nvim_create_user_command("CorreoWrite", function(_cmd)
     local _account = _cmd.fargs[1] or current_account()
     require("plugin.correo.compose").open({ account = _account, kind = "write" })
