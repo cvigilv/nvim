@@ -18,6 +18,7 @@
 ---@class Correo.UI.Mailbox.Configuration
 ---@field format string Statusline-style line format: %u unread, %F flagged, %a attachment,
 ---%d date, %f sender, %s subject; anything else is literal text
+---@field threads boolean Group envelopes into subject threads shown as closed folds
 
 ---@class Correo.UI.Message.Configuration
 ---@field open "replace"|"split"|"vsplit" How to open a message: replace the mailbox window,
@@ -48,6 +49,7 @@
 ---@field copy string Keymap to stage/unstage copying the envelope (Gmail: add label)
 ---@field attachments string Keymap to download attachments (mailbox and message buffers)
 ---@field attach string Keymap to insert an attachment part (compose buffers)
+---@field toggle_thread string Keymap to expand/collapse the thread under the cursor
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
@@ -72,6 +74,7 @@ local defaults = {
     from_width = 24,
     mailbox = {
       format = "%u%F%a%d%f  %s",
+      threads = false,
     },
     message = {
       open = "replace",
@@ -101,6 +104,7 @@ local defaults = {
     copy = "gc",
     attachments = "gt",
     attach = "ga",
+    toggle_thread = "<Tab>",
   },
   logging = {
     enabled = true,
@@ -133,6 +137,7 @@ M.updateconfig = function(opts)
     -- UI
     ["ui.from_width"] = { opts.ui.from_width, "number" },
     ["ui.mailbox.format"] = { opts.ui.mailbox.format, "string" },
+    ["ui.mailbox.threads"] = { opts.ui.mailbox.threads, "boolean" },
     ["ui.message.open"] = {
       opts.ui.message.open,
       function(v) return v == "replace" or v == "split" or v == "vsplit" end,
@@ -161,6 +166,7 @@ M.updateconfig = function(opts)
     ["keymaps.copy"] = { opts.keymaps.copy, "string" },
     ["keymaps.attachments"] = { opts.keymaps.attachments, "string" },
     ["keymaps.attach"] = { opts.keymaps.attach, "string" },
+    ["keymaps.toggle_thread"] = { opts.keymaps.toggle_thread, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },

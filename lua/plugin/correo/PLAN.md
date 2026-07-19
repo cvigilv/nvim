@@ -95,11 +95,11 @@ Findings (2026-07-19, himalaya v1.1.0 against Gmail IMAP):
 
 Proposed design (not yet implemented):
 
-- [ ] **Threads as Vim folds.** Sort the listing so thread members are adjacent (groups by
-  newest-member date desc, members chronological); create one manual fold per multi-message
-  group. `foldtext` (chunk-style, nvim 0.10+) renders the single-line summary:
-  `▸ subject (N) · date · senders`. `<Tab>` toggles the fold under the cursor; `zR`/`zM`
-  work for free. Config: `ui.mailbox.threads = false` default.
+- [x] **Threads as Vim folds.** Done: `render.thread_envelopes` groups by normalized
+  subject (newest member anchors the thread, members newest-first, empty subjects never
+  merge); one manual fold per multi-message thread, applied per-window (and on
+  `BufWinEnter`). Chunk-style `foldtext` renders `▸ <envelope line> (N)`; `<Tab>` toggles
+  the fold under the cursor, `zR`/`zM` work for free. `ui.mailbox.threads = false` default.
 - Why folds instead of redraw-based expand/collapse: every line and identity extmark exists
   whether folded or not, so the staging model is untouched — `dd` on a collapsed thread
   stages deletion of the whole thread, `:w` commits it; no new state machine, no

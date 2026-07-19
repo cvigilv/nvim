@@ -22,6 +22,7 @@ M.setup = function(opts)
     CorreoStaged = { bold = true },
     CorreoStagedLine = { link = "Visual" },
     CorreoListingInfo = { link = "Comment" },
+    CorreoThread = { link = "Special" },
   }
   for _name, _def in pairs(_groups) do
     vim.api.nvim_set_hl(0, _name, vim.tbl_extend("keep", _def, { default = true }))

@@ -85,6 +85,56 @@ local expand_format = function(fmt, envelope, ui)
   return _pieces
 end
 
+--- Normalize a subject for thread grouping (strip Re:/Fwd: prefixes, case-fold)
+---@param subject string Raw subject
+---@return string key Normalized grouping key ("" if the subject is empty)
+local normalize_subject = function(subject)
+  local _s = vim.trim(subject:lower())
+  while true do
+    local _stripped = _s:gsub("^re%s*:%s*", ""):gsub("^fwd?%s*:%s*", "")
+    if _stripped == _s then break end
+    _s = _stripped
+  end
+  return _s
+end
+
+---@class Correo.Render.Fold
+---@field first integer 1-indexed first line of the thread
+---@field last integer 1-indexed last line of the thread
+
+--- Group envelopes into subject threads, keeping members adjacent
+---
+--- Input is assumed newest-first (Himalaya's listing order); the first
+--- occurrence of a subject anchors its thread's position, so threads are
+--- ordered by their newest member and members stay newest-first within.
+--- Envelopes with an empty subject never group.
+---@param envelopes Correo.Himalaya.Envelope[] Envelopes in listing order
+---@return Correo.Himalaya.Envelope[] ordered Envelopes reordered by thread
+---@return Correo.Render.Fold[] folds One range per multi-message thread
+M.thread_envelopes = function(envelopes)
+  local _groups, _order = {}, {}
+  for _, _envelope in ipairs(envelopes) do
+    local _key = normalize_subject(_envelope.subject)
+    if _key == "" then _key = "\0" .. _envelope.id end -- Unmergeable unique key
+    if _groups[_key] == nil then
+      _groups[_key] = {}
+      table.insert(_order, _key)
+    end
+    table.insert(_groups[_key], _envelope)
+  end
+
+  local _ordered, _folds, _lnum = {}, {}, 1
+  for _, _key in ipairs(_order) do
+    local _members = _groups[_key]
+    vim.list_extend(_ordered, _members)
+    if #_members > 1 then
+      table.insert(_folds, { first = _lnum, last = _lnum + #_members - 1 })
+    end
+    _lnum = _lnum + #_members
+  end
+  return _ordered, _folds
+end
+
 --- Render an envelope as a single mailbox line with highlight spans
 ---@param envelope Correo.Himalaya.Envelope Envelope to render
 ---@param ui Correo.UI.Configuration UI options (format, column widths, icons)

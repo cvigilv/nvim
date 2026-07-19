@@ -19,8 +19,11 @@ require("plugin.correo").setup({
   page_size = 100,
   ui = {
     from_width = 24,
-    mailbox = { format = "%u%F%a%d%f  %s" }, -- %u unread %F flagged %a attachment
-                                             -- %d date %f sender %s subject
+    mailbox = {
+      format = "%u%F%a%d%f  %s", -- %u unread %F flagged %a attachment
+                                 -- %d date %f sender %s subject
+      threads = false,           -- group subject threads into closed folds
+    },
     message = { open = "replace" }, -- "split" (20/80 horizontal) or "vsplit" (50/50 vertical)
     icons = { unread = "●", flagged = "⚑", attachment = "" },
   },
@@ -59,6 +62,12 @@ position. Mutations are **staged**, then committed:
 - `R` resets to the default view (unfiltered, page 1), asking before
   discarding staged operations; the active query is shown in the buffer name
 
+With `ui.mailbox.threads = true`, envelopes sharing a (normalized) subject are
+grouped into a Vim fold shown as `▸ <newest message> (N)`; `<Tab>` expands and
+collapses the thread under the cursor (`zR`/`zM` work too). `dd` on a collapsed
+thread stages deletion of every message in it. Grouping is by subject —
+Himalaya's server-side threading (`UID THREAD`) is not supported by Gmail.
+
 Reading a message marks it seen (revert with `gS`). In the drafts folder,
 `<CR>` reopens the draft for editing; sending or re-saving it replaces the
 original draft.
@@ -80,6 +89,7 @@ via `keymaps`):
 | `ga` / `gm` / `gc` | stage archive / move / copy | — (`ga` in compose: attach file) |
 | `gr` / `gR` / `gf` | reply / reply all / forward | same |
 | `gt` | download attachments | same |
+| `<Tab>` | expand/collapse thread | — |
 | `]]` / `[[` | next / previous page | — |
 | `gF` / `gA` | pick folder / account | — |
 | `g?` | help | help |
