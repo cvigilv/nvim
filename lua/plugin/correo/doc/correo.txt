@@ -1,0 +1,376 @@
+*correo.txt*	A Himalaya CLI UI for Neovim				*correo*
+
+Author:  Carlos Vigil-Vásquez
+License: MIT
+
+==============================================================================
+CONTENTS							*correo-contents*
+
+  1. Introduction ............................. |correo-introduction|
+  2. Requirements ............................. |correo-requirements|
+  3. Setup .................................... |correo-setup|
+  4. Configuration ............................ |correo-configuration|
+  5. The mailbox buffer ....................... |correo-mailbox|
+  6. Staged operations ........................ |correo-staging|
+  7. Threads .................................. |correo-threads|
+  8. Reading messages ......................... |correo-messages|
+  9. Composing and drafts ..................... |correo-compose|
+ 10. Commands ................................. |correo-commands|
+ 11. Keymaps .................................. |correo-keymaps|
+ 12. Lua API .................................. |correo-api|
+ 13. Highlight groups ......................... |correo-highlights|
+ 14. Tests .................................... |correo-tests|
+
+==============================================================================
+1. INTRODUCTION						*correo-introduction*
+
+correo.nvim is a UI for the Himalaya CLI (https://himalaya.email) inspired by
+oil.nvim: the mailbox is a buffer you edit, and |:write| commits your changes
+to the mail server after a confirmation.
+
+Every line of a mailbox is one envelope. Envelope identity is tracked with
+|extmarks|, never by line position, so lines can be deleted and undone freely.
+Mutations (delete, move, copy, archive) are staged in the buffer and executed
+in batch on `:w`.
+
+==============================================================================
+2. REQUIREMENTS						*correo-requirements*
+
+- Neovim 0.10+ (chunk-style 'foldtext', |vim.system()|)
+- himalaya v1.x, configured with at least one account (run `himalaya
+  account list` to verify)
+
+==============================================================================
+3. SETUP						*correo-setup*
+
+Call the setup function from your configuration: >lua
+
+    require("plugin.correo").setup({
+      -- options, see |correo-configuration|
+    })
+<
+==============================================================================
+4. CONFIGURATION					*correo-configuration*
+
+All options with their defaults: >lua
+
+    require("plugin.correo").setup({
+      binary = "himalaya",       -- name/path of the Himalaya executable
+      account = nil,             -- nil → Himalaya's default account
+      folder = "INBOX",          -- folder opened by default
+      archive_folder = "Archive",-- target of the archive operation
+      drafts_folder = "drafts",  -- where drafts are saved; "drafts" resolves
+                                 -- Himalaya's per-account folder alias
+      page_size = 100,           -- envelopes fetched per page
+      ui = {
+        from_width = 24,         -- display width of the sender column
+        mailbox = {
+          format = "%u%F%a%d%f  %s",
+          threads = false,       -- see |correo-threads|
+        },
+        message = {
+          open = "replace",      -- "replace" | "split" | "vsplit"
+        },
+        icons = {
+          unread = "●",
+          flagged = "⚑",
+          attachment = "",
+        },
+      },
+      keymaps = { ... },         -- see |correo-keymaps|
+      logging = { ... },         -- see log.lua
+    })
+<
+							*correo-format*
+`ui.mailbox.format` is a statusline-style string that drives how each
+envelope line is rendered:
+
+  %u	unread icon (2 cells)
+  %F	flagged icon (2 cells)
+  %a	attachment icon (2 cells)
+  %d	short date (8 cells, e.g. "17 Jul")
+  %f	sender name or address (`ui.from_width` cells)
+  %s	subject (rest of the line)
+
+Any other character is kept literally. The default reproduces the classic
+layout: icons, date, sender, two spaces, subject.
+
+							*correo-message-open*
+`ui.message.open` decides how a message is displayed:
+
+  "replace"	edit the message in the mailbox window (default)
+  "split"	horizontal split: 20% mailbox on top, 80% message below
+  "vsplit"	vertical split: 50/50, mailbox left, message right
+
+In split modes, opening another message reuses the existing split, and the
+quit keymap closes the split, restoring the mailbox to full size.
+
+==============================================================================
+5. THE MAILBOX BUFFER					*correo-mailbox*
+
+`:Correo` opens a buffer named `correo://<account>/<folder>`. Each line is
+one envelope, rendered per |correo-format|. The buffer is 'buftype' `acwrite`:
+it is modifiable, and `:w` triggers the commit flow (|correo-staging|).
+
+An active search query is appended to the buffer name
+(`correo://work/INBOX [subject foo]`) and shown, together with the page
+number, as a virtual info line above the listing.
+
+The listing is paged (`page_size` envelopes at a time); paging past the last
+page steps back automatically. Refreshing with the refresh keymap resets the
+mailbox to its default view: no query, page 1 (asking first if staged
+operations would be discarded).
+
+==============================================================================
+6. STAGED OPERATIONS					*correo-staging*
+
+Operations are staged in the buffer, then committed in batch:
+
+  - deleting a line (|dd|, visual delete, ...) stages a deletion; |u|
+    unstages it. Detection uses invalidated identity extmarks, never text.
+  - the archive keymap stages a move to `archive_folder`
+  - the move keymap stages a move (folder picked via |vim.ui.select()|, or
+    given as an argument to |:CorreoMove|)
+  - the copy keymap stages a copy — on Gmail this adds a label without
+    removing the message from the current folder
+
+Staged rows are highlighted (|hl-CorreoStagedLine|) with the bold target
+folder right-aligned: `→ folder` for moves, `+ folder` for copies. Staging
+the same operation again unstages it.
+
+`:w` shows a confirmation summary of every operation (default: No), then
+runs them grouped per kind/target and refreshes. Aborting keeps the staged
+operations. While operations are staged, listing changes (refresh after flag
+toggles, search, paging) are blocked or skipped so staging is never lost.
+
+==============================================================================
+7. THREADS						*correo-threads*
+
+With `ui.mailbox.threads = true`, envelopes sharing a normalized subject
+(case-folded, `Re:`/`Fwd:` prefixes stripped) are grouped into manual
+|folds|: thread members are drawn adjacent (newest first, the newest member
+anchors the thread's position) and each multi-message thread starts closed,
+rendered as the newest message's line suffixed with the member count `(N)`.
+
+The toggle-thread keymap (default `<Tab>`) expands/collapses the thread
+under the cursor; |zR|, |zM| and |za| work natively. Deleting a collapsed
+thread with |dd| stages deletion of every message in it.
+
+Note: grouping is client-side by subject. Himalaya's server-side threading
+(IMAP `UID THREAD`) is not supported by Gmail. Envelopes with an empty
+subject never group.
+
+==============================================================================
+8. READING MESSAGES					*correo-messages*
+
+`<CR>` on an envelope fetches the message and opens it as a real file at
+`/tmp/<account>.<id>` with 'filetype' `mail`, displayed per
+|correo-message-open|. Opening a message marks it seen (like any mail
+client); mark it unseen again with the mark-unseen keymap.
+
+In the drafts folder (`drafts_folder`), `<CR>` instead reopens the draft for
+editing — see |correo-compose|.
+
+==============================================================================
+9. COMPOSING AND DRAFTS					*correo-compose*
+
+Reply, reply-all, forward (from mailbox or message buffers) and
+|:CorreoWrite| generate a Himalaya template — headers plus MML body — opened
+as an editable buffer at `/tmp/<account>.<kind>.<id>` with 'filetype'
+`mail`. Himalaya never spawns its own editor.
+
+`:w` in a compose buffer always saves the file to disk first, then prompts:
+
+  Send		send via `template send` (the template travels over stdin)
+  Save draft	save into `drafts_folder` via `template save`
+  Cancel	keep editing
+
+When editing an existing draft, sending or re-saving deletes the original
+draft message so the drafts folder holds at most one copy.
+
+Attachments: the attach keymap (compose buffers) or |:CorreoAttach| inserts
+an MML part line: >
+    <#part filename=/path/to/file><#/part>
+<
+Himalaya's template compiler turns it into a real attachment on send.
+
+==============================================================================
+10. COMMANDS						*correo-commands*
+
+							*:Correo*
+:Correo [account]	Open an account's mailbox at the default folder.
+			Completes account names from `account list`.
+
+							*:CorreoFolder*
+:CorreoFolder {name}	Open folder {name} of the current account.
+			Completes folder names.
+
+							*:CorreoSearch*
+:CorreoSearch [query]	Filter/sort the current mailbox with a Himalaya
+			query (see `himalaya envelope list --help` for the
+			query language). Without arguments, clears the
+			filter.
+
+							*:CorreoWrite*
+:CorreoWrite [account]	Compose a new message from the given (or current)
+			account.
+
+							*:CorreoOpen*
+:CorreoOpen		Open the message under the cursor (mailbox only).
+
+							*:CorreoSeen*
+:CorreoSeen		Toggle the seen flag (mailbox cursor line, or the
+			open message buffer).
+
+							*:CorreoUnseen*
+:CorreoUnseen		Mark as unseen/unread.
+
+							*:CorreoArchive*
+:CorreoArchive		Stage/unstage archiving the envelope under the
+			cursor.
+
+							*:CorreoMove*
+:CorreoMove [folder]	Stage moving the envelope under the cursor. Without
+			arguments a folder picker opens.
+
+							*:CorreoCopy*
+:CorreoCopy [folder]	Stage copying the envelope under the cursor (Gmail:
+			add label). Without arguments a folder picker opens.
+
+							*:CorreoDelete*
+:CorreoDelete		Stage deleting the envelope under the cursor
+			(equivalent to |dd| on its line).
+
+							*:CorreoReply*
+:CorreoReply[!]		Reply to the current message. With !, reply to all
+			recipients.
+
+							*:CorreoForward*
+:CorreoForward		Forward the current message.
+
+							*:CorreoAttachments*
+:CorreoAttachments	Download all attachments of the current message to
+			Himalaya's configured downloads directory.
+
+							*:CorreoAttach*
+:CorreoAttach [file]	Insert an attachment part into the compose buffer.
+			Without arguments, prompts with file completion.
+
+							*:CorreoNextPage*
+:CorreoNextPage		Show the next page of the listing.
+
+							*:CorreoPrevPage*
+:CorreoPrevPage		Show the previous page of the listing.
+
+							*:CorreoAccounts*
+:CorreoAccounts		Pick an account via |vim.ui.select()| and open it.
+
+							*:CorreoFolders*
+:CorreoFolders		Pick a folder of the current account and open it.
+
+==============================================================================
+11. KEYMAPS						*correo-keymaps*
+
+All keymaps are buffer-local and configurable through the `keymaps` table.
+Press the help keymap (default `g?`) in any correo buffer for a live list.
+
+Mailbox buffers~
+
+  Default	Config key	Action
+  <CR>		open		open message / edit draft
+  R		refresh		reload default view (unfiltered, page 1)
+  gs		toggle_seen	toggle seen flag
+  gS		mark_unseen	mark as unseen
+  ga		archive		stage/unstage archive
+  gm		move		stage/unstage move
+  gc		copy		stage/unstage copy (Gmail: add label)
+  gr		reply		reply
+  gR		reply_all	reply to all
+  gf		forward		forward
+  gt		attachments	download attachments
+  <Tab>		toggle_thread	expand/collapse thread (|correo-threads|)
+  ]]		next_page	next page
+  [[		prev_page	previous page
+  gF		select_folder	pick and open a folder
+  gA		select_account	pick and open an account
+  g?		help		help overlay
+
+Message buffers~
+
+  q		quit		back to mailbox
+  gs		toggle_seen	toggle seen flag
+  gS		mark_unseen	mark as unseen
+  gr		reply		reply
+  gR		reply_all	reply to all
+  gf		forward		forward
+  gt		attachments	download attachments
+  g?		help		help overlay
+
+Compose buffers~
+
+  ga		attach		insert an attachment part
+
+==============================================================================
+12. LUA API						*correo-api*
+
+>lua
+    local correo = require("plugin.correo")
+<
+correo.setup({opts})					*correo.setup()*
+	Initialize the plugin. {opts} is merged over the defaults and
+	validated; see |correo-configuration|.
+
+correo.open({opts})					*correo.open()*
+	Open (or focus) a mailbox buffer. {opts} is an optional table with
+	`account` and `folder` keys; both fall back to the configuration.
+
+correo.search({query})					*correo.search()*
+	Filter/sort the current mailbox with a Himalaya query. Pass nil or
+	"" to clear the filter.
+
+correo.write({opts})					*correo.write()*
+	Compose a new message. {opts} is an optional table with an
+	`account` key.
+
+==============================================================================
+13. HIGHLIGHT GROUPS					*correo-highlights*
+
+All groups are defined with `default = true`, so colorschemes and user
+configuration override them freely.
+
+  Group			Default link	Used for~
+							*hl-CorreoUnread*
+  CorreoUnread		DiagnosticInfo	unread icon column
+							*hl-CorreoFlagged*
+  CorreoFlagged		WarningMsg	flagged icon column
+							*hl-CorreoAttachment*
+  CorreoAttachment	Special		attachment icon column
+							*hl-CorreoDate*
+  CorreoDate		Number		date column
+							*hl-CorreoFrom*
+  CorreoFrom		Identifier	sender column
+							*hl-CorreoSubject*
+  CorreoSubject		Normal		subject (seen messages)
+							*hl-CorreoSubjectUnread*
+  CorreoSubjectUnread	Title		subject (unread messages)
+							*hl-CorreoStaged*
+  CorreoStaged		(bold)		staged-operation target folder
+							*hl-CorreoStagedLine*
+  CorreoStagedLine	Visual		full line of a staged operation
+							*hl-CorreoListingInfo*
+  CorreoListingInfo	Comment		query/page info line
+							*hl-CorreoThread*
+  CorreoThread		Special		thread member count in foldtext
+
+==============================================================================
+14. TESTS						*correo-tests*
+
+From the plugin directory: >sh
+    nvim -l tests/run.lua
+<
+The suite has no external dependencies: a stub `himalaya` binary in
+`tests/bin` answers with fixtures and logs its argv, so no real mailbox is
+ever touched.
+
+==============================================================================
+vim:tw=78:ts=8:noet:ft=help:norl:
