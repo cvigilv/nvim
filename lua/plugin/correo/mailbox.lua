@@ -28,12 +28,16 @@ local STAGE_NS = vim.api.nvim_create_namespace("correo.mailbox.stage")
 ---@field marks table<integer, string> Identity extmark id → envelope id
 ---@field staged table<string, Correo.Mailbox.StagedOp> Staged ops, keyed by envelope id
 ---@field query string|nil Active filter/sort query (nil → unfiltered listing)
+---@field folds Correo.Render.Fold[] Thread fold ranges of the current listing
 
 -- Per-buffer state, keyed by buffer number
 ---@type table<integer, Correo.Mailbox.State>
 local State = {}
 
 local M = {}
+
+-- Forward declaration: defined below, referenced by autocmds created earlier
+local apply_folds
 
 --- Compose the display name of a mailbox buffer, including any active query
 ---@param state Correo.Mailbox.State Mailbox state
@@ -114,11 +118,18 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.prev_page, function() M.change_page(bufnr, -1) end, "previous page")
   _map(keymaps.select_folder, function() M.select_folder(bufnr) end, "open folder")
   _map(keymaps.select_account, function() M.select_account(bufnr) end, "open account")
+  _map(keymaps.toggle_thread, function() M.toggle_thread_at_cursor(bufnr) end, "toggle thread fold")
   _map(keymaps.help, function() require("plugin.correo.help").show("mailbox") end, "help")
 
   vim.api.nvim_create_autocmd("BufWriteCmd", {
     buffer = bufnr,
     callback = function() M.commit(bufnr) end,
+  })
+
+  -- Thread folds are window-local: reapply them when a new window shows us
+  vim.api.nvim_create_autocmd("BufWinEnter", {
+    buffer = bufnr,
+    callback = function() apply_folds(bufnr) end,
   })
 
   -- Drop per-buffer state when the buffer goes away
@@ -197,6 +208,58 @@ M.has_pending_changes = function(bufnr)
   return #_ops.deletes > 0 or next(_ops.moves) ~= nil or next(_ops.copies) ~= nil
 end
 
+-- Foldtext expression identifying windows whose folds we manage
+local FOLDTEXT = "v:lua.require'plugin.correo.mailbox'.foldtext()"
+
+--- Apply (or clear) the thread folds of a mailbox in every window showing it
+---@param bufnr integer Buffer handle of the mailbox
+apply_folds = function(bufnr)
+  local _folds = State[bufnr] and State[bufnr].folds or {}
+  for _, _win in ipairs(vim.fn.win_findbuf(bufnr)) do
+    vim.api.nvim_win_call(_win, function()
+      -- Leave windows alone unless threads are (or were) in use there
+      if #_folds == 0 and vim.wo.foldtext ~= FOLDTEXT then return end
+      vim.wo[0][0].foldmethod = "manual"
+      vim.wo[0][0].foldenable = true
+      vim.wo[0][0].foldtext = FOLDTEXT
+      vim.cmd("silent! normal! zE")
+      for _, _range in ipairs(_folds) do
+        vim.cmd(("silent! %d,%dfold"):format(_range.first, _range.last))
+      end
+    end)
+  end
+end
+
+--- Render the single-line summary of a closed thread fold
+---@return table|string chunks Chunk list ({text, hl} pairs) or plain text fallback
+M.foldtext = function()
+  local _bufnr = vim.api.nvim_get_current_buf()
+  local _envelope = M.get_envelope_at(_bufnr, vim.v.foldstart)
+  if _envelope == nil then return vim.fn.getline(vim.v.foldstart) end
+
+  -- Reuse the envelope renderer, splitting its spans into foldtext chunks
+  local _line = render.render_envelope(_envelope, vim.g.correo.opts.ui)
+  local _chunks, _col = { { "▸ ", "CorreoThread" } }, 0
+  for _, _span in ipairs(_line.spans) do
+    if _span.first > _col then
+      table.insert(_chunks, { _line.text:sub(_col + 1, _span.first), "Normal" })
+    end
+    table.insert(_chunks, { _line.text:sub(_span.first + 1, _span.last), _span.hl })
+    _col = _span.last
+  end
+  if _col < #_line.text then table.insert(_chunks, { _line.text:sub(_col + 1), "Normal" }) end
+  table.insert(_chunks, { (" (%d)"):format(vim.v.foldend - vim.v.foldstart + 1), "CorreoThread" })
+  return _chunks
+end
+
+--- Toggle the thread fold under the cursor (no-op outside a thread)
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.toggle_thread_at_cursor = function(bufnr)
+  local _ = bufnr -- Folds are window-local; act on the current window
+  if vim.fn.foldlevel(vim.api.nvim_win_get_cursor(0)[1]) == 0 then return end
+  vim.cmd("normal! za")
+end
+
 --- Fetch envelopes for a mailbox buffer and redraw it
 ---
 --- A redraw would wipe staged operations, so refreshes are "soft" by default:
@@ -239,8 +302,15 @@ M.refresh = function(bufnr, force)
       log.error(_err)
       return
     end
+    -- Optionally regroup the listing into subject threads (folded rows)
+    local _folds = {}
+    if _opts.ui.mailbox.threads then
+      _envelopes, _folds = render.thread_envelopes(_envelopes)
+    end
     State[bufnr].envelopes = _envelopes
+    State[bufnr].folds = _folds
     draw(bufnr, _envelopes)
+    apply_folds(bufnr)
     log.fmt_debug("refreshed %s: %d envelopes", vim.api.nvim_buf_get_name(bufnr), #_envelopes)
   end)
 end
@@ -255,8 +325,15 @@ M.open = function(opts)
 
   local _bufnr, _is_new = ensure_buffer(_account, _folder)
   if _is_new then
-    State[_bufnr] =
-      { account = _account, folder = _folder, page = 1, envelopes = {}, marks = {}, staged = {} }
+    State[_bufnr] = {
+      account = _account,
+      folder = _folder,
+      page = 1,
+      envelopes = {},
+      marks = {},
+      staged = {},
+      folds = {},
+    }
     configure_buffer(_bufnr, _cfg.keymaps)
     -- Placeholder so a slow first fetch doesn't show an empty buffer (kept
     -- out of undo history, same as draws)

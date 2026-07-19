@@ -14,6 +14,15 @@ case "$*" in
   *"envelope list"*"subject nothing"*)
     echo '[]'
     ;;
+  *"envelope list"*"--folder Threads"*)
+    cat <<'EOF'
+[
+  {"id":"t1","flags":[],"subject":"Re: topic A","from":{"name":"Alice","addr":"alice@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-17 19:17+00:00","has_attachment":false},
+  {"id":"t2","flags":["Seen"],"subject":"standalone","from":{"name":"Bob","addr":"bob@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-16 10:00+00:00","has_attachment":false},
+  {"id":"t3","flags":["Seen"],"subject":"topic A","from":{"name":"Carol","addr":"carol@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-15 08:30+00:00","has_attachment":false}
+]
+EOF
+    ;;
   *"envelope list"*)
     cat <<'EOF'
 [

@@ -133,6 +133,38 @@ eq("render: sender truncated to width", vim.fn.strdisplaywidth(_from_text), _ui.
 ok("render: truncation marked with ellipsis", _from_text:find("…") ~= nil)
 -- }}}
 
+-- {{{ render.thread_envelopes
+local _mk = function(id, subject, date)
+  return {
+    id = id,
+    flags = {},
+    subject = subject,
+    from = { name = nil, addr = "a@example.com" },
+    to = { name = nil, addr = "me@example.com" },
+    date = date,
+    has_attachment = false,
+  }
+end
+
+local _thread_input = {
+  _mk("t1", "Re: Topic", "2026-07-17 12:00+00:00"),
+  _mk("t2", "standalone", "2026-07-16 12:00+00:00"),
+  _mk("t3", "FWD: Re: topic", "2026-07-15 12:00+00:00"),
+  _mk("t4", "topic", "2026-07-14 12:00+00:00"),
+  _mk("t5", "", "2026-07-13 12:00+00:00"),
+  _mk("t6", "", "2026-07-12 12:00+00:00"),
+}
+local _ordered, _folds = render.thread_envelopes(_thread_input)
+eq(
+  "threads: members adjacent, thread anchored at newest",
+  vim.tbl_map(function(e) return e.id end, _ordered),
+  { "t1", "t3", "t4", "t2", "t5", "t6" }
+)
+eq("threads: one fold per multi-member group", _folds, { { first = 1, last = 3 } })
+local _no_threads, _no_folds = render.thread_envelopes({ _mk("a", "one", "2026-07-17 12:00+00:00") })
+eq("threads: singleton produces no folds", { #_no_threads, _no_folds }, { 1, {} })
+-- }}}
+
 -- {{{ cli.lua
 local cli = require("plugin.correo.cli")
 
@@ -269,6 +301,58 @@ await("past-end paging settles", function()
   return mailbox.get_context(_mb) ~= nil and vim.api.nvim_buf_line_count(_mb) == 3
 end)
 eq("mailbox: past-end page reverted", vim.api.nvim_buf_get_name(_mb), "correo://test/INBOX")
+-- }}}
+
+-- {{{ mailbox threads (folds against the stub's Threads folder)
+--- Toggle the threads option (vim.g values are copies: write the table back)
+---@param enabled boolean Desired `ui.mailbox.threads` value
+local set_threads = function(enabled)
+  local _g = vim.g.correo
+  _g.opts.ui.mailbox.threads = enabled
+  vim.g.correo = _g
+end
+
+set_threads(true)
+mailbox.open({ account = "test", folder = "Threads" })
+await("threaded mailbox renders", function()
+  return vim.api.nvim_buf_get_name(0) == "correo://test/Threads"
+    and vim.api.nvim_buf_line_count(0) == 3
+end)
+local _tb = vim.api.nvim_get_current_buf()
+eq(
+  "threads: buffer ordered by thread",
+  { mailbox.get_envelope_at(_tb, 1).id, mailbox.get_envelope_at(_tb, 2).id, mailbox.get_envelope_at(_tb, 3).id },
+  { "t1", "t3", "t2" }
+)
+eq("threads: fold closed over the thread", { vim.fn.foldclosed(1), vim.fn.foldclosedend(1) }, { 1, 2 })
+eq("threads: standalone line unfolded", vim.fn.foldlevel(3), 0)
+
+local _foldline = vim.fn.foldtextresult(1)
+ok("threads: foldtext shows subject", _foldline:find("Re: topic A", 1, true) ~= nil)
+ok("threads: foldtext shows member count", _foldline:find("(2)", 1, true) ~= nil)
+
+-- Tab expands and collapses the fold
+vim.api.nvim_win_set_cursor(0, { 1, 0 })
+mailbox.toggle_thread_at_cursor(_tb)
+eq("threads: Tab expands", vim.fn.foldclosed(1), -1)
+mailbox.toggle_thread_at_cursor(_tb)
+eq("threads: Tab collapses again", vim.fn.foldclosed(1), 1)
+
+-- dd on a collapsed thread stages deletion of every member
+vim.cmd("normal! dd")
+local _thread_deletes = vim.tbl_map(function(e) return e.id end, mailbox.gather_operations(_tb).deletes)
+table.sort(_thread_deletes)
+eq("threads: dd on closed fold stages whole thread", _thread_deletes, { "t1", "t3" })
+vim.cmd("normal! u")
+eq("threads: undo unstages the thread", #mailbox.gather_operations(_tb).deletes, 0)
+
+-- Disabling threads restores a flat, unfolded listing
+set_threads(false)
+mailbox.reload(_tb)
+await("flat reload settles", function()
+  return mailbox.get_envelope_at(_tb, 1) ~= nil and mailbox.get_envelope_at(_tb, 1).id == "t1"
+end)
+eq("threads: disabled leaves no folds", vim.fn.foldlevel(1), 0)
 -- }}}
 
 -- {{{ Report

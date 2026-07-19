@@ -21,6 +21,7 @@ local SECTIONS = {
     { "reply_all", "reply to all" },
     { "forward", "forward" },
     { "attachments", "download attachments" },
+    { "toggle_thread", "expand/collapse thread" },
     { "next_page", "next page" },
     { "prev_page", "previous page" },
     { "select_folder", "pick and open folder" },
