@@ -104,6 +104,15 @@ correo.search("from jules and not flag seen")
 correo.write({ account = "personal" })
 ```
 
+## Documentation
+
+Full Vim help lives in `doc/correo.txt` (`:h correo`). The package directory
+is not on `runtimepath` by itself; either add it, or generate tags manually:
+
+```vim
+:helptags /path/to/lua/plugin/correo/doc
+```
+
 ## Tests
 
 ```sh
