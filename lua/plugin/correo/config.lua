@@ -16,8 +16,8 @@
 ---@field attachment string Icon shown for envelopes with attachments
 
 ---@class Correo.UI.Message.Configuration
----@field open "replace"|"split" How to open a message: replace the mailbox window, or open a
----horizontal split (20% mailbox / 80% message)
+---@field open "replace"|"split"|"vsplit" How to open a message: replace the mailbox window,
+---open a horizontal split (20% mailbox / 80% message) or a vertical split (50/50)
 
 ---@class Correo.UI.Configuration
 ---@field from_width integer Display width of the sender column
@@ -39,6 +39,7 @@
 ---@field prev_page string Keymap to show the previous page of the listing
 ---@field select_folder string Keymap to pick and open a folder of the current account
 ---@field select_account string Keymap to pick and open another account
+---@field help string Keymap to show the keymap help overlay
 
 ---@class Correo.Configuration
 ---@field binary string Name or path of the Himalaya executable
@@ -85,6 +86,7 @@ local defaults = {
     prev_page = "[[",
     select_folder = "gF",
     select_account = "gA",
+    help = "g?",
   },
   logging = {
     enabled = true,
@@ -118,8 +120,8 @@ M.updateconfig = function(opts)
     ["ui.from_width"] = { opts.ui.from_width, "number" },
     ["ui.message.open"] = {
       opts.ui.message.open,
-      function(v) return v == "replace" or v == "split" end,
-      '"replace" or "split"',
+      function(v) return v == "replace" or v == "split" or v == "vsplit" end,
+      '"replace", "split" or "vsplit"',
     },
     ["ui.icons.unread"] = { opts.ui.icons.unread, "string" },
     ["ui.icons.flagged"] = { opts.ui.icons.flagged, "string" },
@@ -140,6 +142,7 @@ M.updateconfig = function(opts)
     ["keymaps.prev_page"] = { opts.keymaps.prev_page, "string" },
     ["keymaps.select_folder"] = { opts.keymaps.select_folder, "string" },
     ["keymaps.select_account"] = { opts.keymaps.select_account, "string" },
+    ["keymaps.help"] = { opts.keymaps.help, "string" },
 
     -- Logging
     ["logging.enabled"] = { opts.logging.enabled, "boolean" },

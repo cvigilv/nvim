@@ -112,6 +112,7 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.prev_page, function() M.change_page(bufnr, -1) end, "previous page")
   _map(keymaps.select_folder, function() M.select_folder(bufnr) end, "open folder")
   _map(keymaps.select_account, function() M.select_account(bufnr) end, "open account")
+  _map(keymaps.help, function() require("plugin.correo.help").show("mailbox") end, "help")
 
   vim.api.nvim_create_autocmd("BufWriteCmd", {
     buffer = bufnr,
@@ -481,9 +482,11 @@ local toggle_staged = function(bufnr, lnum, op, target)
     if _current.op == op and _current.target == target then return end
   end
 
+  -- Right-aligned target, bold, with the whole line background-highlighted
   local _mark = vim.api.nvim_buf_set_extmark(bufnr, STAGE_NS, lnum - 1, 0, {
-    virt_text = { { "→ " .. target, "CorreoStaged" } },
-    virt_text_pos = "eol",
+    virt_text = { { "→ " .. target .. " ", "CorreoStaged" } },
+    virt_text_pos = "right_align",
+    line_hl_group = "CorreoStagedLine",
   })
   _state.staged[_envelope.id] = { op = op, target = target, mark = _mark }
   -- Pending operations count as unsaved changes (`:q` warns, `:w` commits)
@@ -498,14 +501,21 @@ M.stage_archive_at_cursor = function(bufnr)
   toggle_staged(bufnr, _lnum, "archive", vim.g.correo.opts.archive_folder)
 end
 
---- Stage/unstage moving the envelope under the cursor (folder picked via vim.ui.select)
+--- Stage/unstage moving the envelope under the cursor
 ---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
-M.stage_move_at_cursor = function(bufnr)
+---@param target string|nil Target folder (nil → pick one via vim.ui.select)
+M.stage_move_at_cursor = function(bufnr, target)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _lnum = vim.api.nvim_win_get_cursor(0)[1]
   local _envelope = M.get_envelope_at(bufnr, _lnum)
   local _state = State[bufnr]
   if _envelope == nil or _state == nil then return end
+
+  -- Explicit target: stage (or toggle) it directly, no picker involved
+  if target ~= nil and target ~= "" then
+    toggle_staged(bufnr, _lnum, "move", target)
+    return
+  end
 
   -- Already staged as a move: plain unstage, no folder prompt needed
   local _current = _state.staged[_envelope.id]

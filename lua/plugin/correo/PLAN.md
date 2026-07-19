@@ -55,15 +55,20 @@ can be tested manually and committed.
   virtual info line. Paging with `]]`/`[[` (past-the-end reverts gracefully); `gF`/`gA` pick
   a folder/account via `vim.ui.select`. All listing changes are blocked while operations are
   staged.
-- [ ] **Step 6 — Public API polish.** Round out `init.lua` API (open/read/compose/search),
-  document keymaps, help/`g?` overlay.
-- [ ] **Backlog — expose buffer actions as user commands.** The functionality behind `<CR>`,
-  `gs`, `gS`, `ga` and `gm` (open message, toggle seen, mark unseen, stage archive, stage
-  move) should also be reachable as user commands (e.g. `:CorreoOpen`, `:CorreoSeen`, ...)
-  so keymaps are optional shortcuts, not the only interface.
-- [ ] **Backlog — verbose staged-operation display.** Highlight the whole line of a staged
-  archive/move (extmark `line_hl_group`) in addition to the virtual text, so staged rows are
-  visible at a glance.
+- [x] **Step 6 — Public API polish.** `init.lua` API (`open`/`search`/`write`), buffer
+  actions exposed as user commands (see backlog entry), `g?` help overlay listing the live
+  keymap configuration per buffer kind, README.md documenting commands/keymaps/config.
+- [x] **Backlog — expose buffer actions as user commands.** Done in step 6: `:CorreoOpen`,
+  `:CorreoSeen`, `:CorreoUnseen`, `:CorreoArchive`, `:CorreoMove`, `:CorreoReply[!]`,
+  `:CorreoForward` dispatch to the mailbox or message implementation based on the current
+  buffer.
+- [x] **Backlog — verbose staged-operation display.** Done: staged rows get a whole-line
+  background (`CorreoStagedLine` → Visual) and the target folder is shown right-aligned in
+  bold (`CorreoStaged`).
+- [ ] **Backlog — Gmail labels via staged copy.** Himalaya can't list a message's Gmail
+  labels (no X-GM-LABELS support), but `message copy` adds a label (message appears in
+  another folder without leaving the current one). Add a staged copy operation (e.g. `gc`)
+  as the "add tag" gesture next to move/archive.
 - [ ] **Backlog — customizable mailbox view.** `ui.mailbox.format` config entry: a
   statusline-style flag string (e.g. `"%u%F%a %d  %f  %s"` → unread, flagged, attachment,
   date, from, subject) that drives `render.lua`. The current fixed column layout becomes the

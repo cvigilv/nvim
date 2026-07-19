@@ -58,19 +58,23 @@ local find_message_window = function(mailbox_bufnr)
   return nil
 end
 
---- Display a message file according to `ui.message.open` ("replace" or "split")
+--- Display a message file according to `ui.message.open`
+--- ("replace", "split" = 20/80 horizontal, "vsplit" = 50/50 vertical)
 ---@param path string Path of the message file on disk
 ---@param mailbox_bufnr integer Mailbox buffer the message was opened from
 local display = function(path, mailbox_bufnr)
   local _style = vim.g.correo.opts.ui.message.open
   local _reuse_win = find_message_window(mailbox_bufnr)
-  if _style == "split" and _reuse_win ~= nil then
+  if _reuse_win ~= nil and _style ~= "replace" then
     -- A split for this mailbox is already open: reuse it
     vim.api.nvim_set_current_win(_reuse_win)
   elseif _style == "split" then
     -- 20% mailbox on top, 80% message below
     local _height = math.floor(vim.api.nvim_win_get_height(0) * 0.8)
     vim.cmd(("belowright %dsplit"):format(_height))
+  elseif _style == "vsplit" then
+    -- 50/50: mailbox left, message right
+    vim.cmd("belowright vsplit")
   end
   vim.cmd.edit({ vim.fn.fnameescape(path), bang = true })
 end
@@ -93,6 +97,7 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.reply, function() M.compose(bufnr, "reply", false) end, "reply")
   _map(keymaps.reply_all, function() M.compose(bufnr, "reply", true) end, "reply all")
   _map(keymaps.forward, function() M.compose(bufnr, "forward", false) end, "forward")
+  _map(keymaps.help, function() require("plugin.correo.help").show("message") end, "help")
 
   -- Drop per-buffer context when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
@@ -144,6 +149,14 @@ M.toggle_seen = function(bufnr)
   local _ctx = State[bufnr]
   if _ctx == nil then return end
   M.set_seen(bufnr, not vim.tbl_contains(_ctx.envelope.flags, "Seen"))
+end
+
+--- Get the context of a message buffer
+---@param bufnr integer Message buffer handle (0 for the current buffer)
+---@return Correo.Message.Context|nil context Context, or nil if not a message buffer
+M.get_context = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  return State[bufnr]
 end
 
 --- Compose a reply/forward for the message shown in a buffer

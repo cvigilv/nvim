@@ -71,10 +71,83 @@ local current_account = function()
   return _ctx and _ctx.account or vim.g.correo.opts.account
 end
 
+--- Dispatch a buffer action to the mailbox or message implementation
+---@param mailbox_fn fun(bufnr: integer) Action for mailbox buffers
+---@param message_fn fun(bufnr: integer)|nil Action for message buffers (nil → mailbox only)
+local dispatch = function(mailbox_fn, message_fn)
+  if require("plugin.correo.mailbox").get_context(0) ~= nil then
+    mailbox_fn(0)
+    return
+  end
+  if message_fn ~= nil and require("plugin.correo.message").get_context(0) ~= nil then
+    message_fn(0)
+    return
+  end
+  vim.notify("[correo] not in a correo buffer", vim.log.levels.WARN)
+end
+
+--- Create the buffer-action user commands (command counterparts of the keymaps)
+local setup_action_commands = function()
+  local _command = vim.api.nvim_create_user_command
+  local _mailbox = function(fn) return require("plugin.correo.mailbox")[fn] end
+  local _message = function(fn) return require("plugin.correo.message")[fn] end
+
+  _command("CorreoOpen", function()
+    dispatch(function(b) _mailbox("open_message_at_cursor")(b) end)
+  end, { desc = "Open the message under the cursor" })
+
+  _command("CorreoSeen", function()
+    dispatch(
+      function(b) _mailbox("toggle_seen_at_cursor")(b) end,
+      function(b) _message("toggle_seen")(b) end
+    )
+  end, { desc = "Toggle the seen flag" })
+
+  _command("CorreoUnseen", function()
+    dispatch(
+      function(b) _mailbox("mark_unseen_at_cursor")(b) end,
+      function(b) _message("set_seen")(b, false) end
+    )
+  end, { desc = "Mark as unseen/unread" })
+
+  _command("CorreoArchive", function()
+    dispatch(function(b) _mailbox("stage_archive_at_cursor")(b) end)
+  end, { desc = "Stage/unstage archiving the envelope under the cursor" })
+
+  _command("CorreoMove", function(_cmd)
+    -- Folder names may contain spaces, so rejoin fargs; no args → picker
+    local _target = #_cmd.fargs > 0 and table.concat(_cmd.fargs, " ") or nil
+    dispatch(function(b) _mailbox("stage_move_at_cursor")(b, _target) end)
+  end, {
+    nargs = "*",
+    complete = function(_arglead)
+      local _account = current_account()
+      prime_folder_cache(_account)
+      return match_prefix(Folder_cache[account_key(_account)] or {}, _arglead)
+    end,
+    desc = "Stage moving the envelope under the cursor (no args: pick a folder)",
+  })
+
+  _command("CorreoReply", function(_cmd)
+    dispatch(
+      function(b) _mailbox("compose_at_cursor")(b, "reply", _cmd.bang) end,
+      function(b) _message("compose")(b, "reply", _cmd.bang) end
+    )
+  end, { bang = true, desc = "Reply to the current message (! replies to all)" })
+
+  _command("CorreoForward", function()
+    dispatch(
+      function(b) _mailbox("compose_at_cursor")(b, "forward", false) end,
+      function(b) _message("compose")(b, "forward", false) end
+    )
+  end, { desc = "Forward the current message" })
+end
+
 --- Create the plugin's user commands
 ---@param opts Correo.Configuration Plugin configuration
 M.setup = function(opts)
   local _ = opts -- Commands read live config through `vim.g.correo`
+  setup_action_commands()
 
   vim.api.nvim_create_user_command("Correo", function(_cmd)
     local _account = _cmd.fargs[1] or vim.g.correo.opts.account

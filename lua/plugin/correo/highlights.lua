@@ -19,7 +19,8 @@ M.setup = function(opts)
     CorreoFrom = { link = "Identifier" },
     CorreoSubject = { link = "Normal" },
     CorreoSubjectUnread = { link = "Title" },
-    CorreoStaged = { link = "DiagnosticWarn" },
+    CorreoStaged = { bold = true },
+    CorreoStagedLine = { link = "Visual" },
     CorreoListingInfo = { link = "Comment" },
   }
   for _name, _def in pairs(_groups) do
