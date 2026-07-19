@@ -159,6 +159,24 @@ M.move_messages = function(opts, on_done)
   cli.run_json(build_argv({ "message", "move" }, _ctx, _extra), on_done)
 end
 
+--- Copy messages to a target folder (on Gmail: add the target label)
+---@param opts { account?: string, folder?: string, target: string, ids: string[] }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.copy_messages = function(opts, on_done)
+  local _extra = { opts.target }
+  vim.list_extend(_extra, opts.ids)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_json(build_argv({ "message", "copy" }, _ctx, _extra), on_done)
+end
+
+--- Download all attachments of the given messages (to Himalaya's downloads dir)
+---@param opts { account?: string, folder?: string, ids: string[] }
+---@param on_done fun(result: string|nil, err: string|nil) Callback with Himalaya's status message
+M.download_attachments = function(opts, on_done)
+  local _ctx = { account = opts.account, folder = opts.folder }
+  cli.run_text(build_argv({ "attachment", "download" }, _ctx, opts.ids, true), on_done)
+end
+
 --- Add or remove flags on envelopes
 ---@param action "add"|"remove" Whether to add or remove the flags
 ---@param opts { account?: string, folder?: string, ids: string[], flags: string[] }

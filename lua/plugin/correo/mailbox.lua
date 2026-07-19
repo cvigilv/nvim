@@ -16,8 +16,8 @@ local NS = vim.api.nvim_create_namespace("correo.mailbox")
 local STAGE_NS = vim.api.nvim_create_namespace("correo.mailbox.stage")
 
 ---@class Correo.Mailbox.StagedOp
----@field op "archive"|"move" Kind of staged operation
----@field target string Folder the envelope will be moved to
+---@field op "archive"|"move"|"copy" Kind of staged operation
+---@field target string Folder the envelope will be moved/copied to
 ---@field mark integer Extmark id of the staged-op virtual text
 
 ---@class Correo.Mailbox.State
@@ -105,6 +105,8 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.mark_unseen, function() M.mark_unseen_at_cursor(bufnr) end, "mark as unseen")
   _map(keymaps.archive, function() M.stage_archive_at_cursor(bufnr) end, "stage archive")
   _map(keymaps.move, function() M.stage_move_at_cursor(bufnr) end, "stage move to folder")
+  _map(keymaps.copy, function() M.stage_copy_at_cursor(bufnr) end, "stage copy to folder")
+  _map(keymaps.attachments, function() M.download_attachments_at_cursor(bufnr) end, "download attachments")
   _map(keymaps.reply, function() M.compose_at_cursor(bufnr, "reply", false) end, "reply")
   _map(keymaps.reply_all, function() M.compose_at_cursor(bufnr, "reply", true) end, "reply all")
   _map(keymaps.forward, function() M.compose_at_cursor(bufnr, "forward", false) end, "forward")
@@ -192,7 +194,7 @@ M.has_pending_changes = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   if State[bufnr] == nil then return false end
   local _ops = M.gather_operations(bufnr)
-  return #_ops.deletes > 0 or next(_ops.moves) ~= nil
+  return #_ops.deletes > 0 or next(_ops.moves) ~= nil or next(_ops.copies) ~= nil
 end
 
 --- Fetch envelopes for a mailbox buffer and redraw it
@@ -467,7 +469,7 @@ end
 --- Toggle a staged operation on a mailbox line
 ---@param bufnr integer Mailbox buffer handle
 ---@param lnum integer 1-indexed line of the envelope
----@param op "archive"|"move" Kind of operation to stage
+---@param op "archive"|"move"|"copy" Kind of operation to stage
 ---@param target string Target folder of the operation
 local toggle_staged = function(bufnr, lnum, op, target)
   local _envelope = M.get_envelope_at(bufnr, lnum)
@@ -483,8 +485,10 @@ local toggle_staged = function(bufnr, lnum, op, target)
   end
 
   -- Right-aligned target, bold, with the whole line background-highlighted
+  -- ("→" = the message leaves this folder, "+" = it is copied/labelled)
+  local _prefix = op == "copy" and "+ " or "→ "
   local _mark = vim.api.nvim_buf_set_extmark(bufnr, STAGE_NS, lnum - 1, 0, {
-    virt_text = { { "→ " .. target .. " ", "CorreoStaged" } },
+    virt_text = { { _prefix .. target .. " ", "CorreoStaged" } },
     virt_text_pos = "right_align",
     line_hl_group = "CorreoStagedLine",
   })
@@ -501,11 +505,11 @@ M.stage_archive_at_cursor = function(bufnr)
   toggle_staged(bufnr, _lnum, "archive", vim.g.correo.opts.archive_folder)
 end
 
---- Stage/unstage moving the envelope under the cursor
----@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+--- Stage/unstage a folder-targeting operation on the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle
+---@param op "move"|"copy" Kind of operation to stage
 ---@param target string|nil Target folder (nil → pick one via vim.ui.select)
-M.stage_move_at_cursor = function(bufnr, target)
-  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+local stage_transfer_at_cursor = function(bufnr, op, target)
   local _lnum = vim.api.nvim_win_get_cursor(0)[1]
   local _envelope = M.get_envelope_at(bufnr, _lnum)
   local _state = State[bufnr]
@@ -513,14 +517,14 @@ M.stage_move_at_cursor = function(bufnr, target)
 
   -- Explicit target: stage (or toggle) it directly, no picker involved
   if target ~= nil and target ~= "" then
-    toggle_staged(bufnr, _lnum, "move", target)
+    toggle_staged(bufnr, _lnum, op, target)
     return
   end
 
-  -- Already staged as a move: plain unstage, no folder prompt needed
+  -- Already staged with this op: plain unstage, no folder prompt needed
   local _current = _state.staged[_envelope.id]
-  if _current ~= nil and _current.op == "move" then
-    toggle_staged(bufnr, _lnum, "move", _current.target)
+  if _current ~= nil and _current.op == op then
+    toggle_staged(bufnr, _lnum, op, _current.target)
     return
   end
 
@@ -530,15 +534,62 @@ M.stage_move_at_cursor = function(bufnr, target)
       return
     end
     local _names = vim.tbl_map(function(f) return f.name end, _folders)
-    vim.ui.select(_names, { prompt = "Move to folder:" }, function(_choice)
-      if _choice then toggle_staged(bufnr, _lnum, "move", _choice) end
+    vim.ui.select(_names, { prompt = op:gsub("^%l", string.upper) .. " to folder:" }, function(_choice)
+      if _choice then toggle_staged(bufnr, _lnum, op, _choice) end
     end)
+  end)
+end
+
+--- Stage/unstage moving the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+---@param target string|nil Target folder (nil → pick one via vim.ui.select)
+M.stage_move_at_cursor = function(bufnr, target)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  stage_transfer_at_cursor(bufnr, "move", target)
+end
+
+--- Stage/unstage copying the envelope under the cursor (on Gmail: add a label)
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+---@param target string|nil Target folder (nil → pick one via vim.ui.select)
+M.stage_copy_at_cursor = function(bufnr, target)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  stage_transfer_at_cursor(bufnr, "copy", target)
+end
+
+--- Stage deleting the envelope under the cursor (equivalent to `dd` on its line)
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.stage_delete_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+  if M.get_envelope_at(bufnr, _lnum) == nil then return end
+  -- Removing the line invalidates its identity mark, which stages the delete
+  vim.api.nvim_buf_set_lines(bufnr, _lnum - 1, _lnum, false, {})
+end
+
+--- Download all attachments of the envelope under the cursor
+---@param bufnr integer Mailbox buffer handle (0 for the current buffer)
+M.download_attachments_at_cursor = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _envelope = M.get_envelope_at(bufnr, vim.api.nvim_win_get_cursor(0)[1])
+  local _state = State[bufnr]
+  if _envelope == nil or _state == nil then return end
+  himalaya.download_attachments({
+    account = _state.account,
+    folder = _state.folder,
+    ids = { _envelope.id },
+  }, function(_result, _err)
+    if _err then
+      vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
+      log.error(_err)
+      return
+    end
+    vim.notify("[correo] " .. _result, vim.log.levels.INFO)
   end)
 end
 
 --- Collect the operations implied by buffer edits and staged keymap ops
 ---@param bufnr integer Mailbox buffer handle
----@return { deletes: Correo.Himalaya.Envelope[], moves: table<string, Correo.Himalaya.Envelope[]> } ops Moves are grouped by target folder
+---@return { deletes: Correo.Himalaya.Envelope[], moves: table<string, Correo.Himalaya.Envelope[]>, copies: table<string, Correo.Himalaya.Envelope[]> } ops Moves/copies are grouped by target folder
 M.gather_operations = function(bufnr)
   if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
   local _state = State[bufnr]
@@ -554,15 +605,16 @@ M.gather_operations = function(bufnr)
     if #_info == 0 or (_info[3] and _info[3].invalid) then _deleted[_id] = true end
   end
 
-  local _ops = { deletes = {}, moves = {} }
+  local _ops = { deletes = {}, moves = {}, copies = {} }
   for _id in pairs(_deleted) do
     table.insert(_ops.deletes, _by_id[_id])
   end
-  -- A delete wins over a staged move on the same envelope
+  -- A delete wins over a staged move/copy on the same envelope
   for _id, _staged in pairs(_state.staged) do
     if not _deleted[_id] then
-      _ops.moves[_staged.target] = _ops.moves[_staged.target] or {}
-      table.insert(_ops.moves[_staged.target], _by_id[_id])
+      local _group = _staged.op == "copy" and _ops.copies or _ops.moves
+      _group[_staged.target] = _group[_staged.target] or {}
+      table.insert(_group[_staged.target], _by_id[_id])
     end
   end
   return _ops
@@ -579,6 +631,11 @@ local describe_operations = function(ops)
   for _target, _envelopes in pairs(ops.moves) do
     for _, _envelope in ipairs(_envelopes) do
       table.insert(_lines, ("  move → %s  %s"):format(_target, _envelope.subject))
+    end
+  end
+  for _target, _envelopes in pairs(ops.copies) do
+    for _, _envelope in ipairs(_envelopes) do
+      table.insert(_lines, ("  copy + %s  %s"):format(_target, _envelope.subject))
     end
   end
   return _lines
@@ -605,6 +662,16 @@ local build_tasks = function(state, ops)
   for _target, _envelopes in pairs(ops.moves) do
     table.insert(_tasks, function(_next)
       himalaya.move_messages({
+        account = state.account,
+        folder = state.folder,
+        target = _target,
+        ids = _ids(_envelopes),
+      }, function(_, _err) _next(_err) end)
+    end)
+  end
+  for _target, _envelopes in pairs(ops.copies) do
+    table.insert(_tasks, function(_next)
+      himalaya.copy_messages({
         account = state.account,
         folder = state.folder,
         target = _target,

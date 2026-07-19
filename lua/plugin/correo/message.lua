@@ -97,6 +97,7 @@ local configure_buffer = function(bufnr, keymaps)
   _map(keymaps.reply, function() M.compose(bufnr, "reply", false) end, "reply")
   _map(keymaps.reply_all, function() M.compose(bufnr, "reply", true) end, "reply all")
   _map(keymaps.forward, function() M.compose(bufnr, "forward", false) end, "forward")
+  _map(keymaps.attachments, function() M.download_attachments(bufnr) end, "download attachments")
   _map(keymaps.help, function() require("plugin.correo.help").show("message") end, "help")
 
   -- Drop per-buffer context when the buffer goes away
@@ -149,6 +150,26 @@ M.toggle_seen = function(bufnr)
   local _ctx = State[bufnr]
   if _ctx == nil then return end
   M.set_seen(bufnr, not vim.tbl_contains(_ctx.envelope.flags, "Seen"))
+end
+
+--- Download all attachments of the message shown in a buffer
+---@param bufnr integer Message buffer handle (0 for the current buffer)
+M.download_attachments = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  local _ctx = State[bufnr]
+  if _ctx == nil then return end
+  himalaya.download_attachments({
+    account = _ctx.account,
+    folder = _ctx.folder,
+    ids = { _ctx.envelope.id },
+  }, function(_result, _err)
+    if _err then
+      vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
+      log.error(_err)
+      return
+    end
+    vim.notify("[correo] " .. _result, vim.log.levels.INFO)
+  end)
 end
 
 --- Get the context of a message buffer

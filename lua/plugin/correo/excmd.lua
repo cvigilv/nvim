@@ -141,6 +141,60 @@ local setup_action_commands = function()
       function(b) _message("compose")(b, "forward", false) end
     )
   end, { desc = "Forward the current message" })
+
+  _command("CorreoCopy", function(_cmd)
+    local _target = #_cmd.fargs > 0 and table.concat(_cmd.fargs, " ") or nil
+    dispatch(function(b) _mailbox("stage_copy_at_cursor")(b, _target) end)
+  end, {
+    nargs = "*",
+    complete = function(_arglead)
+      local _account = current_account()
+      prime_folder_cache(_account)
+      return match_prefix(Folder_cache[account_key(_account)] or {}, _arglead)
+    end,
+    desc = "Stage copying the envelope under the cursor (Gmail: add label; no args: picker)",
+  })
+
+  _command("CorreoDelete", function()
+    dispatch(function(b) _mailbox("stage_delete_at_cursor")(b) end)
+  end, { desc = "Stage deleting the envelope under the cursor (commit with :w)" })
+
+  _command("CorreoAttachments", function()
+    dispatch(
+      function(b) _mailbox("download_attachments_at_cursor")(b) end,
+      function(b) _message("download_attachments")(b) end
+    )
+  end, { desc = "Download all attachments of the current message" })
+
+  _command("CorreoNextPage", function()
+    dispatch(function(b) _mailbox("change_page")(b, 1) end)
+  end, { desc = "Show the next page of the mailbox listing" })
+
+  _command("CorreoPrevPage", function()
+    dispatch(function(b) _mailbox("change_page")(b, -1) end)
+  end, { desc = "Show the previous page of the mailbox listing" })
+
+  _command("CorreoAccounts", function()
+    require("plugin.correo.mailbox").select_account(0)
+  end, { desc = "Pick an account and open its mailbox" })
+
+  _command("CorreoFolders", function()
+    dispatch(function(b) _mailbox("select_folder")(b) end)
+  end, { desc = "Pick a folder of the current account and open it" })
+
+  _command("CorreoAttach", function(_cmd)
+    local _compose = require("plugin.correo.compose")
+    if _compose.get_context(0) == nil then
+      vim.notify("[correo] not in a compose buffer", vim.log.levels.WARN)
+      return
+    end
+    local _path = #_cmd.fargs > 0 and table.concat(_cmd.fargs, " ") or nil
+    _compose.attach(0, _path)
+  end, {
+    nargs = "*",
+    complete = "file",
+    desc = "Insert an attachment into the compose buffer (no args: prompt)",
+  })
 end
 
 --- Create the plugin's user commands

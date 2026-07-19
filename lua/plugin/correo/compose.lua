@@ -45,6 +45,11 @@ local configure_buffer = function(bufnr)
     callback = function() M.send(bufnr) end,
   })
 
+  vim.keymap.set("n", vim.g.correo.opts.keymaps.attach, function() M.attach(bufnr) end, {
+    buffer = bufnr,
+    desc = "correo: attach a file",
+  })
+
   -- Drop per-buffer context when the buffer goes away
   vim.api.nvim_create_autocmd("BufWipeout", {
     buffer = bufnr,
@@ -99,6 +104,32 @@ local finish_compose = function(bufnr, ctx, success)
   end
 end
 
+--- Insert an MML attachment part at the cursor of a compose buffer
+---@param bufnr integer Compose buffer handle (0 for the current buffer)
+---@param path string|nil File to attach (nil → prompt with file completion)
+M.attach = function(bufnr, path)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  if State[bufnr] == nil then return end
+  local _insert = function(_path)
+    if _path == nil or _path == "" then return end
+    _path = vim.fn.fnamemodify(vim.fn.expand(_path), ":p")
+    if vim.fn.filereadable(_path) == 0 then
+      vim.notify("[correo] not a readable file: " .. _path, vim.log.levels.ERROR)
+      return
+    end
+    -- MML part: Himalaya's template compiler turns this into a real attachment
+    local _lnum = vim.api.nvim_win_get_cursor(0)[1]
+    vim.api.nvim_buf_set_lines(bufnr, _lnum, _lnum, false, {
+      ("<#part filename=%s><#/part>"):format(_path),
+    })
+  end
+  if path ~= nil then
+    _insert(path)
+  else
+    vim.ui.input({ prompt = "Attach file: ", completion = "file" }, _insert)
+  end
+end
+
 --- Confirm and send the compose buffer, or save it as a draft in the mailbox
 ---
 --- The buffer is always persisted to its /tmp file first, so cancelling (or a
@@ -150,6 +181,14 @@ local open_compose_buffer = function(ctx, content)
   configure_buffer(_bufnr)
   log.fmt_debug("composing %s at %s", ctx.kind, _path)
   return _bufnr
+end
+
+--- Get the context of a compose buffer
+---@param bufnr integer Compose buffer handle (0 for the current buffer)
+---@return Correo.Compose.Context|nil context Context, or nil if not a compose buffer
+M.get_context = function(bufnr)
+  if bufnr == 0 then bufnr = vim.api.nvim_get_current_buf() end
+  return State[bufnr]
 end
 
 --- Generate a template and open it as an editable compose buffer
