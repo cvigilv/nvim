@@ -239,7 +239,7 @@ M.foldtext = function()
 
   -- Reuse the envelope renderer, splitting its spans into foldtext chunks
   local _line = render.render_envelope(_envelope, vim.g.correo.opts.ui)
-  local _chunks, _col = { { "▸ ", "CorreoThread" } }, 0
+  local _chunks, _col = {}, 0
   for _, _span in ipairs(_line.spans) do
     if _span.first > _col then
       table.insert(_chunks, { _line.text:sub(_col + 1, _span.first), "Normal" })
