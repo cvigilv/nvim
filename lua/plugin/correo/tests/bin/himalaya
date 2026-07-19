@@ -1,0 +1,49 @@
+#!/bin/sh
+# Stub himalaya binary for the correo.nvim test suite.
+# Logs every invocation to $CORREO_TEST_LOG and answers with fixtures.
+
+[ -n "$CORREO_TEST_LOG" ] && printf '%s\n' "$*" >> "$CORREO_TEST_LOG"
+
+case "$*" in
+  *"envelope list"*"--page 2"*)
+    # Simulate paging past the end (IMAP behaviour)
+    echo "Error: " >&2
+    echo "   0: cannot list imap envelopes: page 2 out of bounds" >&2
+    exit 1
+    ;;
+  *"envelope list"*"subject nothing"*)
+    echo '[]'
+    ;;
+  *"envelope list"*)
+    cat <<'EOF'
+[
+  {"id":"1","flags":["Seen"],"subject":"first mail","from":{"name":"Alice","addr":"alice@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-17 19:17+00:00","has_attachment":false},
+  {"id":"2","flags":[],"subject":"second mail","from":{"name":null,"addr":"bob@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-16 10:00+00:00","has_attachment":true},
+  {"id":"3","flags":["Flagged"],"subject":"","from":{"name":"Carol","addr":"carol@example.com"},"to":{"name":null,"addr":"me@example.com"},"date":"2026-07-15 08:30+00:00","has_attachment":false}
+]
+EOF
+    ;;
+  *"folder list"*)
+    echo '[{"name":"INBOX","desc":""},{"name":"Archive","desc":""},{"name":"Sub folder","desc":""}]'
+    ;;
+  *"account list"*)
+    echo '[{"name":"test","backend":"IMAP","default":true}]'
+    ;;
+  *"template send"*|*"template save"*)
+    # Templates arrive on stdin; capture them for assertions
+    [ -n "$CORREO_TEST_STDIN" ] && cat > "$CORREO_TEST_STDIN" || cat > /dev/null
+    echo "Template successfully processed!"
+    ;;
+  *"message read"*)
+    echo '"From: Alice <alice@example.com>\nSubject: first mail\n\nhello body\n"'
+    ;;
+  *"message delete"*|*"message move"*|*"message copy"*|*"flag add"*|*"flag remove"*)
+    echo '"ok"'
+    ;;
+  *"attachment download"*)
+    echo "Downloaded 1 attachment(s)!"
+    ;;
+  *)
+    echo 'null'
+    ;;
+esac
