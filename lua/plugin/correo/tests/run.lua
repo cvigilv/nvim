@@ -53,6 +53,8 @@ local _log_file = vim.fn.tempname()
 local _stdin_file = vim.fn.tempname()
 vim.env.CORREO_TEST_LOG = _log_file
 vim.env.CORREO_TEST_STDIN = _stdin_file
+-- Pin the timezone so date-rendering assertions are deterministic (local = UTC)
+vim.env.TZ = "UTC0"
 
 --- Read the stub's invocation log
 ---@return string[] lines One line per stub invocation
@@ -84,6 +86,19 @@ local _seen_envelope = {
 local _line = render.render_envelope(_seen_envelope, _ui)
 ok("render: seen row has no unread icon", _line.text:find("●") == nil)
 ok("render: date formatted", _line.text:find("17 Jul", 1, true) ~= nil)
+
+-- Date column is timezone-aware: the offset is applied before the day is taken
+-- (TZ=UTC0, so "local" here is UTC)
+local _date_of = function(date)
+  local _e = vim.deepcopy(_seen_envelope)
+  _e.date = date
+  local _s = render.render_envelope(_e, _ui).spans[4]
+  return vim.trim(render.render_envelope(_e, _ui).text:sub(_s.first + 1, _s.last))
+end
+eq("render: wire UTC date kept on same day", _date_of("2026-07-17 19:17+00:00"), "17 Jul")
+eq("render: negative offset rolls to next local day", _date_of("2026-07-17 23:30-02:00"), "18 Jul")
+eq("render: positive offset rolls to previous local day", _date_of("2026-07-17 01:30+05:00"), "16 Jul")
+eq("render: already-local offset is a no-op", _date_of("2026-07-17 12:00+00:00"), "17 Jul")
 ok("render: sender rendered", _line.text:find("Alice", 1, true) ~= nil)
 ok("render: subject rendered", _line.text:find("hello world", 1, true) ~= nil)
 eq(
