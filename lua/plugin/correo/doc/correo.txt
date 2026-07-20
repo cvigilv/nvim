@@ -69,7 +69,7 @@ All options with their defaults: >lua
           threads = false,       -- see |correo-threads|
         },
         message = {
-          open = "replace",      -- "replace" | "split" | "vsplit"
+          open = "replace",      -- "replace"|"split"|"hsplit"|"vsplit"
         },
         icons = {
           unread = "●",
@@ -99,8 +99,11 @@ layout: icons, date, sender, two spaces, subject.
 `ui.message.open` decides how a message is displayed:
 
   "replace"	edit the message in the mailbox window (default)
-  "split"	horizontal split: 20% mailbox on top, 80% message below
+  "hsplit"	horizontal split: 20% mailbox on top, 80% message below
   "vsplit"	vertical split: 50/50, mailbox left, message right
+  "split"	adaptive: vertical when the mailbox window is wider than
+		twice 'textwidth' (or 160 columns when 'textwidth' is 0),
+		horizontal otherwise
 
 In split modes, opening another message reuses the existing split, and the
 quit keymap closes the split, restoring the mailbox to full size.

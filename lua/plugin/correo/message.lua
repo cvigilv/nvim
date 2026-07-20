@@ -58,17 +58,34 @@ local find_message_window = function(mailbox_bufnr)
   return nil
 end
 
+--- Resolve the adaptive "split" style to a concrete orientation
+---
+--- Splits vertically when the window is wider than twice the text width
+--- (`textwidth * 2`, or 160 columns when 'textwidth' is unset), otherwise
+--- horizontally — so wide screens get a side-by-side reading pane.
+---@param width integer Columns available in the window being split
+---@param textwidth integer 'textwidth' of the source buffer (0 if unset)
+---@return "hsplit"|"vsplit" style Orientation to use
+M.resolve_split_style = function(width, textwidth)
+  local _threshold = textwidth > 0 and textwidth * 2 or 160
+  return width > _threshold and "vsplit" or "hsplit"
+end
+
 --- Display a message file according to `ui.message.open`
---- ("replace", "split" = 20/80 horizontal, "vsplit" = 50/50 vertical)
+--- ("replace"; "hsplit" = 20/80 horizontal; "vsplit" = 50/50 vertical;
+--- "split" = adaptive, see `resolve_split_style`)
 ---@param path string Path of the message file on disk
 ---@param mailbox_bufnr integer Mailbox buffer the message was opened from
 local display = function(path, mailbox_bufnr)
   local _style = vim.g.correo.opts.ui.message.open
+  if _style == "split" then
+    _style = M.resolve_split_style(vim.api.nvim_win_get_width(0), vim.bo.textwidth)
+  end
   local _reuse_win = find_message_window(mailbox_bufnr)
   if _reuse_win ~= nil and _style ~= "replace" then
     -- A split for this mailbox is already open: reuse it
     vim.api.nvim_set_current_win(_reuse_win)
-  elseif _style == "split" then
+  elseif _style == "hsplit" then
     -- 20% mailbox on top, 80% message below
     local _height = math.floor(vim.api.nvim_win_get_height(0) * 0.8)
     vim.cmd(("belowright %dsplit"):format(_height))
