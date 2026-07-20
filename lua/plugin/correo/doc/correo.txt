@@ -65,16 +65,18 @@ All options with their defaults: >lua
       ui = {
         from_width = 24,         -- display width of the sender column
         mailbox = {
-          format = "%u%F%a%d%f  %s",
+          format = "%u%r%F%a %d%f  %s",
           threads = false,       -- see |correo-threads|
         },
         message = {
           open = "replace",      -- "replace"|"split"|"hsplit"|"vsplit"
         },
+        -- glyphs match Himalaya's envelope.list.table.*-char defaults
         icons = {
-          unread = "●",
-          flagged = "⚑",
-          attachment = "",
+          unread = "*",          -- \Seen absent   (unseen-char)
+          replied = "R",         -- \Answered set  (replied-char)
+          flagged = "!",         -- \Flagged set   (flagged-char)
+          attachment = "@",      -- has attachment (attachment-char)
         },
       },
       keymaps = { ... },         -- see |correo-keymaps|
@@ -85,9 +87,10 @@ All options with their defaults: >lua
 `ui.mailbox.format` is a statusline-style string that drives how each
 envelope line is rendered:
 
-  %u	unread icon (2 cells)
-  %F	flagged icon (2 cells)
-  %a	attachment icon (2 cells)
+  %u	unread glyph, when `\Seen` is absent (1 cell)
+  %r	replied glyph, when `\Answered` is set (1 cell)
+  %F	flagged glyph, when `\Flagged` is set (1 cell)
+  %a	attachment glyph (1 cell)
   %d	short date (8 cells, e.g. "17 Jul")
   %f	sender name or address (`ui.from_width` cells)
   %s	subject (rest of the line)
@@ -343,7 +346,9 @@ configuration override them freely.
 
   Group			Default link	Used for~
 							*hl-CorreoUnread*
-  CorreoUnread		DiagnosticInfo	unread icon column
+  CorreoUnread		DiagnosticInfo	unread glyph column
+							*hl-CorreoReplied*
+  CorreoReplied		DiagnosticHint	replied glyph column
 							*hl-CorreoFlagged*
   CorreoFlagged		WarningMsg	flagged icon column
 							*hl-CorreoAttachment*

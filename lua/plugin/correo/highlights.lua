@@ -13,6 +13,7 @@ M.setup = function(opts)
   local _ = opts -- Reserved for future highlight configuration
   local _groups = {
     CorreoUnread = { link = "DiagnosticInfo" },
+    CorreoReplied = { link = "DiagnosticHint" },
     CorreoFlagged = { link = "WarningMsg" },
     CorreoAttachment = { link = "Special" },
     CorreoDate = { link = "Number" },
