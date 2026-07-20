@@ -76,7 +76,16 @@ Reading a message marks it seen (revert with `gS`). In the drafts folder,
 original draft.
 
 Compose buffers (`filetype=mail`, backed by `/tmp/<account>.<kind>.<id>`) send
-on `:w` after a Send / Save draft / Cancel prompt.
+on `:w` after a Send / Save draft / Cancel prompt. Sending a reply (or
+reply-all) flags the replied-to message as `\Answered`, so it shows the
+replied glyph (`R`) — saving the reply as a draft does not.
+
+## Known limitations
+
+- **Attachment glyph (`@`)**: Himalaya's IMAP envelope list never populates
+  `has_attachment` (confirmed in v1.1.0 and v1.2.0), so the `@` glyph cannot
+  show for IMAP accounts even when a message really has attachments. Detecting
+  it would need a per-message body-structure fetch (one CLI call per row).
 
 ## Keymaps
 

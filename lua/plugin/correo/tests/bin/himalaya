@@ -43,6 +43,9 @@ EOF
     [ -n "$CORREO_TEST_STDIN" ] && cat > "$CORREO_TEST_STDIN" || cat > /dev/null
     echo "Template successfully processed!"
     ;;
+  *"template reply"*|*"template forward"*|*"template write"*)
+    echo '{"content":"From: me <me@example.com>\nTo: alice@example.com\nSubject: Re: first mail\n\n","cursor":{"row":5,"col":0}}'
+    ;;
   *"message read"*)
     echo '"From: Alice <alice@example.com>\nSubject: first mail\n\nhello body\n"'
     ;;

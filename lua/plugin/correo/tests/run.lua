@@ -392,6 +392,61 @@ end)
 eq("threads: disabled leaves no folds", vim.fn.foldlevel(1), 0)
 -- }}}
 
+-- {{{ compose: a sent reply flags the original as \Answered
+local compose = require("plugin.correo.compose")
+local _count_log = function(sub)
+  local _n = 0
+  for _, _l in ipairs(read_log()) do
+    if _l:find(sub, 1, true) then _n = _n + 1 end
+  end
+  return _n
+end
+local _reply_to = {
+  id = "1",
+  flags = { "Seen" },
+  subject = "first mail",
+  from = { name = "Alice", addr = "alice@example.com" },
+  to = { name = nil, addr = "me@example.com" },
+  date = "2026-07-17 19:17+00:00",
+  has_attachment = false,
+}
+
+-- Sent reply → `flag add ... answered` on the original
+local _answered0 = _count_log("answered")
+compose.open({ account = "test", folder = "INBOX", kind = "reply", envelope = _reply_to })
+await("compose: reply buffer opened", function() return compose.get_context(0) ~= nil end)
+local _sends0 = _count_log("template send")
+vim.fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
+compose.send(vim.api.nvim_get_current_buf())
+await("compose: reply sent", function() return _count_log("template send") > _sends0 end)
+await("compose: original flagged answered", function() return _count_log("answered") > _answered0 end)
+ok(
+  "compose: answered flag targets the replied-to id and folder",
+  table.concat(read_log(), "\n"):find("flag add --account test --folder INBOX 1 answered", 1, true)
+    ~= nil
+)
+
+-- Reply saved as a draft → no answered flag
+local _answered1 = _count_log("answered")
+compose.open({ account = "test", folder = "INBOX", kind = "reply", envelope = _reply_to })
+await("compose: second reply opened", function() return compose.get_context(0) ~= nil end)
+local _saves0 = _count_log("template save")
+vim.fn.confirm = function() return 2 end ---@diagnostic disable-line: duplicate-set-field
+compose.send(vim.api.nvim_get_current_buf())
+await("compose: reply saved as draft", function() return _count_log("template save") > _saves0 end)
+eq("compose: saved-draft reply does not answer the original", _count_log("answered"), _answered1)
+
+-- Sent forward → no answered flag (only replies answer)
+local _answered2 = _count_log("answered")
+compose.open({ account = "test", folder = "INBOX", kind = "forward", envelope = _reply_to })
+await("compose: forward opened", function() return compose.get_context(0) ~= nil end)
+local _sends1 = _count_log("template send")
+vim.fn.confirm = function() return 1 end ---@diagnostic disable-line: duplicate-set-field
+compose.send(vim.api.nvim_get_current_buf())
+await("compose: forward sent", function() return _count_log("template send") > _sends1 end)
+eq("compose: sent forward does not answer anything", _count_log("answered"), _answered2)
+-- }}}
+
 -- {{{ Report
 print(("\ncorreo.nvim tests: %d passed, %d failed"):format(Results.pass, Results.fail))
 for _, _message in ipairs(Results.messages) do

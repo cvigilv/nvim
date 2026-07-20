@@ -78,29 +78,60 @@ local delete_original_draft = function(ctx, on_done)
   end)
 end
 
+--- Flag the replied-to message as \Answered after a reply is sent (else no-op)
+---@param ctx Correo.Compose.Context Compose context
+---@param on_done fun() Continuation, called even if the flag update failed
+local mark_original_answered = function(ctx, on_done)
+  if ctx.kind ~= "reply" or ctx.envelope == nil then
+    on_done()
+    return
+  end
+  himalaya.change_flags("add", {
+    account = ctx.account,
+    folder = ctx.folder,
+    ids = { ctx.envelope.id },
+    flags = { "answered" },
+  }, function(_, _err)
+    if _err then
+      vim.notify("[correo] could not flag original as answered: " .. _err, vim.log.levels.WARN)
+      log.error(_err)
+    end
+    on_done()
+  end)
+end
+
 --- Report a template operation and close the compose buffer on success
 ---
---- When editing a draft, the original draft message is deleted first so the
---- drafts folder never keeps a stale copy of what was sent/updated.
+--- On a successful send, a reply flags its original message as \Answered (so
+--- it shows the replied glyph). When editing a draft, the original draft is
+--- deleted so the drafts folder never keeps a stale copy of what was sent.
 ---@param bufnr integer Compose buffer handle
 ---@param ctx Correo.Compose.Context Compose context
 ---@param success string Message shown when the operation succeeded
+---@param sent boolean Whether the message was sent (vs saved as a draft)
 ---@return fun(result: string|nil, err: string|nil) callback Completion callback
-local finish_compose = function(bufnr, ctx, success)
+local finish_compose = function(bufnr, ctx, success, sent)
   return function(_, _err)
     if _err then
       vim.notify("[correo] " .. _err, vim.log.levels.ERROR)
       log.error(_err)
       return
     end
-    delete_original_draft(ctx, function()
+    local _cleanup = function()
       vim.notify("[correo] " .. success, vim.log.levels.INFO)
       -- The compose buffer served its purpose (local /tmp copy stays as backup)
       if vim.api.nvim_buf_is_valid(bufnr) then vim.cmd(("bwipeout! %d"):format(bufnr)) end
       if ctx.mailbox_bufnr ~= nil and vim.api.nvim_buf_is_valid(ctx.mailbox_bufnr) then
         require("plugin.correo.mailbox").refresh(ctx.mailbox_bufnr)
       end
-    end)
+    end
+    local _drop_draft = function() delete_original_draft(ctx, _cleanup) end
+    -- Answering only applies to a sent reply, never to a saved draft
+    if sent then
+      mark_original_answered(ctx, _drop_draft)
+    else
+      _drop_draft()
+    end
   end
 end
 
@@ -154,13 +185,13 @@ M.send = function(bufnr)
   if _choice == 1 then
     himalaya.send_template(
       { account = _ctx.account, template = _template },
-      finish_compose(bufnr, _ctx, "message sent")
+      finish_compose(bufnr, _ctx, "message sent", true)
     )
   elseif _choice == 2 then
     local _folder = vim.g.correo.opts.drafts_folder
     himalaya.save_template(
       { account = _ctx.account, folder = _folder, template = _template },
-      finish_compose(bufnr, _ctx, "draft saved to " .. _folder)
+      finish_compose(bufnr, _ctx, "draft saved to " .. _folder, false)
     )
   else
     vim.notify("[correo] cancelled, kept editing", vim.log.levels.INFO)
