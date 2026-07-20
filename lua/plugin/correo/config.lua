@@ -21,8 +21,10 @@
 ---@field threads boolean Group envelopes into subject threads shown as closed folds
 
 ---@class Correo.UI.Message.Configuration
----@field open "replace"|"split"|"vsplit" How to open a message: replace the mailbox window,
----open a horizontal split (20% mailbox / 80% message) or a vertical split (50/50)
+---@field open "replace"|"split"|"hsplit"|"vsplit" How to open a message: replace the mailbox
+---window; "hsplit" horizontal split (20% mailbox / 80% message); "vsplit" vertical split
+---(50/50); "split" picks vertical when the window is wider than textwidth*2 (default 160),
+---horizontal otherwise
 
 ---@class Correo.UI.Configuration
 ---@field from_width integer Display width of the sender column
@@ -140,8 +142,10 @@ M.updateconfig = function(opts)
     ["ui.mailbox.threads"] = { opts.ui.mailbox.threads, "boolean" },
     ["ui.message.open"] = {
       opts.ui.message.open,
-      function(v) return v == "replace" or v == "split" or v == "vsplit" end,
-      '"replace", "split" or "vsplit"',
+      function(v)
+        return v == "replace" or v == "split" or v == "hsplit" or v == "vsplit"
+      end,
+      '"replace", "split", "hsplit" or "vsplit"',
     },
     ["ui.icons.unread"] = { opts.ui.icons.unread, "string" },
     ["ui.icons.flagged"] = { opts.ui.icons.flagged, "string" },

@@ -318,6 +318,16 @@ end)
 eq("mailbox: past-end page reverted", vim.api.nvim_buf_get_name(_mb), "correo://test/INBOX")
 -- }}}
 
+-- {{{ message.resolve_split_style (adaptive split orientation)
+local message = require("plugin.correo.message")
+eq("split: wide window (no textwidth) → vertical", message.resolve_split_style(200, 0), "vsplit")
+eq("split: narrow window (no textwidth) → horizontal", message.resolve_split_style(120, 0), "hsplit")
+eq("split: exactly at default threshold → horizontal", message.resolve_split_style(160, 0), "hsplit")
+eq("split: one past default threshold → vertical", message.resolve_split_style(161, 0), "vsplit")
+eq("split: textwidth drives the threshold (wide)", message.resolve_split_style(100, 40), "vsplit")
+eq("split: textwidth drives the threshold (narrow)", message.resolve_split_style(70, 40), "hsplit")
+-- }}}
+
 -- {{{ mailbox threads (folds against the stub's Threads folder)
 --- Toggle the threads option (vim.g values are copies: write the table back)
 ---@param enabled boolean Desired `ui.mailbox.threads` value

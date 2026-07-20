@@ -24,7 +24,8 @@ require("plugin.correo").setup({
                                  -- %d date %f sender %s subject
       threads = false,           -- group subject threads into closed folds
     },
-    message = { open = "replace" }, -- "split" (20/80 horizontal) or "vsplit" (50/50 vertical)
+    message = { open = "replace" }, -- "hsplit" (20/80 horizontal), "vsplit" (50/50 vertical),
+                                    -- or "split" (vertical if wide, else horizontal)
     icons = { unread = "●", flagged = "⚑", attachment = "" },
   },
 })
