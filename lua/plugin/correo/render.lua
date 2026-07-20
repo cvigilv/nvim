@@ -28,14 +28,46 @@ local fit = function(text, width)
   return text .. (" "):rep(width - vim.fn.strdisplaywidth(text))
 end
 
---- Format a Himalaya timestamp ("YYYY-MM-DD HH:MM+TZ") as a short date
+--- Current offset of the system's local timezone, in seconds east of UTC
+---@return integer offset Local UTC offset (e.g. 7200 for CEST)
+local local_utc_offset = function()
+  -- os.date("!*t") is UTC broken-down time; os.time reads it as local, so the
+  -- gap from "now" is exactly the local offset
+  local _now = os.time()
+  return os.difftime(_now, os.time(os.date("!*t", _now) --[[@as osdateparam]]))
+end
+
+--- Format a Himalaya timestamp as a short date in the system's local timezone
+---
+--- Himalaya reports envelope dates in the wire offset (e.g.
+--- "2026-07-19 23:44+00:00") unless `envelope.list.datetime-local-tz` is set
+--- (himalaya >= 1.2.0). We convert to the true instant and render it locally,
+--- so the day is correct regardless of the wire offset or that setting.
 ---@param date string Timestamp as reported by Himalaya
 ---@return string formatted Short date (e.g. "17 Jul"), or the input if unparseable
 local format_date = function(date)
-  local _y, _m, _d = date:match("^(%d+)%-(%d+)%-(%d+)")
-  if not _y then return date end
-  local _time = os.time({ year = tonumber(_y), month = tonumber(_m), day = tonumber(_d), hour = 12 })
-  return os.date("%d %b", _time) --[[@as string]]
+  local _y, _m, _d, _h, _min, _sign, _oh, _om =
+    date:match("^(%d+)%-(%d+)%-(%d+)%s+(%d+):(%d+)[:%d]*([%+%-])(%d+):(%d+)")
+  if not _y then
+    -- No parseable offset: fall back to the bare date, midday to dodge rounding
+    local _yy, _mm, _dd = date:match("^(%d+)%-(%d+)%-(%d+)")
+    if not _yy then return date end
+    local _noon = { year = tonumber(_yy), month = tonumber(_mm), day = tonumber(_dd), hour = 12 }
+    return os.date("%d %b", os.time(_noon)) --[[@as string]]
+  end
+
+  -- Wall-clock fields are read as local by os.time; correct to the true UTC
+  -- instant, then let os.date render it back in the system's local zone
+  local _offset = (tonumber(_oh) * 3600 + tonumber(_om) * 60) * (_sign == "-" and -1 or 1)
+  local _as_local = os.time({
+    year = tonumber(_y),
+    month = tonumber(_m),
+    day = tonumber(_d),
+    hour = tonumber(_h),
+    min = tonumber(_min),
+    sec = 0,
+  })
+  return os.date("%d %b", _as_local + local_utc_offset() - _offset) --[[@as string]]
 end
 
 --- Check whether an envelope carries a flag
