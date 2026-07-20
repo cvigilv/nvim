@@ -191,6 +191,10 @@ as an editable buffer at `/tmp/<account>.<kind>.<id>` with 'filetype'
   Save draft	save into `drafts_folder` via `template save`
   Cancel	keep editing
 
+Sending a reply or reply-all flags the replied-to message as `\Answered`, so
+it shows the replied glyph (see |correo-format| %r). Saving the reply as a
+draft does not; forwarding never answers anything.
+
 When editing an existing draft, sending or re-saving deletes the original
 draft message so the drafts folder holds at most one copy.
 
@@ -199,6 +203,11 @@ an MML part line: >
     <#part filename=/path/to/file><#/part>
 <
 Himalaya's template compiler turns it into a real attachment on send.
+
+						*correo-attachment-limitation*
+Note: Himalaya's IMAP envelope list never reports `has_attachment` (true in
+v1.1.0 and v1.2.0), so the attachment glyph (|correo-format| %a) cannot show
+for IMAP accounts even when a message really carries attachments.
 
 ==============================================================================
 10. COMMANDS						*correo-commands*

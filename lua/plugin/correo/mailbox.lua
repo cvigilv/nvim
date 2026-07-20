@@ -507,6 +507,7 @@ M.compose_at_cursor = function(bufnr, kind, reply_all)
     kind = kind,
     envelope = _envelope,
     reply_all = reply_all,
+    mailbox_bufnr = bufnr,
   })
 end
 

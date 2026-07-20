@@ -211,6 +211,7 @@ M.compose = function(bufnr, kind, reply_all)
     kind = kind,
     envelope = _ctx.envelope,
     reply_all = reply_all,
+    mailbox_bufnr = _ctx.mailbox_bufnr,
   })
 end
 
