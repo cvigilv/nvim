@@ -11,9 +11,10 @@
 ---@field use_quickfix boolean Should write to the quickfix list
 
 ---@class Correo.UI.Icons
----@field unread string Icon shown for unread envelopes
----@field flagged string Icon shown for flagged envelopes
----@field attachment string Icon shown for envelopes with attachments
+---@field unread string Glyph shown when `\Seen` is absent (himalaya `unseen-char`)
+---@field replied string Glyph shown when `\Answered` is set (himalaya `replied-char`)
+---@field flagged string Glyph shown when `\Flagged` is set (himalaya `flagged-char`)
+---@field attachment string Glyph shown when the message carries an attachment (himalaya `attachment-char`)
 
 ---@class Correo.UI.Mailbox.Configuration
 ---@field format string Statusline-style line format: %u unread, %F flagged, %a attachment,
@@ -75,16 +76,18 @@ local defaults = {
   ui = {
     from_width = 24,
     mailbox = {
-      format = "%u%F%a%d%f  %s",
+      format = "%u%r%F%a %d%f  %s",
       threads = false,
     },
     message = {
       open = "replace",
     },
+    -- Glyphs match Himalaya's `envelope.list.table.*-char` defaults
     icons = {
-      unread = "●",
-      flagged = "⚑",
-      attachment = "",
+      unread = "*",
+      replied = "R",
+      flagged = "!",
+      attachment = "@",
     },
   },
   keymaps = {
@@ -148,6 +151,7 @@ M.updateconfig = function(opts)
       '"replace", "split", "hsplit" or "vsplit"',
     },
     ["ui.icons.unread"] = { opts.ui.icons.unread, "string" },
+    ["ui.icons.replied"] = { opts.ui.icons.replied, "string" },
     ["ui.icons.flagged"] = { opts.ui.icons.flagged, "string" },
     ["ui.icons.attachment"] = { opts.ui.icons.attachment, "string" },
 

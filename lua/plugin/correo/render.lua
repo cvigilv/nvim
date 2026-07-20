@@ -79,9 +79,10 @@ local has_flag = function(envelope, flag) return vim.tbl_contains(envelope.flags
 -- Format specifiers: each maps a `%x` token to { text, highlight-or-nil }
 ---@type table<string, fun(e: Correo.Himalaya.Envelope, ui: Correo.UI.Configuration): string, string|nil>
 local SPECS = {
-  u = function(e, ui) return fit(has_flag(e, "Seen") and " " or ui.icons.unread, 2), "CorreoUnread" end,
-  F = function(e, ui) return fit(has_flag(e, "Flagged") and ui.icons.flagged or " ", 2), "CorreoFlagged" end,
-  a = function(e, ui) return fit(e.has_attachment and ui.icons.attachment or " ", 2), "CorreoAttachment" end,
+  u = function(e, ui) return fit(has_flag(e, "Seen") and " " or ui.icons.unread, 1), "CorreoUnread" end,
+  r = function(e, ui) return fit(has_flag(e, "Answered") and ui.icons.replied or " ", 1), "CorreoReplied" end,
+  F = function(e, ui) return fit(has_flag(e, "Flagged") and ui.icons.flagged or " ", 1), "CorreoFlagged" end,
+  a = function(e, ui) return fit(e.has_attachment and ui.icons.attachment or " ", 1), "CorreoAttachment" end,
   d = function(e) return fit(format_date(e.date), 8), "CorreoDate" end,
   f = function(e, ui) return fit(e.from.name or e.from.addr or "?", ui.from_width), "CorreoFrom" end,
   s = function(e)

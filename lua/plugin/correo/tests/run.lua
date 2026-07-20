@@ -83,8 +83,17 @@ local _seen_envelope = {
   has_attachment = false,
 }
 
+-- Extract the text under the first span of a given highlight group
+local _span_text = function(envelope, hl)
+  local _rendered = render.render_envelope(envelope, _ui)
+  for _, _span in ipairs(_rendered.spans) do
+    if _span.hl == hl then return vim.trim(_rendered.text:sub(_span.first + 1, _span.last)) end
+  end
+  return nil
+end
+
 local _line = render.render_envelope(_seen_envelope, _ui)
-ok("render: seen row has no unread icon", _line.text:find("●") == nil)
+ok("render: seen row has no unread glyph", _line.text:find("*", 1, true) == nil)
 ok("render: date formatted", _line.text:find("17 Jul", 1, true) ~= nil)
 
 -- Date column is timezone-aware: the offset is applied before the day is taken
@@ -92,8 +101,7 @@ ok("render: date formatted", _line.text:find("17 Jul", 1, true) ~= nil)
 local _date_of = function(date)
   local _e = vim.deepcopy(_seen_envelope)
   _e.date = date
-  local _s = render.render_envelope(_e, _ui).spans[4]
-  return vim.trim(render.render_envelope(_e, _ui).text:sub(_s.first + 1, _s.last))
+  return _span_text(_e, "CorreoDate")
 end
 eq("render: wire UTC date kept on same day", _date_of("2026-07-17 19:17+00:00"), "17 Jul")
 eq("render: negative offset rolls to next local day", _date_of("2026-07-17 23:30-02:00"), "18 Jul")
@@ -104,15 +112,21 @@ ok("render: subject rendered", _line.text:find("hello world", 1, true) ~= nil)
 eq(
   "render: span highlight order",
   vim.tbl_map(function(s) return s.hl end, _line.spans),
-  { "CorreoUnread", "CorreoFlagged", "CorreoAttachment", "CorreoDate", "CorreoFrom", "CorreoSubject" }
+  { "CorreoUnread", "CorreoReplied", "CorreoFlagged", "CorreoAttachment", "CorreoDate", "CorreoFrom", "CorreoSubject" }
 )
 ok("render: spans cover the full line", _line.spans[#_line.spans].last == #_line.text)
+
+-- Answered messages show the replied glyph in its column
+local _answered = vim.deepcopy(_seen_envelope)
+_answered.flags = { "Seen", "Answered" }
+eq("render: answered row shows replied glyph", _span_text(_answered, "CorreoReplied"), "R")
+eq("render: unanswered row has blank replied column", _span_text(_seen_envelope, "CorreoReplied"), "")
 
 local _unseen = vim.deepcopy(_seen_envelope)
 _unseen.flags = {}
 _unseen.subject = ""
 local _unseen_line = render.render_envelope(_unseen, _ui)
-ok("render: unseen row shows unread icon", _unseen_line.text:find("●", 1, true) ~= nil)
+ok("render: unseen row shows unread glyph", _unseen_line.text:find("*", 1, true) ~= nil)
 ok("render: empty subject placeholder", _unseen_line.text:find("(no subject)", 1, true) ~= nil)
 eq(
   "render: unseen subject highlight",
@@ -141,9 +155,7 @@ eq(
 -- Long senders are truncated to an exact display width
 local _long_from = vim.deepcopy(_seen_envelope)
 _long_from.from.name = ("x"):rep(60)
-local _from_span = render.render_envelope(_long_from, _ui).spans[5]
-local _from_text =
-  render.render_envelope(_long_from, _ui).text:sub(_from_span.first + 1, _from_span.last)
+local _from_text = _span_text(_long_from, "CorreoFrom")
 eq("render: sender truncated to width", vim.fn.strdisplaywidth(_from_text), _ui.from_width)
 ok("render: truncation marked with ellipsis", _from_text:find("…") ~= nil)
 -- }}}

@@ -20,13 +20,14 @@ require("plugin.correo").setup({
   ui = {
     from_width = 24,
     mailbox = {
-      format = "%u%F%a%d%f  %s", -- %u unread %F flagged %a attachment
-                                 -- %d date %f sender %s subject
-      threads = false,           -- group subject threads into closed folds
+      format = "%u%r%F%a %d%f  %s", -- %u unread %r replied %F flagged %a attachment
+                                    -- %d date %f sender %s subject
+      threads = false,              -- group subject threads into closed folds
     },
     message = { open = "replace" }, -- "hsplit" (20/80 horizontal), "vsplit" (50/50 vertical),
                                     -- or "split" (vertical if wide, else horizontal)
-    icons = { unread = "●", flagged = "⚑", attachment = "" },
+    -- glyphs match Himalaya's envelope.list.table.*-char defaults
+    icons = { unread = "*", replied = "R", flagged = "!", attachment = "@" },
   },
 })
 ```
