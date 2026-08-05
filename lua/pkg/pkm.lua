@@ -277,4 +277,14 @@ require("orgmode").setup({
   },
 })
 
-require('himalaya').setup({})
+---@diagnostic disable-next-line: missing-fields
+require("plugin.correo").setup({
+  -- Only genuine deviations from the defaults; everything else tracks the plugin
+  ui = {
+    mailbox = { threads = true }, -- default false
+    message = { open = "split" }, -- default "replace"
+  },
+  ---@diagnostic disable-next-line: missing-fields
+  keymaps = { copy = "gA" }, -- default "gc"; see |correo-keymaps|
+  -- logging = { ... },         -- see log.lua
+})
