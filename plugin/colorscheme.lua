@@ -24,6 +24,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     "term:*",
     "*doc/*.txt",
     "*_Luapad.lua",
+    "correo://*"
   },
   callback = function(ev)
     local current_winhighlight = vim.wo.winhighlight
