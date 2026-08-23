@@ -53,5 +53,8 @@ vim.keymap.set(
   { desc = "Format buffer" }
 )
 
+-- Completion
+require("mini.completion").setup()
+
 -- Git
 require("resolve").setup()

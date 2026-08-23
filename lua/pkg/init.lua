@@ -47,6 +47,7 @@ vim.pack.add({
   gh("kaarmu/typst.vim"),
 
   -- Tooling (tooling.lua)
+  gh("echasnovski/mini.completion"),
   gh("folke/lazydev.nvim"),
   gh("danymat/neogen"),
   gh("mfussenegger/nvim-lint"),

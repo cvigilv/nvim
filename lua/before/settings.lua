@@ -62,11 +62,10 @@ vim.opt.winborder = { "🬕", "🬂", "🬨", "▐", "🬷", "🬭", "🬲", "�
 vim.opt.wildmode = "longest,list,full" -- Completion mode used to showcase options
 vim.opt.wrap = false -- Don't wrap text
 
--- Completion
-vim.opt.autocomplete = true -- Use autocomplete (a little buggy, but gets the job done)
-vim.opt.autocompletedelay = 0 -- Instantaneosly open completion menu
-vim.opt.completeopt = "menu,noinsert,fuzzy" -- Improve completion UX
-vim.opt.complete = "o" -- Autocompletion is only for omnicomplete items (i.e. LSP)
+-- Completion (mini.completion drives the popup; see lua/pkg/tooling.lua)
+vim.opt.autocomplete = false -- mini.completion triggers the menu itself
+vim.opt.completeopt = "menuone,noinsert,fuzzy" -- Improve completion UX
+vim.opt.complete = "o" -- <C-n> draws from omnifunc (i.e. LSP) only
 
 -- Disable some in built plugins completely
 vim.g.loaded_netrw = 1
