@@ -168,6 +168,17 @@ return {
       complete = "file",
     })
   end,
+  --- Code actions from LanguageServer.jl carry a `Command` rather than a
+  --- `WorkspaceEdit`, so an entry here runs client-side and the server never sees
+  --- a `workspace/executeCommand`. neogen's Julia template lists each typed
+  --- argument under `# Arguments`; the server's template does not.
+  commands = {
+    AddDocstringTemplate = function(_, ctx)
+      vim.api.nvim_buf_call(ctx.bufnr, function()
+        require("neogen").generate({ type = "func" })
+      end)
+    end,
+  },
   settings = {
     symbolCacheDownload = true,
     lint = {
