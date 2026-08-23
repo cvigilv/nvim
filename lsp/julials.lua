@@ -1,27 +1,32 @@
 ---@brief
 ---
---- https://github.com/julia-vscode/julia-vscode
+--- https://github.com/julia-vscode/LanguageServer.jl
 ---
---- LanguageServer.jl can be installed with `julia` and `Pkg`:
+--- Prefers a native `julials-<major>.<minor>` executable matching the Julia on
+--- `$PATH`, built by `scripts/julials-build.jl`:
+--- ```sh
+--- ./scripts/julials-build.jl build --julia release
+--- ```
+--- A compiled server answers `initialize` in under two seconds, against a little
+--- over thirty for the source launch. `update` rebuilds against the current
+--- LanguageServer.jl, `clean` removes the binaries.
+---
+--- Without a matching binary this falls back to running LanguageServer.jl from
+--- source out of `~/.julia/environments/nvim-lspconfig`, which is the only option
+--- on Julia 1.10 and 1.11 — JuliaC cannot compile on either. Install it with:
 --- ```sh
 --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer")'
 --- ```
---- where `~/.julia/environments/nvim-lspconfig` is the location where
---- the default configuration expects LanguageServer.jl to be installed.
 ---
---- To update an existing install, use the following command:
---- ```sh
---- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.update()'
---- ```
+--- Either way the Julia used is whichever `julia` resolves on `$PATH`, so the
+--- juliaup default channel decides which server starts. Changing it takes effect
+--- on the next `:Lsp restart julials`.
 ---
---- Note: In order to have LanguageServer.jl pick up installed packages or dependencies in a
---- Julia project, you must make sure that the project is instantiated:
+--- Note: for LanguageServer.jl to see a project's dependencies the project must be
+--- instantiated:
 --- ```sh
 --- julia --project=/path/to/my/project -e 'using Pkg; Pkg.instantiate()'
 --- ```
----
---- Note: The julia programming language searches for global environments within the `environments/`
---- folder of `$JULIA_DEPOT_PATH` entries. By default this simply `~/.julia/environments`
 
 local root_files = { "Project.toml", "JuliaProject.toml" }
 
@@ -83,49 +88,77 @@ local function activate_env(path)
   end
 end
 
-local cmd = {
-  "julia",
-  "--startup-file=no",
-  "--history-file=no",
-  "-e",
-  [[
-    # Load LanguageServer.jl: attempt to load from ~/.julia/environments/nvim-lspconfig
-    # with the regular load path as a fallback
-    ls_install_path = joinpath(
-        get(DEPOT_PATH, 1, joinpath(homedir(), ".julia")),
-        "environments", "nvim-lspconfig"
-    )
-    pushfirst!(LOAD_PATH, ls_install_path)
-    using LanguageServer
-    popfirst!(LOAD_PATH)
-    depot_path = get(ENV, "JULIA_DEPOT_PATH", "")
-    project_path = let
-        dirname(something(
-            ## 1. Finds an explicitly set project (JULIA_PROJECT)
-            Base.load_path_expand((
-                p = get(ENV, "JULIA_PROJECT", nothing);
-                p === nothing ? nothing : isempty(p) ? nothing : p
-            )),
-            ## 2. Look for a Project.toml file in the current working directory,
-            ##    or parent directories, with $HOME as an upper boundary
-            Base.current_project(),
-            ## 3. First entry in the load path
-            get(Base.load_path(), 1, nothing),
-            ## 4. Fallback to default global environment,
-            ##    this is more or less unreachable
-            Base.load_path_expand("@v#.#"),
-        ))
-    end
-    @info "Running language server" VERSION pwd() project_path depot_path
-    server = LanguageServer.LanguageServerInstance(stdin, stdout, project_path, depot_path)
-    server.runlinter = true
-    run(server)
-  ]],
-}
+--- Version of the `julia` on `$PATH`, as `major.minor` (which names the binary)
+--- and the full version (which keys SymbolServer's caches).
+---@return string|nil minor, string|nil full
+local function julia_version()
+  local julia = vim.fn.exepath("julia")
+  if julia == "" then return nil, nil end
+  local out = vim.system({ julia, "--version" }, { text = true }):wait()
+  if out.code ~= 0 then return nil, nil end
+  local major, minor, patch = (out.stdout or ""):match("(%d+)%.(%d+)%.(%d+)")
+  if not major then return nil, nil end
+  return major .. "." .. minor, major .. "." .. minor .. "." .. patch
+end
+
+--- Where LanguageServer.jl keeps its symbol caches. Passing this explicitly matters
+--- for the compiled binary: SymbolServer's default is a path inside the package
+--- directory it was compiled from.
+local function symbol_store()
+  return vim.fs.joinpath(vim.fn.stdpath("cache") --[[@as string]], "julials", "symbolstore")
+end
+
+--- Launch LanguageServer.jl from source. Used when no compiled binary matches the
+--- current Julia.
+---@param env_path string
+---@return string[]
+local function source_cmd(env_path)
+  return {
+    "julia",
+    "--startup-file=no",
+    "--history-file=no",
+    "--project=" .. vim.fn.expand("~/.julia/environments/nvim-lspconfig"),
+    "-e",
+    [[
+      using LanguageServer
+      depot_path = get(ENV, "JULIA_DEPOT_PATH", "")
+      project_path = ARGS[1]
+      @info "Running language server from source" VERSION project_path depot_path
+      server = LanguageServer.LanguageServerInstance(stdin, stdout, project_path, depot_path)
+      server.runlinter = true
+      run(server)
+    ]],
+    env_path,
+  }
+end
 
 ---@type vim.lsp.Config
 return {
-  cmd = cmd,
+  --- Resolved per client start rather than when this file is read, so switching the
+  --- juliaup default channel only needs `:Lsp restart julials`.
+  cmd = function(dispatchers, config)
+    local env_path = config.root_dir or assert(vim.uv.cwd())
+    local minor, full = julia_version()
+    local exe = minor and vim.fn.exepath("julials-" .. minor) or ""
+
+    if exe == "" then
+      return vim.lsp.rpc.start(source_cmd(env_path), dispatchers, { cwd = env_path })
+    end
+
+    return vim.lsp.rpc.start({
+      exe,
+      "--env",
+      env_path,
+      "--depot",
+      vim.env.JULIA_DEPOT_PATH or "",
+      "--symbol-store",
+      symbol_store(),
+      "--julia-exe",
+      vim.fn.exepath("julia"),
+      "--julia-version",
+      full,
+    }, dispatchers, { cwd = env_path })
+  end,
   filetypes = { "julia" },
   root_markers = root_files,
   on_attach = function(_, bufnr)
