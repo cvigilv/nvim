@@ -5,9 +5,7 @@
 -- Setup available LSPs
 local configured_lsps = {
   "bashls",
-  "fatou",
   "harper_ls",
-  "jetls",
   "julials",
   "lua_ls",
   "pyright",
