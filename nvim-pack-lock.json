@@ -128,6 +128,10 @@
       "rev": "1d5436c0f55490893892441c0eca55e6cdf4916c",
       "src": "https://github.com/kaarmu/typst.vim"
     },
+    "vim-slime": {
+      "rev": "305b4d81ff4630af5137fdeffb54aa0fef14761b",
+      "src": "https://github.com/jpalardy/vim-slime"
+    },
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
