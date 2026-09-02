@@ -103,49 +103,68 @@ local function lsp_log()
   vim.notify("[lsp] Press 'q' to quit.", vim.log.levels.INFO)
 end
 
--- TODO: maybe make this function accept a table of subcommands and functions to push them into the subcommands
-local function lsp_cmd(opts)
-  local args = vim.split(opts.args, " ")
-  local subcmd = args[1]
-  local name = args[2]
+local subcommands = {
+  info = lsp_info,
+  log = lsp_log,
+  restart = lsp_restart,
+  start = lsp_start,
+  stop = lsp_stop,
+  toggle = lsp_toggle,
+}
 
-  if subcmd == "" or subcmd == "info" then
-    lsp_info()
-  elseif subcmd == "start" and name then
-    lsp_start(name)
-  elseif subcmd == "stop" then
-    lsp_stop(name)
-  elseif subcmd == "restart" then
-    lsp_restart(name)
-  elseif subcmd == "toggle" and name then
-    lsp_toggle(name)
-  elseif subcmd == "log" then
-    lsp_log()
+--- Subcommands taking an LSP server name as their second argument
+local takes_server = { restart = true, start = true, stop = true, toggle = true }
+
+--- Names of every `lsp/<name>.lua` config found on the runtimepath
+---@return string[]
+local function server_names()
+  local names, seen = {}, {}
+  for _, path in ipairs(vim.api.nvim_get_runtime_file("lsp/*.lua", true)) do
+    local name = vim.fn.fnamemodify(path, ":t:r")
+    if not seen[name] then
+      seen[name] = true
+      names[#names + 1] = name
+    end
+  end
+  table.sort(names)
+  return names
+end
+
+local function lsp_cmd(opts)
+  local subcmd = opts.fargs[1] or "info"
+  local name = opts.fargs[2]
+
+  local fn = subcommands[subcmd]
+  if not fn then
+    vim.notify("[lsp] Unknown Lsp subcommand: " .. subcmd, vim.log.levels.ERROR)
+    return
+  end
+  if takes_server[subcmd] then
+    fn(name)
   else
-    vim.notify("[lsp] Unknown Lsp subcommand: " .. tostring(subcmd), vim.log.levels.ERROR)
+    fn()
   end
 end
 
 vim.api.nvim_create_user_command("Lsp", lsp_cmd, {
   nargs = "*",
-  complete = function(_, line)
-    local subcommands = { "info", "start", "stop", "restart", "toggle", "log" }
-    local split = vim.split(line, " ")
-    if #split == 2 then
-      return subcommands
-    elseif #split == 3 then
-      -- Scan lsp/ dir to see what configs are available
-      local lsp_folder = vim.fs.joinpath(vim.fn.stdpath("config"), "lsp")
-      local scandir = vim.uv.fs_scandir(lsp_folder)
-      local lsps = {}
-      while true do
-        local name, t = vim.uv.fs_scandir_next(scandir)
-        if not name then break end
-        table.insert(lsps, vim.fn.fnamemodify(name, ":t:r"))
-      end
-      vim.print(lsps)
-      return lsps
+  desc = "Inspect and control LSP servers",
+  complete = function(arg_lead, cmdline, cursor_pos)
+    -- Completion functions must filter on `arg_lead` themselves; Neovim returns
+    -- the list verbatim.
+    local args = vim.split(cmdline:sub(1, cursor_pos), "%s+", { trimempty = true })
+
+    -- Drop the command name, and the partial argument being completed
+    local completed = #args - 1 - (arg_lead == "" and 0 or 1)
+
+    local candidates = {}
+    if completed == 0 then
+      candidates = vim.tbl_keys(subcommands)
+      table.sort(candidates)
+    elseif completed == 1 and takes_server[args[2]] then
+      candidates = server_names()
     end
-    return {}
+
+    return vim.tbl_filter(function(c) return vim.startswith(c, arg_lead) end, candidates)
   end,
 })
