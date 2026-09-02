@@ -45,7 +45,8 @@ vim.pack.add({
 
   -- Syntax (syntax.lua)
   gh("nvim-treesitter/nvim-treesitter"),
-  gh("kaarmu/typst.vim"),
+  -- gh("kaarmu/typst.vim"),
+  gh("chomosuke/typst-preview.nvim"),
 
   -- Tooling (tooling.lua)
   gh("echasnovski/mini.completion"),

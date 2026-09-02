@@ -128,9 +128,9 @@
       "rev": "7d324792b7943e4aa16ad007212e6acc6f9fe335",
       "src": "https://github.com/nvim-telescope/telescope.nvim"
     },
-    "typst.vim": {
-      "rev": "1d5436c0f55490893892441c0eca55e6cdf4916c",
-      "src": "https://github.com/kaarmu/typst.vim"
+    "typst-preview.nvim": {
+      "rev": "1c2e19486397be1c580b560fc50ee36abe329c46",
+      "src": "https://github.com/chomosuke/typst-preview.nvim"
     },
     "vim-slime": {
       "rev": "305b4d81ff4630af5137fdeffb54aa0fef14761b",
