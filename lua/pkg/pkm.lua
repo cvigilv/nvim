@@ -194,9 +194,9 @@ require("orgmode").setup({
       types = {
         {
           type = "agenda",
-          org_agenda_span = "day",
+          org_agenda_span = "week",
           org_agenda_todo_ignore_deadlines = "all",
-          org_agenda_remove_tags = true,
+          org_agenda_remove_tags = false,
         },
         {
           org_agenda_overriding_header = "Interuption",
@@ -243,6 +243,13 @@ require("orgmode").setup({
         },
       },
     },
+    p = {
+      description = "PhD",
+      types = {
+        type = "tags_todo",
+        org_agenda_category_filter_preset = "PHD",
+      },
+    },
   },
   org_agenda_skip_scheduled_if_done = true,
   org_agenda_skip_deadline_if_done = true,
@@ -277,6 +284,7 @@ require("orgmode").setup({
   },
 })
 
+-- Email
 ---@diagnostic disable-next-line: missing-fields
 require("plugin.correo").setup({
   -- Only genuine deviations from the defaults; everything else tracks the plugin
@@ -287,4 +295,28 @@ require("plugin.correo").setup({
   ---@diagnostic disable-next-line: missing-fields
   keymaps = { copy = "gA" }, -- default "gc"; see |correo-keymaps|
   -- logging = { ... },         -- see log.lua
+})
+
+-- Image handling
+require("img-clip").setup({
+  default = {
+    dir_path = "~/media/images/img-clip.nvim",
+    file_name = "%Y%m%d%H%M%S-" .. vim.fn.expand("%:t:r"),
+    use_absolute_path = true,
+    prompt_for_file_name = false,
+  },
+  dirs = {
+    [vim.g.denote.directory] = {
+      template = "![$CURSOR]($FILE_PATH)",
+      dir_path = vim.g.denote.directory,
+      file_name = vim.fn.expand("%:t:r") .. "-%Y%m%d%H%M%S",
+      use_absolute_path = false,
+      prompt_for_file_name = false,
+      drag_and_drop = {
+        insert_mode = true,
+        copy_images = true,
+        download_images = true,
+      },
+    },
+  },
 })

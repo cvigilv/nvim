@@ -36,8 +36,8 @@ vim.pack.add({
   -- PKM (pkm.lua)
   gh("nvim-orgmode/orgmode"),
   cvv("denote.nvim"),
-  -- gh("pimalaya/himalaya-vim"),
   gh("xav-ie/himalaya-nvim"),
+  gh("HakonHarnes/img-clip.nvim"),
 
   -- Misc (misc.lua)
   cvv("diferente.nvim"),

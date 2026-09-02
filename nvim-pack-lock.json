@@ -36,9 +36,9 @@
       "rev": "576102bd3e1db2285ca3f40b99f3536c254d34db",
       "src": "https://github.com/xav-ie/himalaya-nvim"
     },
-    "himalaya-vim": {
-      "rev": "978f2b463c4ece28f5e1457029d399638e439704",
-      "src": "https://github.com/pimalaya/himalaya-vim"
+    "img-clip.nvim": {
+      "rev": "b6ddfb97b5600d99afe3452d707444afda658aca",
+      "src": "https://github.com/HakonHarnes/img-clip.nvim"
     },
     "jason.nvim": {
       "rev": "37c912a37e0df48031fbe5b389ae264ff28bb1de",
