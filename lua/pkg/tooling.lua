@@ -58,3 +58,28 @@ require("mini.completion").setup()
 
 -- Git
 require("resolve").setup()
+
+-- Docstrings
+require("neogen").setup({
+  enabled = true,
+  languages = {
+    lua = { template = { annotation_convention = "emmylua" } },
+    python = { template = { annotation_convention = "numpydoc" } },
+  },
+})
+
+-- Keymaps
+vim.keymap.set(
+  "n",
+  "<Leader>ld",
+  function() require("neogen").generate({ type = "func" }) end,
+  { desc = "Generate function docstring", noremap = true, silent = true }
+)
+
+vim.keymap.set("n", "<Leader>lD", function()
+  vim.ui.select(
+    { "class", "func", "type", "file" },
+    { prompt = "Select docstring to generate:" },
+    function(choice) require("neogen").generate({ type = choice }) end
+  )
+end, { desc = "Pick docstring to generate", noremap = true, silent = true })
