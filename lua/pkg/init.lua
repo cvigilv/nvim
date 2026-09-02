@@ -24,6 +24,7 @@ vim.pack.add({
   gh("jmbuhr/telescope-zotero.nvim"),
   gh("nvim-telescope/telescope-ui-select.nvim"),
   gh("yorickpeterse/nvim-jump"),
+  gh("unblevable/quick-scope"),
 
   -- UI (ui.lua)
   gh("Aasim-A/scrollEOF.nvim"),

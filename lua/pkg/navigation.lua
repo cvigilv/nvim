@@ -123,7 +123,11 @@ require("telescope").setup({
     live_grep = { prompt_title = false, prompt_prefix = " Grep >> " },
     builtin = { prompt_title = false, prompt_prefix = " Pickers >> ", previewer = false },
     buffers = { prompt_title = false, prompt_prefix = " Buffers >> ", previewer = false },
-    diagnostics = { prompt_title = false, prompt_prefix = " Diagnostics >> ", previewer = false },
+    diagnostics = {
+      prompt_title = false,
+      prompt_prefix = " Diagnostics >> ",
+      previewer = false,
+    },
   },
   extensions = {
     ["ui-select"] = { require("telescope.themes").get_ivy() },
@@ -266,3 +270,25 @@ require("oil").setup({
   },
   use_default_keymaps = false,
 })
+
+-- Quickscope
+vim.g.qs_highlight_on_keys = { "f", "F", "t", "T" }
+vim.g.qs_buftype_blacklist = {
+  "terminal",
+  "nofile",
+  "NvimTree",
+  "packer",
+  "Starter",
+  "Telescope",
+  "telescope",
+}
+vim.g.qs_filetype_blacklist = { }
+vim.cmd([[
+highlight link QuickScopePrimary IncSearch
+highlight link QuickScopeSecondary Search
+augroup hl_QuickScope
+  " Plugins
+  autocmd ColorScheme * highlight link QuickScopePrimary IncSearch
+  autocmd ColorScheme * highlight link QuickScopeSecondary Search
+augroup END
+]])
