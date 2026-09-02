@@ -21,7 +21,7 @@ vim.pack.add({
   gh("nvim-lua/plenary.nvim"),
   gh("nvim-telescope/telescope.nvim"),
   gh("nvim-orgmode/telescope-orgmode.nvim"),
-  gh("jmbuhr/telescope-zotero.nvim"),
+  cvv("telescope-zotero.nvim"),
   gh("nvim-telescope/telescope-ui-select.nvim"),
   gh("yorickpeterse/nvim-jump"),
   gh("unblevable/quick-scope"),

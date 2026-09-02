@@ -122,7 +122,7 @@
     },
     "telescope-zotero.nvim": {
       "rev": "376728bccfcbce95f59ef028d93bf0a33ee34bc2",
-      "src": "https://github.com/jmbuhr/telescope-zotero.nvim"
+      "src": "file:///Users/carlos/git/telescope-zotero.nvim"
     },
     "telescope.nvim": {
       "rev": "7d324792b7943e4aa16ad007212e6acc6f9fe335",
