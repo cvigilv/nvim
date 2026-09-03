@@ -7,4 +7,4 @@ vim.keymap.set("n", ",sc", ":setlocal spell!<CR>", { desc = "Toggle spell checke
 
 -- Extra
 require("plugin.headercolumn").setup(12)
-require("plugin.escritura").setup(12)
+require("plugin.escritura").setup()

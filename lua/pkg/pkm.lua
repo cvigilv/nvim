@@ -297,7 +297,22 @@ require("plugin.correo").setup({
   -- logging = { ... },         -- see log.lua
 })
 
--- Image handling
+-- Image and equation previews
+require("snacks").setup({
+  image = {
+    enabled = true,
+    doc = {
+      enabled = true,
+      inline = true,
+      float = true,
+      max_width = 80,
+      max_height = 40,
+    },
+    math = { enabled = true },
+  },
+})
+
+-- Image insertion
 require("img-clip").setup({
   default = {
     dir_path = "~/media/images/img-clip.nvim",

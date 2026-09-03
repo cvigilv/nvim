@@ -19,7 +19,7 @@ vim.keymap.set("n", "<leader>or", require("telescope").extensions.orgmode.refile
 require("plugin.headercolumn").setup(12)
 
 --- Writing mode
-require("plugin.escritura").setup(12)
+require("plugin.escritura").setup()
 
 -- Contacts
 require("plugin.contacto").setup()

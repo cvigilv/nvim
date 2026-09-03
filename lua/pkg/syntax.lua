@@ -2,6 +2,17 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2026
 
+-- Parser needed by writing previews. nvim-treesitter's compatibility branch
+-- still passes a removed flag to tree-sitter-cli 0.26, so provide current args.
+local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+parser_configs.latex.install_info.revision = "v0.6.0"
+require("nvim-treesitter.install").ts_generate_args = {
+  "generate",
+  "--abi",
+  tostring(vim.treesitter.language_version),
+}
+require("nvim-treesitter.configs").setup({ ensure_installed = { "latex" } })
+
 -- Treesitter text objects
 require("nvim-treesitter-textobjects").setup({
   select = {

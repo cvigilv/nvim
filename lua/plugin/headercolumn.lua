@@ -5,11 +5,16 @@
 
 local M = {}
 
+local statuscolumn = require("lib.statuscolumn.components")
+
 ---Pad string to left
 ---@param s string String to pad
 ---@param l number String length
 ---@param c string Character to pad with, defaults to space
-local function lpad(s, l, c) return string.rep(c or " ", l - #s) .. s end
+local function lpad(s, l, c)
+  if #s >= l then return s:sub(#s - l + 1) end
+  return string.rep(c or " ", l - #s) .. s
+end
 
 --- Per-filetype configuration. `node` is the Treesitter container node for a
 --- heading; its first child (anonymous-inclusive) is always the marker, whose
@@ -55,14 +60,14 @@ local function resolve_hl(template, level)
 end
 
 --- Render the status-column cell for a single line.
-local function header_count(bufnr, ft, lrow, cfg, maxwidth)
+local function header_count(bufnr, ft, lrow, cfg, width)
   local marker = heading_marker(bufnr, lrow, cfg, ft)
   if marker then
     local text = vim.treesitter.get_node_text(marker, bufnr)
     local level = #text
-    return "%#" .. resolve_hl(cfg.hl, level) .. "#" .. lpad(text, maxwidth - 1, " ") .. "%*"
+    return "%#" .. resolve_hl(cfg.hl, level) .. "#" .. lpad(text, width, " ") .. "%*"
   end
-  return string.rep(" ", maxwidth)
+  return string.rep(" ", width)
 end
 
 function M.setup(width)
@@ -119,7 +124,9 @@ function M.setup(width)
 
     local components = {
       " ",
-      header_count(bufnr, ft, vim.v.lnum - 1, c, width - 2),
+      header_count(bufnr, ft, vim.v.lnum - 1, c, width - 4),
+      " ",
+      statuscolumn.fold(vim.v.lnum),
       " ",
     }
 

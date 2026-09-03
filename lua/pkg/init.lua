@@ -31,6 +31,8 @@ vim.pack.add({
   gh("stevearc/quicker.nvim"),
   gh("folke/which-key.nvim"),
   gh("hernancerm/bareline.nvim"),
+  gh("folke/zen-mode.nvim"),
+  gh("folke/twilight.nvim"),
   gh("zenbones-theme/zenbones.nvim"),
 
   -- PKM (pkm.lua)
@@ -38,6 +40,7 @@ vim.pack.add({
   cvv("denote.nvim"),
   gh("xav-ie/himalaya-nvim"),
   gh("HakonHarnes/img-clip.nvim"),
+  gh("folke/snacks.nvim"),
 
   -- Misc (misc.lua)
   cvv("diferente.nvim"),
