@@ -6,6 +6,9 @@
 local M = {}
 
 local indexes = {}
+local completion_contexts = {}
+local completion_user_data = "plugin.thesaurus"
+local complete_done_configured = false
 local warned = false
 
 local function lowercase(word) return vim.fn.tolower(word) end
@@ -131,12 +134,22 @@ end
 ---@param base string
 ---@return integer|table
 function M.complete(findstart, base)
+  local bufnr = vim.api.nvim_get_current_buf()
   if findstart == 1 then
     local line = vim.api.nvim_get_current_line()
-    local col = vim.api.nvim_win_get_cursor(0)[2]
-    return vim.fn.match(line:sub(1, col), [[\k*$]])
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    local start = vim.fn.match(line:sub(1, col), [[\k*$]])
+    local prefix = line:sub(start + 1, col)
+    -- The second call receives only the text from `start` through the cursor.
+    local reference = vim.fn.expand("<cword>")
+    local suffix = ""
+    if reference:sub(1, #prefix) == prefix then suffix = reference:sub(#prefix + 1) end
+    completion_contexts[bufnr] = { reference = reference, suffix = suffix, row = row }
+    return start
   end
 
+  local context = completion_contexts[bufnr]
+  local reference = context and context.reference ~= "" and context.reference or base
   local paths = vim.opt_local.thesaurus:get()
   if #paths == 0 then
     if not warned then
@@ -149,10 +162,11 @@ function M.complete(findstart, base)
   local seen = {}
   local items = {}
   for _, path in ipairs(paths) do
-    for _, item in ipairs(lookup(path, base)) do
+    for _, item in ipairs(lookup(path, reference)) do
       local key = lowercase(item.word)
       if not seen[key] then
         seen[key] = true
+        item.user_data = completion_user_data
         table.insert(items, item)
       end
     end
@@ -160,8 +174,40 @@ function M.complete(findstart, base)
   return items
 end
 
+local function configure_complete_done()
+  if complete_done_configured then return end
+  complete_done_configured = true
+
+  local group = vim.api.nvim_create_augroup("MyThesCompletion", { clear = true })
+  vim.api.nvim_create_autocmd("CompleteDone", {
+    group = group,
+    callback = function(args)
+      local context = completion_contexts[args.buf]
+      completion_contexts[args.buf] = nil
+      local item = vim.v.completed_item
+      if
+        not context
+        or context.suffix == ""
+        or type(item) ~= "table"
+        or item.user_data ~= completion_user_data
+        or vim.api.nvim_get_current_buf() ~= args.buf
+      then
+        return
+      end
+
+      -- Completion replaces text only through the cursor, so remove the old suffix.
+      local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+      local line = vim.api.nvim_get_current_line()
+      if row == context.row and line:sub(col + 1, col + #context.suffix) == context.suffix then
+        vim.api.nvim_buf_set_text(args.buf, row - 1, col, row - 1, col + #context.suffix, {})
+      end
+    end,
+  })
+end
+
 ---Configure thesaurus completion for the current buffer.
 function M.setup_buffer()
+  configure_complete_done()
   vim.opt_local.thesaurus = find_thesauri()
   vim.opt_local.thesaurusfunc = "v:lua.require'plugin.thesaurus'.complete"
 end
