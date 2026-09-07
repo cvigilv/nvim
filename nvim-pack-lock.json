@@ -113,6 +113,10 @@
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"
     },
+    "slime-peek.nvim": {
+      "rev": "5385507cb9570e6925d2d34126868e55839084e3",
+      "src": "file:///Users/carlos/git/slime-peek.nvim"
+    },
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://github.com/folke/snacks.nvim"

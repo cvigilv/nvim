@@ -60,6 +60,7 @@ vim.pack.add({
   gh("stevearc/conform.nvim"),
   gh("spacedentist/resolve.nvim"),
   gh("jpalardy/vim-slime"),
+  cvv("slime-peek.nvim"),
 
   -- LLM (llm.lua)
   gh("github/copilot.vim"),
