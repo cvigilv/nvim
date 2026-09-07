@@ -47,7 +47,7 @@ vim.pack.add({
   cvv("esqueleto.nvim"),
 
   -- Syntax (syntax.lua)
-  gh("nvim-treesitter/nvim-treesitter"),
+  { src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
   gh("nvim-treesitter/nvim-treesitter-textobjects"),
   -- gh("kaarmu/typst.vim"),
   gh("chomosuke/typst-preview.nvim"),

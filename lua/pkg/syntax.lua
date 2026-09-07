@@ -2,16 +2,22 @@
 ---@author Carlos Vigil-Vásquez
 ---@license MIT 2026
 
--- Parser needed by writing previews. nvim-treesitter's compatibility branch
--- still passes a removed flag to tree-sitter-cli 0.26, so provide current args.
-local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
-parser_configs.latex.install_info.revision = "v0.6.0"
-require("nvim-treesitter.install").ts_generate_args = {
-  "generate",
-  "--abi",
-  tostring(vim.treesitter.language_version),
+-- Parsers used by writing previews and syntax-aware editing. Install the
+-- parsers bundled with Neovim too, since Bob's runtime may find stale parsers
+-- under /usr/local before the ones shipped with the current nightly build.
+local parsers = {
+  "c",
+  "julia",
+  "latex",
+  "lua",
+  "make",
+  "markdown",
+  "query",
+  "typst",
+  "vim",
+  "vimdoc",
 }
-require("nvim-treesitter.configs").setup({ ensure_installed = { "latex" } })
+require("nvim-treesitter").install(parsers)
 
 -- Treesitter text objects
 require("nvim-treesitter-textobjects").setup({
