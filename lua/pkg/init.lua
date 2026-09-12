@@ -102,17 +102,13 @@ vim.api.nvim_create_user_command("Pack", function(opts)
 end, {
   desc = "Pack user commands",
   nargs = "*",
-  complete = function()
-    -- Builtin
-    local subcommands = {
-      "add",
-      "update",
-      "delete",
-      "clean",
-      "sync",
-    }
-    return subcommands
-  end,
+  complete = require("lib.cmds").make_user_completion({
+    "add",
+    ["update"] = vim.iter(vim.pack.get()):map(function(e) return e.spec.name end):totable(),
+    ["delete"] = vim.iter(vim.pack.get()):map(function(e) return e.spec.name end):totable(),
+    "clean",
+    "sync",
+  }, false),
 })
 
 -- Ensure libraries are setup before anything else
