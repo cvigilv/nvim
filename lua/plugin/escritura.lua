@@ -21,16 +21,6 @@ local function configure()
   if configured then return end
   configured = true
 
-  require("twilight").setup({
-    context = 0,
-    expand = {
-      "paragraph",
-      "latex_env",
-      "inline_math_block",
-      "display_math_block",
-    },
-  })
-
   require("zen-mode").setup({
     window = {
       backdrop = 1,
@@ -56,7 +46,7 @@ local function configure()
         showcmd = false,
         showtabline = 0,
       },
-      twilight = { enabled = true },
+      twilight = { enabled = false },
     },
     on_open = function()
       if active and vim.api.nvim_buf_is_valid(active.bufnr) then
