@@ -108,7 +108,7 @@ end, {
     ["delete"] = vim.iter(vim.pack.get()):map(function(e) return e.spec.name end):totable(),
     "clean",
     "sync",
-  }, false),
+  }, false, true),
 })
 
 -- Ensure libraries are setup before anything else

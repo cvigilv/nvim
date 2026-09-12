@@ -53,23 +53,30 @@ end
 ---Find the choices available after following a path through the completion tree.
 ---@param items lib.cmds.CompletionTree
 ---@param path string[]
+---@param repeat_last boolean
 ---@param level? integer
 ---@return string[]
-local function choices_at(items, path, level)
+local function choices_at(items, path, repeat_last, level)
   level = level or 1
   local choices, children = level_choices(items)
   if level > #path then return choices end
 
   local child = children[path[level]]
-  if not child then return {} end
-  return choices_at(child, path, level + 1)
+  if child then return choices_at(child, path, repeat_last, level + 1) end
+  if not repeat_last or next(children) then return {} end
+
+  for index = level, #path do
+    if not vim.tbl_contains(choices, path[index]) then return {} end
+  end
+  return choices
 end
 
 ---Create a nested completion function for a user command.
 ---@param items lib.cmds.CompletionTree Nested keyed tables and lists of leaf choices
 ---@param fuzzy boolean Whether to use fuzzy matching instead of prefix matching
+---@param repeat_last boolean Whether to keep completing choices at the terminal level
 ---@return fun(arg_lead: string, cmd_line: string, cursor_pos: integer): string[]
-function M.make_user_completion(items, fuzzy)
+function M.make_user_completion(items, fuzzy, repeat_last)
   return function(arg_lead, cmd_line, cursor_pos)
     local args = vim.split(cmd_line:sub(1, cursor_pos), "%s+", { trimempty = true })
     local completed = #args - 1 - (arg_lead == "" and 0 or 1)
@@ -78,7 +85,7 @@ function M.make_user_completion(items, fuzzy)
       path[index] = args[index + 1]
     end
 
-    local choices = choices_at(items, path)
+    local choices = choices_at(items, path, repeat_last)
     if arg_lead == "" then return choices end
     if fuzzy then return vim.fn.matchfuzzy(choices, arg_lead) end
     return vim.tbl_filter(function(choice) return vim.startswith(choice, arg_lead) end, choices)
