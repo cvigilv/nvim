@@ -305,6 +305,7 @@ require("snacks").setup({
       enabled = true,
       inline = true,
       float = true,
+      conceal = false,
       max_width = 80,
       max_height = 40,
     },
