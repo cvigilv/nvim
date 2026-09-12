@@ -298,6 +298,9 @@ M.delete_contact = function(args, interactive)
   end
 end
 
+--- Open the contacts database
+M.open_database = function() vim.cmd.edit({ vim.fn.fnameescape(vim.g.contacto.config.dbpath) }) end
+
 --- Setup function to create user commands
 ---@param opts Contacto.Configuration User configuration
 M.setup = function(opts)
@@ -310,7 +313,7 @@ M.setup = function(opts)
 
     if #args == 0 then
       vim.notify(
-        "Usage: :Contacto[!] <create|read|update|delete> [args...]",
+        "Usage: :Contacto[!] <create|read|update|delete|open> [args...]",
         vim.log.levels.ERROR
       )
       return
@@ -327,9 +330,14 @@ M.setup = function(opts)
       M.update_contact(subargs, interactive)
     elseif subcommand == "delete" then
       M.delete_contact(subargs, interactive)
+    elseif subcommand == "open" then
+      M.open_database()
     else
       vim.notify("Unknown subcommand: " .. subcommand, vim.log.levels.ERROR)
-      vim.notify("Available subcommands: create, read, update, delete", vim.log.levels.INFO)
+      vim.notify(
+        "Available subcommands: create, read, update, delete, open",
+        vim.log.levels.INFO
+      )
     end
   end, {
     desc = "Contacto CRUD",
@@ -337,9 +345,19 @@ M.setup = function(opts)
     bang = true,
     complete = require("lib.cmds").make_user_completion({
       "create",
-      "read",
-      "update",
-      "delete",
+      ["read"] = vim
+        .iter(load_contacts())
+        :map(function(contact) return contact.id end)
+        :totable(),
+      ["update"] = vim
+        .iter(load_contacts())
+        :map(function(contact) return contact.id end)
+        :totable(),
+      ["delete"] = vim
+        .iter(load_contacts())
+        :map(function(contact) return contact.id end)
+        :totable(),
+      "open",
     }, false, false),
   })
 end
