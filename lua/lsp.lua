@@ -146,25 +146,17 @@ local function lsp_cmd(opts)
   end
 end
 
+local lsp_servers = server_names()
+
 vim.api.nvim_create_user_command("Lsp", lsp_cmd, {
   nargs = "*",
   desc = "Inspect and control LSP servers",
-  complete = function(arg_lead, cmdline, cursor_pos)
-    -- Completion functions must filter on `arg_lead` themselves; Neovim returns
-    -- the list verbatim.
-    local args = vim.split(cmdline:sub(1, cursor_pos), "%s+", { trimempty = true })
-
-    -- Drop the command name, and the partial argument being completed
-    local completed = #args - 1 - (arg_lead == "" and 0 or 1)
-
-    local candidates = {}
-    if completed == 0 then
-      candidates = vim.tbl_keys(subcommands)
-      table.sort(candidates)
-    elseif completed == 1 and takes_server[args[2]] then
-      candidates = server_names()
-    end
-
-    return vim.tbl_filter(function(c) return vim.startswith(c, arg_lead) end, candidates)
-  end,
+  complete = require("lib.cmds").make_user_completion({
+    "info",
+    "log",
+    restart = lsp_servers,
+    start = lsp_servers,
+    stop = lsp_servers,
+    toggle = lsp_servers,
+  }, false, false),
 })

@@ -335,16 +335,12 @@ M.setup = function(opts)
     desc = "Contacto CRUD",
     nargs = "*",
     bang = true,
-    complete = function(arg_lead, cmd_line, _)
-      local args = vim.split(cmd_line, "%s+")
-      if #args <= 2 then
-        return vim.tbl_filter(
-          function(item) return item:match("^" .. arg_lead) end,
-          { "create", "read", "update", "delete" }
-        )
-      end
-      return {}
-    end,
+    complete = require("lib.cmds").make_user_completion({
+      "create",
+      "read",
+      "update",
+      "delete",
+    }, false, false),
   })
 end
 
